@@ -1,7 +1,7 @@
 {
   "name": "and-cli",
   "version": "0.0.1",
-  "description": "and-cli command-line tool to manage the development of web applications",
+  "description": "and-cli command-line tool to manage the development of software applications",
   "bin": {
     "and-cli": "cli.js"
   },
@@ -17,11 +17,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:AndcultureCode/AndcultureCode.JavaScript.Sdk.git"
+    "url": "git@github.com:AndcultureCode/AndcultureCode.Cli.git"
   },
   "author": "andculture <developer+code@andculture.com> (http://andculture.com)",
   "license": "Apache-2.0",
-  "homepage": "https://github.com/AndcultureCode/AndcultureCode.JavaScript.Sdk#readme",
+  "homepage": "https://github.com/AndcultureCode/AndcultureCode.Cli#readme",
   "devDependencies": {
     "chalk": "^2.4.1",
     "commander": "^2.15.1",

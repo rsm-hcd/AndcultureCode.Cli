@@ -1,5 +1,5 @@
 # AndcultureCode.Cli
-`and-cli` command-line tool to manage the development of web applications
+`and-cli` command-line tool to manage the development of software applications
 
 ## Getting Started
 
