@@ -35,7 +35,7 @@ best performance.
 * Run `npm install` in the `src` directory
 * Add the following alias to your `~/.bash_profile`
     ```
-    alias and-cli-dev='node /absolute/path/to/the/AndcultureCode.JavaScript.Sdk/cli.js`
+    alias and-cli-dev='node /absolute/path/to/the/AndcultureCode.Cli/cli.js`
     ```
 * Reload the changes `source ~/.bash_profile`
 * Now you can run `and-cli-dev` in parallel with any active stable versions installed globally with npm
