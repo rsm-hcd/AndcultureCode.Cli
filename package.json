@@ -1,0 +1,30 @@
+{
+  "name": "and-cli",
+  "version": "0.0.1",
+  "description": "and-cli command-line tool to manage the development of web applications",
+  "bin": {
+    "and-cli": "cli.js"
+  },
+  "main": "cli.js",
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "keywords": [
+    "cli"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:AndcultureCode/AndcultureCode.JavaScript.Sdk.git"
+  },
+  "author": "andculture <developer+code@andculture.com> (http://andculture.com)",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/AndcultureCode/AndcultureCode.JavaScript.Sdk#readme",
+  "devDependencies": {
+    "chalk": "^2.4.1",
+    "commander": "^2.15.1",
+    "shelljs": "^0.8.2"
+  }
+}
