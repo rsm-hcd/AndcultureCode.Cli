@@ -24,7 +24,7 @@ const install = {
         installGlobally: "npm install --global and-cli"
     },
     description() {
-        return `Forcefully kills any running dotnet processes (see https://github.com/dotnet/cli/issues/1327)`;
+        return "Configures development machine with global npm, project-specific and developer and-cli tools";
     },
     run() {
         // Global npm package
