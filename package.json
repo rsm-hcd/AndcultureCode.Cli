@@ -1,6 +1,6 @@
 {
   "name": "and-cli",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "and-cli command-line tool to manage the development of software applications",
   "bin": {
     "and-cli": "cli.js"
@@ -25,6 +25,7 @@
   "dependencies": {
     "chalk": "^2.4.1",
     "commander": "^2.15.1",
-    "shelljs": "^0.8.2"
+    "shelljs": "^0.8.2",
+    "upath": "^1.1.2"
   }
 }

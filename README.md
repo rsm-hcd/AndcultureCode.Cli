@@ -3,8 +3,19 @@
 
 ## Getting Started
 
+All-the-things (global npm package, project alias and developer alias).
+```
+./cli.js install
+```
+
+Global package only
 ```
 npm install --global and-cli
+```
+
+Project setup only
+```
+npm install --save-dev and-cli
 ```
 
 ## Commands
@@ -29,13 +40,19 @@ best performance.
 * `and-cli dotnet-test` - Run automated tests for dotnet core builds
 
 
+### install
+
+#### Commands
+
+* `and-cli install` - Configures global npm package, project-specific `and-cli` alias and the developer `and-cli-dev` alias
+
+
 ## Development Setup
 
 * Install NodeJS
-* Run `npm install` in the `src` directory
-* Add the following alias to your `~/.bash_profile`
-    ```
-    alias and-cli-dev='node /absolute/path/to/the/AndcultureCode.Cli/cli.js`
-    ```
-* Reload the changes `source ~/.bash_profile`
-* Now you can run `and-cli-dev` in parallel with any active stable versions installed globally with npm
+* Open shell in root of this repository
+* Run `./cli.js install`
+* Reload the changes `source ~/.bash_profile && source ~/.bashrc`
+* Now you can...
+    * Run `and-cli` in the root of any repo with the `and-cli` npm package installed
+    * Run `and-cli-dev` in parallel with any active stable versions installed globally with npm

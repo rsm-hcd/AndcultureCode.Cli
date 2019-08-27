@@ -35,7 +35,7 @@ const echo = {
     newLine() {
         shell.echo();
     },
-    sdkString: `${variables.colors.purple}[SDK]${variables.colors.clear}`,
+    sdkString: `${variables.colors.purple}[and-cli]${variables.colors.clear}`,
     success(message) {
         shell.echo(`${this.sdkString} ${variables.colors.green}${message}${variables.colors.clear}`)
     },
