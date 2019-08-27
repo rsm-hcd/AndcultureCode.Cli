@@ -12,11 +12,12 @@ const program       = require("commander");
 const shell         = require("shelljs");
 const upath         = require ("upath");
 
+
 /**************************************************************************************************
  * Commands
  **************************************************************************************************/
 
-// #region Dotnet commands
+// #region Install commands
 
 const install = {
     cmds: {
@@ -62,7 +63,7 @@ const install = {
     },
 }
 
-// #endregion Dotnet commands
+// #endregion Install commands
 
 
 /**************************************************************************************************
