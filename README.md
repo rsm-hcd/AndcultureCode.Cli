@@ -39,13 +39,27 @@ best performance.
 * `and-cli dotnet` - Manage various aspects of dotnet core builds
 * `and-cli dotnet-test` - Run automated tests for dotnet core builds
 
+---
 
 ### install
+
+The `and-cli` itself requires some minor setup and these commands hopefully ease that lift.
 
 #### Commands
 
 * `and-cli install` - Configures global npm package, project-specific `and-cli` alias and the developer `and-cli-dev` alias
 
+---
+
+### nuget
+
+While the dotnet core cli provides some nuget commands, the process start to finish is less than ideal. These commands aim to make that simple.
+
+#### Commands
+
+* `and-cli nuget --publish <version>` - Updates, packs and publishes dotnet core 'packable' projects to NuGet
+
+---
 
 ## Development Setup
 

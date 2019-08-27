@@ -11,4 +11,8 @@ module.exports = {
         command:     "install",
         description: "Collection of commands related to installation and configuration of the and-cli"
     },
+    nuget: {
+        command:     "nuget",
+        description: "Manages publishing of nuget dotnet core projects"
+    },
 };
