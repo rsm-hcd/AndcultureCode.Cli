@@ -5,12 +5,20 @@
  **************************************************************************************************/
 
 const commands      = require("./_modules/commands");
+const dir           = require("./_modules/dir");
 const dotnetBuild   = require("./_modules/dotnet-build");
 const dotnetClean   = require("./_modules/dotnet-clean");
+const dotnetPath    = require("./_modules/dotnet-path");
 const dotnetRestore = require("./_modules/dotnet-restore");
 const echo          = require("./_modules/echo");
+const formatters    = require("./_modules/formatters");
 const program       = require("commander");
 const shell         = require("shelljs");
+
+
+/**************************************************************************************************
+ * Variables
+ **************************************************************************************************/
 
 
 /**************************************************************************************************
@@ -18,6 +26,35 @@ const shell         = require("shelljs");
  **************************************************************************************************/
 
 // #region Dotnet commands
+
+const dotnet = {
+    cmd(mode) {
+        return `dotnet ${mode} --no-restore`;
+    },
+    description(mode) {
+        return `Runs the dotnet project (via ${this.cmd(mode)}) for ${dotnetPath.webProjectFilePath()}`;
+    },
+    run(mode) {
+        if (program.clean) {
+            dotnetClean.run();
+        }
+
+        if (program.restore) {
+            dotnetRestore.run();
+        }
+
+        dir.pushd(dotnetPath.webProjectFileDir());
+
+        echo.message(`Running dotnet (via ${this.cmd(mode)})...`);
+        const { stdout, stderr } = shell.exec(this.cmd(mode), { silent: true, async: true });
+
+        // TODO: Investigate why the timing of this event is out of order at times
+        stdout.on("data", (output) => formatters.dotnet(output, true));
+        stderr.on("data", (output) => formatters.dotnet(output, true));
+
+        dir.popd();
+    },
+};
 
 const dotnetKill = {
     cmds: {
@@ -74,6 +111,8 @@ program
     .option("-c, --clean",   dotnetClean.description())
     .option("-k, --kill",    dotnetKill.description())
     .option("-R, --restore", dotnetRestore.description())
+    .option("-r, --run",     dotnet.description("run"))
+    .option("-w, --watch",   dotnet.description("watch run"))
     .parse(process.argv);
 
 
@@ -91,8 +130,10 @@ if ((!program.build && !program.run && !program.watch) && program.restore) {
 
 if (program.build) { dotnetBuild.run(program.clean, program.restore); }
 if (program.kill)  { dotnetKill.run();                                }
+if (program.run)   { dotnet.run("run");                               }
+if (program.watch) { dotnet.run("watch run");                         }
 
 // If no options are passed in, performs a build
-if (process.argv.slice(2).length === 0) { dotnetBuild.run();          }
+if (process.argv.slice(2).length === 0) { dotnet.run("run"); }
 
 // #endregion Entrypoint / Command router

@@ -36,8 +36,14 @@ best performance.
 
 #### Commands
 
-* `and-cli dotnet` - Manage various aspects of dotnet core builds
-* `and-cli dotnet-test` - Run automated tests for dotnet core builds
+* `and-cli dotnet` - Runs the dotnet solution's web project
+    * `and-cli dotnet -b, --build` - Builds the solution
+    * `and-cli dotnet -c, --clean` - Cleans the solution
+    * `and-cli dotnet -R, --restore` - Restores NuGet packages for the solution
+    * `and-cli dotnet -r, --run` - Runs the dotnet solution's web project (default)
+    * `and-cli dotnet -w, --watch` - Runs the solution and reloads on changes
+* `and-cli dotnet-test` - Run automated tests for the solution
+    * `and-cli dotnet-test --filter <filter>` - Runs automated tests that match the provided filter text
 
 ---
 
