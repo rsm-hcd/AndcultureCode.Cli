@@ -21,7 +21,7 @@ const dotnetPublish = {
             return "dotnet publish";
         }
 
-        return `dotnet publish -o ${outputDirectory}`;
+        return `dotnet publish -o "${outputDirectory}"`;
     },
     description() {
         return `Publishes the dotnet solution from the root of the project (via ${this.cmd()})`;
