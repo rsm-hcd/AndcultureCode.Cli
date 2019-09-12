@@ -40,23 +40,26 @@ const deployAwsBeanstalk = {
         // Check system requirements
         this.validateOrExit();
 
+        let projectDir = "";
+
         // Publish dotnet if enabled
         if (program.dotnet) {
             const releasePath = upath.toUnix(path.join(shell.pwd().toString(), dotnetPath.solutionDir(), "release"))
             dotnetPublish.run(releasePath);
+            projectDir = `${dotnetPath.solutionDir()}/`;
         }
 
         // Create inner release zip
         const innerReleaseFilename = "release.zip";
-        const innerReleaseDir      = `${dotnetPath.solutionDir()}/release`;
-        const innerReleaseZipFile  = `${dotnetPath.solutionDir()}/${innerReleaseFilename}`;
+        const innerReleaseDir      = `${projectDir}release`;
+        const innerReleaseZipFile  = `${projectDir}${innerReleaseFilename}`;
         file.deleteIfExists(innerReleaseZipFile);
         await zip.create([innerReleaseDir], null, innerReleaseZipFile);
 
         // Create outer bundle release zip
         const awsBundleManifestFilename = "aws-windows-deployment-manifest.json"; // TODO: Refactor to intelligently locate aws manifest file (ie. don't assume windows)
-        const awsBundleManifestFile     = `${dotnetPath.solutionDir()}/${awsBundleManifestFilename}`;
-        const outerReleaseZipFile       = `${dotnetPath.solutionDir()}/release-bundle.zip`;
+        const awsBundleManifestFile     = `${projectDir}${awsBundleManifestFilename}`;
+        const outerReleaseZipFile       = `${projectDir}release-bundle.zip`;
         file.deleteIfExists(outerReleaseZipFile);
 
         const inputFiles = [
