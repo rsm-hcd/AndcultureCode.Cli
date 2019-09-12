@@ -103,7 +103,7 @@ const deployAwsBeanstalk = {
                 shell.exit(1);
             }
 
-            echo.success(" - Successfully installe AWS EB CLI");
+            echo.success(" - Successfully installed AWS EB CLI");
         }
 
         return true;
