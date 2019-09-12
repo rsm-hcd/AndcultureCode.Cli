@@ -22,6 +22,55 @@ npm install --save-dev and-cli
 
 The `and-cli` is built upon our team's best practices for setting up projects.
 
+### deploy
+
+Collection of deployment sub-commands to manage a variety of application types.
+
+#### AWS Beanstalk Usage
+
+System requirements:
+- [Python 3.7+](https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe)
+    - Ensure configured in your PATH
+- Configure AWS IAM User account
+    - Log into AWS console
+    - Click Username dropdown > My Security Credentials > Users
+    - Click `Add User`
+        - Add User name `nfpa-{environment}` (ie. nfpa-working)
+        - Select `Programmatic Access` and `AWS Management Console access`
+    - Click `Next: Permissions
+    - Click `Attach existing policies directly`
+        - `AWSElasticBeanstalkFullAccess`
+
+Project requirements:
+- Perform initial EB setup in project repository in desired git branch
+    - `$: eb init`
+- Setup AWS beanstalk manifest
+    - dotnet
+        - Create `dotnet/aws-windows-deployment-manifest.json`. Example...
+            ```json
+            {
+                "manifestVersion": 1,
+                "deployments": {
+                    "aspNetCoreWeb": [
+                        {
+                            "name": "my-application",
+                            "parameters": {
+                                "appBundle": "release.zip",
+                                "iisPath": "/",
+                                "iisWebSite": "Default Web Site"
+                            }
+                        }
+                    ]
+                }
+            }
+            ```
+
+
+
+##### Commands
+* `and-cli deploy aws-beanstalk --dotnet` - Deploy dotnet core application to AWS beanstalk
+
+
 ### dotnet
 
 #### Usage
