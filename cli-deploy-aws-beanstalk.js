@@ -54,7 +54,7 @@ const deployAwsBeanstalk = {
         await zip.create([innerReleaseDir], null, innerReleaseZipFile);
 
         // Create outer bundle release zip
-        const awsBundleManifestFilename = "aws-windows-deployment-manifest.json";
+        const awsBundleManifestFilename = "aws-windows-deployment-manifest.json"; // TODO: Refactor to intelligently locate aws manifest file (ie. don't assume windows)
         const awsBundleManifestFile     = `${dotnetPath.solutionDir()}/${awsBundleManifestFilename}`;
         const outerReleaseZipFile       = `${dotnetPath.solutionDir()}/release-bundle.zip`;
         file.deleteIfExists(outerReleaseZipFile);
@@ -66,6 +66,7 @@ const deployAwsBeanstalk = {
         await zip.create(null, inputFiles, outerReleaseZipFile);
 
         // Call EB deploy
+        echo.message("Deploying to AWS beanstalk. Check AWS console for realtime output. This could take a few minutes...");
         if (shell.exec(this.cmds.deploy).code !== 0) {
             echo.error(" - Failed to deploy to AWS beanstalk");
             shell.exit(1);
