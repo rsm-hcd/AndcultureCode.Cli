@@ -31,6 +31,4 @@ deployTypes.forEach((deployType) => {
 
 program.parse(process.argv);
 
-// program.help();
-
 // #endregion Entrypoint / Command router
