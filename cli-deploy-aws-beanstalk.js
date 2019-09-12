@@ -4,15 +4,16 @@
  * Imports
  **************************************************************************************************/
 
+const dir           = require("./_modules/dir");
 const dotnetPath    = require("./_modules/dotnet-path");
 const dotnetPublish = require("./_modules/dotnet-publish");
 const echo          = require("./_modules/echo");
-const fs            = require("fs");
-const JSZip         = require("jszip");
+const file          = require("./_modules/file");
 const path          = require("path");
 const program       = require("commander");
 const shell         = require("shelljs");
 const upath         = require ("upath");
+const zip           = require("./_modules/zip");
 
 
 /**************************************************************************************************
@@ -30,12 +31,56 @@ const pythonInstallerUrl = "https://www.python.org/ftp/python/3.7.4/python-3.7.4
 
 const deployAwsBeanstalk = {
     cmds: {
+        deploy: "eb deploy",
     },
     description() {
         return `Runs dotnet publish on ${dotnetPath.solutionPath()} solution and deploys to configured AWS Elastic Beanstalk environment`;
     },
-    run() {
+    async run() {
         // Check system requirements
+        this.validateOrExit();
+
+        // Publish dotnet if enabled
+        if (program.dotnet) {
+            const releasePath = upath.toUnix(path.join(shell.pwd().toString(), dotnetPath.solutionDir(), "release"))
+            dotnetPublish.run(releasePath);
+        }
+
+        // Create inner release zip
+        const innerReleaseFilename = "release.zip";
+        const innerReleaseDir      = `${dotnetPath.solutionDir()}/release`;
+        const innerReleaseZipFile  = `${dotnetPath.solutionDir()}/${innerReleaseFilename}`;
+        file.deleteIfExists(innerReleaseZipFile);
+        await zip.create([innerReleaseDir], null, innerReleaseZipFile);
+
+        // Create outer bundle release zip
+        const awsBundleManifestFilename = "aws-windows-deployment-manifest.json";
+        const awsBundleManifestFile     = `${dotnetPath.solutionDir()}/${awsBundleManifestFilename}`;
+        const outerReleaseZipFile       = `${dotnetPath.solutionDir()}/release-bundle.zip`;
+        file.deleteIfExists(outerReleaseZipFile);
+
+        const inputFiles = [
+            { source: innerReleaseZipFile,   destination: innerReleaseFilename      },
+            { source: awsBundleManifestFile, destination: awsBundleManifestFilename },
+        ];
+        await zip.create(null, inputFiles, outerReleaseZipFile);
+
+        // Call EB deploy
+        if (shell.exec(this.cmds.deploy).code !== 0) {
+            echo.error(" - Failed to deploy to AWS beanstalk");
+            shell.exit(1);
+        }
+
+        // Cleanup
+        dir.deleteIfExists(innerReleaseDir);
+        file.deleteIfExists(innerReleaseZipFile);
+        file.deleteIfExists(outerReleaseZipFile);
+
+        echo.newLine();
+        echo.success("Application successfully deployed to AWS beanstalk!");
+    },
+
+    validateOrExit() {
         if (!shell.which("python")) {
             echo.error(`Python 3.7+ is required - ${pythonInstallerUrl}`);
             shell.exit(1);
@@ -57,85 +102,9 @@ const deployAwsBeanstalk = {
             echo.success(" - Successfully installe AWS EB CLI");
         }
 
-        // Publish dotnet if enabled
-        if (program.dotnet) {
-            const releasePath = upath.toUnix(path.join(shell.pwd().toString(), dotnetPath.solutionDir(), "release"))
-            dotnetPublish.run(releasePath);
-        }
-
-        // Create inner release zip
-        const innerReleaseZipFile = dotnetPath.solutionDir() + "/release.zip";
-        if (fs.existsSync(innerReleaseZipFile)) {
-            shell.rm("-f", innerReleaseZipFile);
-        }
-        this.zip([dotnetPath.solutionDir() + "/release"], null, innerReleaseZipFile);
-
-        // Create outer bundle release zip
-        const awsBundleManifestFile = dotnetPath.solutionDir() + "/aws-windows-deployment-manifest.json";
-        const outerReleaseZipFile = dotnetPath.solutionDir() + "/release-bundle.zip";
-        if (fs.existsSync(outerReleaseZipFile)) {
-            shell.rm("-f", outerReleaseZipFile);
-        }
-        this.zip(null, [innerReleaseZipFile, awsBundleManifestFile], outerReleaseZipFile);
-
-        // Call EB deploy
+        return true;
     },
-    zip(inputDirectories, inputFiles, outputPath) {
-        if (inputDirectories === undefined || inputDirectories === null) {
-            inputDirectories = [];
-        }
 
-        if (inputFiles === undefined || inputFiles === null) {
-            inputFiles = [];
-        }
-
-        const zip = new JSZip();
-        zip.generateNodeStream({ type:'nodebuffer', streamFiles:true })
-           .pipe(fs.createWriteStream(outputPath))
-           .on("finish", () => {
-               echo.message("zip created");
-           });
-
-
-
-        // var output  = fs.createWriteStream(outputPath);
-        // var archive = archiver("zip");
-
-        // output.on('close', function() {
-        //     echo.success(archive.pointer() + ' total bytes');
-        //     echo.success('archiver has been finalized and the output file descriptor has closed.');
-        // });
-
-        // archive.on('warning', function(err) {
-        //     if (err.code === 'ENOENT') {
-        //         // log warning
-        //     } else {
-        //         // throw error
-        //         throw err;
-        //     }
-        // });
-
-        // // good practice to catch this error explicitly
-        // archive.on('error', function(err) {
-        //     throw err;
-        // });
-
-        // archive.pipe(output);
-
-        // // add directories
-        // inputDirectories.forEach((inputDirectory) => {
-        //     echo.message("intput dir: " + inputDirectory);
-        //     archive.directory(inputDirectory, false);
-        // });
-
-        // // add files
-        // inputFiles.forEach((inputFile) => {
-        //     echo.message(inputFile);
-        //     archive.file(inputFile);//, { name: inputFileinputFile.replace("dotnet/", "") });
-        // });
-
-        // archive.finalize();
-    },
 };
 
 // #endregion Commands

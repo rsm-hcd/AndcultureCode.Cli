@@ -41,7 +41,7 @@ const dotnetPublish = {
             shell.exit(1);
         }
 
-        echo.success("Dotnet solution published")
+        echo.success(" - Dotnet solution published")
         dir.popd();
     },
 };
