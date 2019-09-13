@@ -64,8 +64,20 @@ Project requirements:
                 }
             }
             ```
-
-
+- Configure application's entry point
+    - dotnet
+       - Configure a `web.config` with your aspnet core assembly
+            ```xml
+            <?xml version="1.0" encoding="utf-8"?>
+                <configuration>
+                <system.webServer>
+                    <handlers>
+                    <add name="aspNetCore" path="*" verb="*" modules="AspNetCoreModule" resourceType="Unspecified" />
+                    </handlers>
+                    <aspNetCore processPath="dotnet" arguments=".\Web.dll" stdoutLogEnabled="false" stdoutLogFile=".\logs\stdout" forwardWindowsAuthToken="false" />
+                </system.webServer>
+            </configuration>
+            ```
 
 ##### Commands
 * `and-cli deploy aws-beanstalk --dotnet` - Deploy dotnet core application to AWS beanstalk
