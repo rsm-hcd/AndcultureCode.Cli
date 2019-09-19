@@ -6,14 +6,12 @@ const echo  = require("./echo");
 const file  = require("./file");
 const path  = require("path");
 const shell = require("shelljs");
-const upath = require("upath");
 
 
 /**************************************************************************************************
  * Variables
  **************************************************************************************************/
 
-let cachedCliPath;
 let cachedSolutionPath;
 let cachedWebProjectFilePath;
 
@@ -41,34 +39,6 @@ const solutionFilePaths = [
 // #region Functions
 
 const dotnetPath = {
-
-    /**
-     * Retrieves the dotnet cli's assembly directory path
-     */
-    cliDir() {
-        if (this.cliPath() === undefined) {
-            return undefined;
-        }
-
-        return path.dirname(this.cliPath());
-    },
-
-    /**
-     * Retrieves the dotnet cli's assembly path
-     */
-    cliPath() {
-        if (cachedCliPath) {
-            return cachedCliPath;
-        }
-
-        const solutionPath    = this.solutionDir();
-        const cliDebugDirPath = upath.toUnix(path.join(solutionPath, "Presentation/Cli/bin/Debug"));
-
-        cachedCliPath = file.first(`${cliDebugDirPath}/*/*Cli.dll`);
-
-        return cachedCliPath;
-    },
-
 
     /**
      * Retrieves the dotnet solution's folder path

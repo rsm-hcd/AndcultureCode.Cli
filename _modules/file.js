@@ -2,6 +2,8 @@
  * Imports
  **************************************************************************************************/
 
+const echo  = require("./echo");
+const fs    = require("fs");
 const shell = require("shelljs");
 
 
@@ -34,6 +36,20 @@ const file = {
         }
 
         return cachedBashFile;
+    },
+
+    /**
+     * Deletes the file provided it exists
+     * @param {string} file Relative or absolute path to file
+     */
+    deleteIfExists(file) {
+        if (!fs.existsSync(file)) {
+            echo.message(`File '${file}' does not exist. Nothing to delete.`);
+            return;
+        }
+
+        shell.rm("-f", file);
+        echo.success(`File '${file}' successfully deleted`);
     },
 
     /**
