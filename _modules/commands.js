@@ -1,8 +1,4 @@
 module.exports = {
-    deploy: {
-        command:     "deploy",
-        description: "Deploy various application types",
-    },
     dotnetTest: {
         command:     "dotnet-test",
         description: "Run various dotnet test runner commands for the project",

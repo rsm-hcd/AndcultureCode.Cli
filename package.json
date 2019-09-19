@@ -1,6 +1,6 @@
 {
   "name": "and-cli",
-  "version": "0.0.7",
+  "version": "0.0.5",
   "description": "and-cli command-line tool to manage the development of software applications",
   "bin": {
     "and-cli": "cli.js"
@@ -23,14 +23,9 @@
   "license": "Apache-2.0",
   "homepage": "https://github.com/AndcultureCode/AndcultureCode.Cli#readme",
   "dependencies": {
-    "archiver": "3.1.1",
     "chalk": "^2.4.1",
     "commander": "^2.15.1",
-    "require-all": "3.0.0",
     "shelljs": "^0.8.2",
     "upath": "^1.1.2"
-  },
-  "devDependencies": {
-    "pryjs": "1.0.3"
   }
 }
