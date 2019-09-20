@@ -8,6 +8,7 @@ const commands      = require("./_modules/commands");
 const dir           = require("./_modules/dir");
 const dotnetBuild   = require("./_modules/dotnet-build");
 const dotnetClean   = require("./_modules/dotnet-clean");
+const dotnetCli     = require("./_modules/dotnet-cli");
 const dotnetPath    = require("./_modules/dotnet-path");
 const dotnetRestore = require("./_modules/dotnet-restore");
 const echo          = require("./_modules/echo");
@@ -109,6 +110,7 @@ program
     )
     .option("-b, --build",   dotnetBuild.description())
     .option("-c, --clean",   dotnetClean.description())
+    .option("-C, --cli",     dotnetCli.description())
     .option("-k, --kill",    dotnetKill.description())
     .option("-R, --restore", dotnetRestore.description())
     .option("-r, --run",     dotnet.description("run"))
@@ -129,6 +131,7 @@ if ((!program.build && !program.run && !program.watch) && program.restore) {
 }
 
 if (program.build) { dotnetBuild.run(program.clean, program.restore); }
+if (program.cli)   { dotnetCli.run(program.args.join(" "));           }
 if (program.kill)  { dotnetKill.run();                                }
 if (program.run)   { dotnet.run("run");                               }
 if (program.watch) { dotnet.run("watch run");                         }
