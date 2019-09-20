@@ -7,7 +7,6 @@ const file  = require("./file");
 const path  = require("path");
 const shell = require("shelljs");
 const upath = require("upath");
-const pry   = require("pryjs");
 
 
 /**************************************************************************************************
@@ -61,7 +60,6 @@ const dotnetPath = {
         if (cachedCliPath) {
             return cachedCliPath;
         }
-        // eval(pry.it);
         const solutionPath    = this.solutionDir();
         const cliDebugDirPath = upath.toUnix(path.join(solutionPath, "Presentation/Cli/bin/Debug"));
 
