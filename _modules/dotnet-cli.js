@@ -20,6 +20,7 @@ const { red, tabbedNewLine } = formatters;
 
 const dotnetCli = {
     cmd() {
+        if (!dotnetPath.cliPath()) return "";
         return `dotnet ${path.basename(dotnetPath.cliPath())}`;
     },
     description() {

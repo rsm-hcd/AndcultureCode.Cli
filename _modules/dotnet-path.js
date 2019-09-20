@@ -61,9 +61,9 @@ const dotnetPath = {
             return cachedCliPath;
         }
         const solutionPath    = this.solutionDir();
-        const cliDebugDirPath = upath.toUnix(path.join(solutionPath, "Presentation/Cli/bin/Debug"));
+        const cliDebugDirPath = upath.toUnix(path.join(solutionPath, "Presentation/Cli/bin/Debug"))
 
-        cachedCliPath = file.first(`${cliDebugDirPath}/*/*Cli.dll`);
+        cachedCliPath = file.first(`${cliDebugDirPath}/**/*Cli.dll`);
 
         return cachedCliPath;
     },
