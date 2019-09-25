@@ -55,9 +55,6 @@ Project requirements:
         global:
             profile: {YOUR_PROFILE_NAME}
         ```
-- Create credential file to support multiple AWS accounts
-    - Create file `.elasticbeanstalk/aws_credential_file`
-
 - Setup AWS beanstalk manifest
     - dotnet
         - Create `dotnet/aws-windows-deployment-manifest.json`. Example...
