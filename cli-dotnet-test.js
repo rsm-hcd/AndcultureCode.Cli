@@ -56,12 +56,16 @@ const dotnetTest = {
 
         echo.message(message);
 
-        const { stdout, stderr } = shell.exec(cmd, { silent: true, async: false });
+        const result = shell.exec(cmd, { silent: true, async: false });
 
-        shell.echo(formatters.dotnet(stdout));
-        shell.echo(formatters.dotnet(stderr));
+        shell.echo(formatters.dotnet(result.stdout));
+        shell.echo(formatters.dotnet(result.stderr));
 
         dir.popd();
+
+        if (result.code !== 0) {
+            shell.exit(1);
+        }
     },
 };
 

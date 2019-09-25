@@ -42,8 +42,22 @@ System requirements:
         - `AWSElasticBeanstalkFullAccess`
 
 Project requirements:
+- Add new AWS EB profile to your `~/.aws/config` file
+    ```
+    [profile your-name]
+    aws_access_key_id = YOUR_ACCESS_KEY_ID
+    aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
+    ```
 - Perform initial EB setup in project repository in desired git branch
-    - `$: eb init`
+    - `$: eb init --profile {YOUR_PROFILE_NAME}`
+    - Or for an existing application update your `.elasticbeanstalk/config` file
+        ```
+        global:
+            profile: {YOUR_PROFILE_NAME}
+        ```
+- Create credential file to support multiple AWS accounts
+    - Create file `.elasticbeanstalk/aws_credential_file`
+
 - Setup AWS beanstalk manifest
     - dotnet
         - Create `dotnet/aws-windows-deployment-manifest.json`. Example...
