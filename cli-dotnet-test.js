@@ -64,7 +64,7 @@ const dotnetTest = {
         dir.popd();
 
         if (result.code !== 0) {
-            shell.exit(1);
+            shell.exit(result.code);
         }
     },
 };
