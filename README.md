@@ -42,8 +42,19 @@ System requirements:
         - `AWSElasticBeanstalkFullAccess`
 
 Project requirements:
+- Add new AWS EB profile to your `~/.aws/config` file
+    ```
+    [profile your-name]
+    aws_access_key_id = YOUR_ACCESS_KEY_ID
+    aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
+    ```
 - Perform initial EB setup in project repository in desired git branch
-    - `$: eb init`
+    - `$: eb init --profile {YOUR_PROFILE_NAME}`
+    - Or for an existing application update your `.elasticbeanstalk/config` file
+        ```
+        global:
+            profile: {YOUR_PROFILE_NAME}
+        ```
 - Setup AWS beanstalk manifest
     - dotnet
         - Create `dotnet/aws-windows-deployment-manifest.json`. Example...
@@ -100,6 +111,7 @@ best performance.
 * `and-cli dotnet` - Runs the dotnet solution's web project
     * `and-cli dotnet -b, --build` - Builds the solution
     * `and-cli dotnet -c, --clean` - Cleans the solution
+    * `and-cli dotnet -- --cli my command` - Runs commands through a project's custom dotnet cli project
     * `and-cli dotnet -R, --restore` - Restores NuGet packages for the solution
     * `and-cli dotnet -r, --run` - Runs the dotnet solution's web project (default)
     * `and-cli dotnet -w, --watch` - Runs the solution and reloads on changes
@@ -137,3 +149,16 @@ While the dotnet core cli provides some nuget commands, the process start to fin
 * Now you can...
     * Run `and-cli` in the root of any repo with the `and-cli` npm package installed
     * Run `and-cli-dev` in parallel with any active stable versions installed globally with npm
+
+---
+
+## Troubleshooting
+
+### Value for command arguments are out of order
+Depending upon the shell/terminal you are using, the node process sometimes requires the `--` delimiter between the command and the arguments. Otherwise, especially in a shell like windows command prompt, the value for arguments gets piped out of order.
+
+Example:
+* Before: `and-cli dotnet --cli "test db migrate"`
+    * Works in most shells, but requires the arguments to be in quotes. Fails in windows command prompt
+* After: `and-cli dotnet -- --cli test db migrate`
+    * Portable and doesn't require quotes
