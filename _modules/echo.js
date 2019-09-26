@@ -29,6 +29,15 @@ const echo = {
     error(message) {
         shell.echo(`${this.sdkString} ${variables.colors.red}[ERROR]${variables.colors.clear} ${message}`)
     },
+    headerError(message) {
+        this.newLine();
+        this.divider();
+        this.newLine();
+        this.error(message);
+        this.newLine();
+        this.divider();
+        this.newLine();
+    },
     message(message) {
         shell.echo(`${this.sdkString} ${message}`);
     },
