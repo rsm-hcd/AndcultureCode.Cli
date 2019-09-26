@@ -64,6 +64,7 @@ const dotnetTest = {
         dir.popd();
 
         if (result.code !== 0) {
+            echo.headerError("One or many test projects failed to compile or pass tests");
             shell.exit(result.code);
         }
     },
