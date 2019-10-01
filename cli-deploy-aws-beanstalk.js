@@ -54,7 +54,7 @@ const deployAwsBeanstalk = {
         const innerReleaseDir      = `${projectDir}release`;
         const innerReleaseZipFile  = `${projectDir}${innerReleaseFilename}`;
         file.deleteIfExists(innerReleaseZipFile);
-        await zip.create([innerReleaseDir], null, innerReleaseZipFile);
+        await zip.create([{ source: innerReleaseDir, destination: "/" }], null, innerReleaseZipFile);
 
         // Create outer bundle release zip
         const awsBundleManifestFilename = "aws-windows-deployment-manifest.json"; // TODO: Refactor to intelligently locate aws manifest file (ie. don't assume windows)
@@ -62,11 +62,19 @@ const deployAwsBeanstalk = {
         const outerReleaseZipFile       = `${projectDir}release-bundle.zip`;
         file.deleteIfExists(outerReleaseZipFile);
 
+        const inputDirectories = [];
+        const awsBundleExtensionsDirname = ".ebextensions";
+        const awsBundleExtensionsDir     = `${projectDir}${awsBundleExtensionsDirname}`;
+        if (shell.test("-e", awsBundleExtensionsDir)) {
+            echo.message("Adding .ebextensions directory");
+            inputDirectories.push({ source: awsBundleExtensionsDir, destination: awsBundleExtensionsDirname });
+        }
+
         const inputFiles = [
             { source: innerReleaseZipFile,   destination: innerReleaseFilename      },
             { source: awsBundleManifestFile, destination: awsBundleManifestFilename },
         ];
-        await zip.create(null, inputFiles, outerReleaseZipFile);
+        await zip.create(inputDirectories, inputFiles, outerReleaseZipFile);
 
         // Call EB deploy
         echo.message("Deploying to AWS beanstalk. Check AWS console for realtime output. This could take a few minutes...");
