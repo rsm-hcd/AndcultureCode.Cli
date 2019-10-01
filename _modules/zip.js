@@ -15,6 +15,13 @@ const zip = {
 
     /**
      * File source and destination descriptor
+     * @typedef {Object} InputDirectory
+     * @property {string} source - Relative or absolute path to directory
+     * @property {string} [destination] - Relative path to directory within output zip. If not supplied, source is used.
+     */
+
+    /**
+     * File source and destination descriptor
      * @typedef {Object} InputFile
      * @property {string} source - Relative or absolute path to file
      * @property {string} [destination] - Relative path to file within output zip. If not supplied, source is used.
@@ -22,7 +29,7 @@ const zip = {
 
     /**
      * Creates a new zip archive comprised of the supplied file(s) and/ or director(ies)
-     * @param {string[]} inputDirectories - Relative or absolute path to directories
+     * @param {InputDirectory[]} inputDirectories - Directories to include in the zip
      * @param {InputFile[]} inputFiles - Files to include in the zip
      * @param {string} outputPath - Relative or absolute file path of final zip archive
      */
@@ -61,7 +68,10 @@ const zip = {
             archive.pipe(output);
 
             // add directories
-            inputDirectories.forEach((inputDirectory) => archive.directory(inputDirectory, false));
+            inputDirectories.forEach((inputDirectory) => {
+                const destination = inputDirectory.destination ? inputDirectory.destination : inputDirectory.source;
+                archive.directory(inputDirectory.source, destination);
+            });
 
             // add files
             inputFiles.forEach((inputFile) => {
