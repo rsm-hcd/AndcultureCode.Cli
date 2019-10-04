@@ -1,7 +1,7 @@
 # AndcultureCode.Cli
 `and-cli` command-line tool to manage the development of software applications.
 
-## Installation
+## Getting started
 
 All-the-things (global npm package, project alias and developer alias).
 ```
@@ -23,6 +23,8 @@ npm install and-cli -g
 # yarn
 yarn global add and-cli
 ```
+The documentation for `and-cli` can be found in [COMMANDS.md](./COMMANDS.md).
+
 
 ## Troubleshooting
 
