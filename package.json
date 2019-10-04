@@ -28,7 +28,8 @@
     "commander": "^2.15.1",
     "require-all": "3.0.0",
     "shelljs": "^0.8.2",
-    "upath": "^1.1.2"
+    "upath": "^1.1.2",
+    "bl": ">=0.9.5"
   },
   "devDependencies": {
     "pryjs": "1.0.3"
