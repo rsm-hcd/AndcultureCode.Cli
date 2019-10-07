@@ -40,6 +40,8 @@ const install = {
         if (shell.cat(file.bashFile()).grep(projectAlias).stdout.length > 1) {
             echo.success("and-cli bash alias already installed");
         } else {
+            shell.echo("").toEnd(file.bashFile());
+            shell.echo("# and-cli project-level alias").toEnd(file.bashFile());
             shell.echo(projectAlias).toEnd(file.bashFile());
             echo.success("Successfully installed and-cli bash alias");
         }
@@ -53,6 +55,8 @@ const install = {
         if (shell.cat(file.bashFile()).grep(developerAlias).stdout.length > 1) {
             echo.success("and-cli-dev bash alias already installed");
         } else {
+            shell.echo("").toEnd(file.bashFile());
+            shell.echo("# and-cli global development alias pointing to your fork of the repository").toEnd(file.bashFile());
             shell.echo(developerAlias).toEnd(file.bashFile());
             echo.success("Successfully installed and-cli-dev alias");
         }
