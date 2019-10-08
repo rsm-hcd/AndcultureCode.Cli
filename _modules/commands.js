@@ -13,10 +13,14 @@ module.exports = {
     },
     install: {
         command:     "install",
-        description: "Collection of commands related to installation and configuration of the and-cli"
+        description: "Collection of commands related to installation and configuration of the and-cli",
+    },
+    migration: {
+        command:     "migration",
+        description: "Run commands to manage Entity Framework migrations",
     },
     nuget: {
         command:     "nuget",
-        description: "Manages publishing of nuget dotnet core projects"
+        description: "Manages publishing of nuget dotnet core projects",
     },
 };

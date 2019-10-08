@@ -131,6 +131,19 @@ const dotnetPath = {
 
         return undefined;
     },
+
+    /**
+     * Retrieves the dotnet web project file path or exits if it isn't found (memoized)
+     */
+    webProjectFilePathOrExit() {
+        const webProjectFilePath = this.webProjectFilePath();
+        if (webProjectFilePath !== undefined) {
+            return webProjectFilePath;
+        }
+
+        echo.error("Unable to find dotnet web project file");
+        shell.exit(1);
+    },
 };
 
 // #endregion Functions
