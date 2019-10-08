@@ -2,11 +2,17 @@
 `and-cli` command-line tool to manage the development of software applications.
 
 ## Getting started
+From the root of the cloned or forked repository, run this command:
+```
+npm install && ./cli.js install
+```
 
-All-the-things (global npm package, project alias and developer alias).
-```
-./cli.js install
-```
+What this does:
+1. Installs a global version of the npm package
+2. Creates an alias `and-cli` for the installed version of the npm package in your project, which defaults to globally installed package if not installed for project
+3. Creates an alias `and-cli-dev` for the running the cli while developing for it, via the directory in which you cloned or forked the repository
+
+
 To install `and-cli` only for the current project, run this in its root directory:
 ```
 # npm
@@ -17,7 +23,7 @@ yarn add and-cli --dev
 ```
 To install the CLI globally, do:
 ```
-# npm 
+# npm
 npm install and-cli -g
 
 # yarn
@@ -36,3 +42,20 @@ Example:
     * Works in most shells, but requires the arguments to be in quotes. Fails in windows command prompt
 * After: `and-cli dotnet -- --cli test db migrate`
     * Portable and doesn't require quotes
+
+### Command listed in documentation is not found or functioning as expected
+If you are using the project alias, check to make sure the version in your `package.json` is up to date. You can ensure the latest is installed by running:
+```
+npm install --save-dev and-cli@latest
+```
+
+If you don't have the package installed in your project and you're using a global package, you can check the current version with:
+```
+npm list -g --depth=0 | grep and-cli
+```
+
+The latest version can be installed by running:
+```
+npm install --global and-cli@latest
+```
+
