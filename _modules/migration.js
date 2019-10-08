@@ -7,6 +7,9 @@ const path       = require("path");
 const shell      = require("shelljs");
 const upath      = require("upath");
 
+/**************************************************************************************************
+ * Constants
+ **************************************************************************************************/
 
 // #region Constants
 
@@ -24,12 +27,23 @@ const MIGRATION_COMMAND = {
 
 // #endregion Constants
 
+/**************************************************************************************************
+ * Variables
+ **************************************************************************************************/
+
 // #region Variables
 
-let _migrationName = null;
-let _mode          = null;
+let _startupProjectDir = dotnetPath.webProjectFilePath();
+let _migrationName     = null;
+let _mode              = null;
 
 // #endregion Variables
+
+/**************************************************************************************************
+ * Functions
+ **************************************************************************************************/
+
+// #region Functions
 
 const migration = {
     cmd(mode, migrationName, startupProjectDir) {
@@ -47,14 +61,20 @@ const migration = {
         }
         return baseCmd + `${migrationName} --startup-project ${startupProjectDir} --verbose`;
     },
-    descriptionCreate() {
-        return "Create new entity framework migration";
-    },
-    descriptionDelete() {
-        return "Delete most recent entity framework migration";
-    },
-    descriptionRun() {
-        return "Run (or revert) entity framework migration";
+    description(mode) {
+        switch(mode) {
+            case MIGRATION_MODE.ADD:
+                return `Create new entity framework migration (via ${this.cmd(mode, "<migration name>", _startupProjectDir)})`;
+            case MIGRATION_MODE.DELETE:
+                return `Delete most recent entity framework migration (via ${this.cmd(mode, "", _startupProjectDir)})`
+            case MIGRATION_MODE.RUN:
+                return `Run (or revert) entity framework migration (via ${this.cmd(mode, "<migration name>", _startupProjectDir)})`
+                break;
+            default:
+                echo.error(`Invalid mode specified. Available options are: ${Object.keys(MIGRATION_MODE)}`);
+                shell.exit(1);
+                break;
+        }
     },
     migrationName(migrationName = null) {
         if (migrationName !== null && migrationName !== _migrationName) {
@@ -103,6 +123,10 @@ const migration = {
     },
 }
 
-// #endregion Migration commands
+// #endregion Functions
+
+/**************************************************************************************************
+ * Exports
+ **************************************************************************************************/
 
 module.exports = migration;

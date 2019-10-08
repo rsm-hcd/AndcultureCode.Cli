@@ -1,20 +1,31 @@
 #!/usr/bin/env node
 
+/**************************************************************************************************
+ * Imports
+ **************************************************************************************************/
+
 const commands  = require("./_modules/commands");
 const program   = require("commander");
 const migration = require("./_modules/migration");
-const modes     = migration.modes();
 
-// #endregion Migration commands
+/**************************************************************************************************
+ * Variables
+ **************************************************************************************************/
+
+const modes = migration.modes();
+
+/**************************************************************************************************
+ * Entrypoint / Command router
+ **************************************************************************************************/
 
 // #region Entrypoint / Command router
 
 program
     .usage("option")
     .description(commands.migration.description)
-    .option("-a, --add",                  migration.descriptionCreate())
-    .option("-d, --delete",               migration.descriptionDelete())
-    .option("-r, --run",                  migration.descriptionRun())
+    .option("-a, --add",     migration.description(modes.ADD))
+    .option("-d, --delete",  migration.description(modes.DELETE))
+    .option("-r, --run",     migration.description(modes.RUN))
     .parse(process.argv);
 
 if (program.add) {
@@ -38,6 +49,6 @@ if (program.run) {
         .run();
 }
 
-if (process.argv.slice(2).length === 0) { program.help();                     }
+if (process.argv.slice(2).length === 0) { program.help(); }
 
 // #endregion Entrypoint / Command router
