@@ -14,16 +14,9 @@ const upath = require("upath");
  **************************************************************************************************/
 
 let cachedCliPath;
+let cachedDataProjectPath;
 let cachedSolutionPath;
 let cachedWebProjectFilePath;
-
-// Wild-card searches used when finding the web dotnet core application project file. Ordered by most to least performant
-const webProjectFilePaths = [
-    "*.csproj",
-    "dotnet/*/Presentation/Web/Web.csproj",
-    "**/*Web.csproj",
-    "**/*.csproj"
-];
 
 // Wild-card searches used when finding the solution file. Ordered by most to least performant
 const solutionFilePaths = [
@@ -31,6 +24,23 @@ const solutionFilePaths = [
     "dotnet/*.sln",
     "dotnet/*/*.sln",
     "**/*.sln"
+];
+
+// Wild-card searches used when finding the infrastructre/data dotnet core application project file. Ordered by most to least performant
+const dataProjectFilePaths = [
+    "*.csproj",
+    "dotnet/*/Infrastructure/Data.SqlServer/Data.SqlServer.csproj",
+    "dotnet/*/Infrastructure/Data.*/Data.*.csproj",
+    "**/Data*.csproj",
+    "**/*.csproj"
+];
+
+// Wild-card searches used when finding the web dotnet core application project file. Ordered by most to least performant
+const webProjectFilePaths = [
+    "*.csproj",
+    "dotnet/*/Presentation/Web/Web.csproj",
+    "**/*Web.csproj",
+    "**/*.csproj"
 ];
 
 
@@ -66,6 +76,37 @@ const dotnetPath = {
         cachedCliPath = file.first(`${cliDebugDirPath}/**/*Cli.dll`);
 
         return cachedCliPath;
+    },
+
+    /**
+     * Retrieves the dotnet data project file path (memoized)
+     */
+    dataProjectFilePath() {
+        if (cachedDataProjectPath !== undefined) {
+            return cachedDataProjectPath;
+        }
+
+        for (var filePath of dataProjectFilePaths) {
+            cachedDataProjectPath = file.first(filePath);
+            if (cachedDataProjectPath !== undefined) {
+                return cachedDataProjectPath;
+            }
+        }
+
+        return undefined;
+    },
+
+    /**
+     * Retrieves the dotnet data project file path  or exits if it isn't found (memoized)
+     */
+    dataProjectFilePathOrExit() {
+        const dataProjectPath = this.dataProjectFilePath();
+        if (dataProjectPath !== undefined) {
+            return dataProjectPath;
+        }
+
+        echo.error("Unable to find dotnet data project file");
+        shell.exit(1);
     },
 
 

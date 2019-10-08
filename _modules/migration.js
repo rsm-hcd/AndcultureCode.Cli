@@ -3,8 +3,9 @@
 const dir        = require("./dir");
 const dotnetPath = require("./dotnet-path");
 const echo       = require("./echo");
+const path       = require("path");
 const shell      = require("shelljs");
-const upath = require("upath");
+const upath      = require("upath");
 
 
 // #region Constants
@@ -40,8 +41,7 @@ const migration = {
                 baseCmd += MIGRATION_COMMAND[mode];
                 break;
             default:
-                echo.error(`Invalid mode specified. Available options are: `);
-                Object.keys(MIGRATION_MODE).map((mode) => echo.message(mode.toString()));
+                echo.error(`Invalid mode specified. Available options are: ${Object.keys(MIGRATION_MODE)}`);
                 shell.exit(1);
                 break;
         }
@@ -72,7 +72,8 @@ const migration = {
         return MIGRATION_MODE;
     },
     run() {
-        if ((_mode === MIGRATION_MODE.ADD || _mode === MIGRATION_MODE.RUN) && _migrationName == null) {
+        if ((_mode === MIGRATION_MODE.ADD || _mode === MIGRATION_MODE.RUN) &&
+            (_migrationName === null || _migrationName.length !== 1)) {
             echo.error("Migration name is required, and can only be one word.");
             shell.exit(1);
         }
@@ -80,12 +81,14 @@ const migration = {
         dotnetPath.webProjectFilePathOrExit();
         const webProjectFileDir = upath.join(shell.pwd(), dotnetPath.webProjectFileDir());
 
-        console.log("webProjectFileDir", webProjectFileDir);
-        let migrationCmd = this.cmd(_mode, _migrationName, webProjectFileDir);
+        const dataProjectFilePath = dotnetPath.dataProjectFilePathOrExit();
+        const dataProjectDir      = path.dirname(dataProjectFilePath);
+
+        const migrationCmd = this.cmd(_mode, _migrationName, webProjectFileDir);
 
         echo.message(`Running EF migration command... (via ${migrationCmd})`);
 
-        dir.pushd(webProjectFileDir);
+        dir.pushd(dataProjectDir);
 
         const result = shell.exec(migrationCmd);
 
