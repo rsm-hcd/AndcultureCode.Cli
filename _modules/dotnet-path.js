@@ -26,7 +26,7 @@ const solutionFilePaths = [
     "**/*.sln"
 ];
 
-// Wild-card searches used when finding the infrastructre/data dotnet core application project file. Ordered by most to least performant
+// Wild-card searches used when finding the infrastructure/data dotnet core application project file. Ordered by most to least performant
 const dataProjectFilePaths = [
     "*.csproj",
     "dotnet/*/Infrastructure/Data.SqlServer/Data.SqlServer.csproj",

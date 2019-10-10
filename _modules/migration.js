@@ -20,9 +20,9 @@ const MIGRATION_MODE = {
 };
 
 const MIGRATION_COMMAND = {
-    [MIGRATION_MODE.ADD]:    " migrations add ",
-    [MIGRATION_MODE.DELETE]: " migrations remove ",
-    [MIGRATION_MODE.RUN]:    " database update ",
+    [MIGRATION_MODE.ADD]:    "migrations add",
+    [MIGRATION_MODE.DELETE]: "migrations remove",
+    [MIGRATION_MODE.RUN]:    "database update",
 };
 
 // #endregion Constants
@@ -33,9 +33,9 @@ const MIGRATION_COMMAND = {
 
 // #region Variables
 
-let _startupProjectDir = dotnetPath.webProjectFilePath();
-let _migrationName     = null;
-let _mode              = null;
+const _startupProjectDir = dotnetPath.webProjectFilePath();
+let   _migrationName     = null;
+let   _mode              = null;
 
 // #endregion Variables
 
@@ -52,14 +52,14 @@ const migration = {
             case MIGRATION_MODE.ADD:
             case MIGRATION_MODE.DELETE:
             case MIGRATION_MODE.RUN:
-                baseCmd += MIGRATION_COMMAND[mode];
+                baseCmd = `${baseCmd} ${MIGRATION_COMMAND[mode]}`;
                 break;
             default:
                 echo.error(`Invalid mode specified. Available options are: ${Object.keys(MIGRATION_MODE)}`);
                 shell.exit(1);
                 break;
         }
-        return baseCmd + `${migrationName} --startup-project ${startupProjectDir} --verbose`;
+        return  `${baseCmd} ${migrationName} --startup-project ${startupProjectDir} --verbose`;
     },
     description(mode) {
         switch(mode) {
@@ -69,7 +69,6 @@ const migration = {
                 return `Delete most recent entity framework migration (via ${this.cmd(mode, "", _startupProjectDir)})`
             case MIGRATION_MODE.RUN:
                 return `Run (or revert) entity framework migration (via ${this.cmd(mode, "<migration name>", _startupProjectDir)})`
-                break;
             default:
                 echo.error(`Invalid mode specified. Available options are: ${Object.keys(MIGRATION_MODE)}`);
                 shell.exit(1);
@@ -77,13 +76,13 @@ const migration = {
         }
     },
     migrationName(migrationName = null) {
-        if (migrationName !== null && migrationName !== _migrationName) {
+        if (migrationName !== null) {
             _migrationName = migrationName;
         }
         return this;
     },
     mode(mode = null) {
-        if (mode !== null && mode !== _mode) {
+        if (mode !== null) {
             _mode = mode;
         }
         return this;
@@ -114,7 +113,7 @@ const migration = {
 
         if (result.code !== 0) {
             echo.error(`Error running migration command: ${result}`);
-            shell.exit(1);
+            shell.exit(result.code);
         }
 
         dir.popd();
