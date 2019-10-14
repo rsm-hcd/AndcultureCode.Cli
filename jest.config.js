@@ -4,5 +4,12 @@
 module.exports = {
   clearMocks: true,
   coverageDirectory: "coverage",
-  testEnvironment: "node"
+  testEnvironment: "node",
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+    }
+  }
 };
