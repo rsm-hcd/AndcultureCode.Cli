@@ -1,4 +1,5 @@
 # AndcultureCode.Cli
+[![Build Status](https://travis-ci.org/saurabh73/AndcultureCode.Cli.svg?branch=master)](https://travis-ci.org/saurabh73/AndcultureCode.Cli)
 `and-cli` command-line tool to manage the development of software applications.
 
 ## Getting started
