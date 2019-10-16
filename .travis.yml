@@ -2,6 +2,8 @@ language:
   node_js
 install:
   - npm install -g codecov
+before_script:
+  - npm install
 script:
   - npm run test
   - codecov
