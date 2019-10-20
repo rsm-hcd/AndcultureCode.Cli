@@ -110,6 +110,16 @@ The `and-cli` itself requires some minor setup and these commands hopefully ease
 
 ---
 
+## migration
+
+This command wraps the functionality provided by the dotnet ef tool for common Entity Framework interactions, such as creating a new migration, applying the migration, or deleting an existing migration.
+
+### Commands
+
+* `and-cli migration --add <migration name>` - Creates a new entity framework migration based on changes from the last context snapshot.
+* `and-cli migration --run <migration name>` - Applies (or reverts) an entity framework migration based on the current database.
+* `and-cli migration --delete` - Removes files for the most recent migration, which cannot be applied to the database. If already applied, you need to revert to a previous migration first.
+
 ## nuget
 
 While the dotnet core cli provides some nuget commands, the process start to finish is less than ideal. These commands aim to make that simple.
