@@ -29,10 +29,12 @@ const webpack = {
     cmd() {
         return `npm run start`;
     },
-    description(mode) {
-        return `Runs the webpack project (via ${this.cmd(mode)}) found in ${frontendPath.projectDir()}`;
+    description() {
+        return `Runs the webpack project (via ${this.cmd()}) found in ${frontendPath.projectDir()}`;
     },
-    run(mode) {
+    run() {
+        dir.pushd(frontendPath.projectDir());
+
         if (program.clean) {
             nodeClean.run();
         }
@@ -41,9 +43,7 @@ const webpack = {
             nodeRestore.run();
         }
 
-        dir.pushd(frontendPath.projectDir());
-
-        echo.message(`Running frontend (via ${this.cmd(mode)})...`);
+        echo.message(`Running frontend (via ${this.cmd()})...`);
         shell.exec(this.cmd(), { silent: false, async: true });
 
         dir.popd();
@@ -70,6 +70,6 @@ program
     .parse(process.argv);
 
 // If no options are passed in, run application
-if (process.argv.slice(2).length === 0) { webpack.run("run"); }
+webpack.run();
 
 // #endregion Entrypoint / Command router

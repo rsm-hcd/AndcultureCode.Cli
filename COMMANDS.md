@@ -127,3 +127,14 @@ While the dotnet core cli provides some nuget commands, the process start to fin
 ### Commands
 
 * `and-cli nuget --publish <version>` - Updates, packs and publishes dotnet core 'packable' projects to NuGet
+
+---
+
+## webpack
+
+Starts webpack built projects located in our team's conventional 'frontend' folder by way of conventional `npm run start` command.
+
+### Commands
+
+* `and-cli webpack` - Starts webpack development server configured in the 'frontend' folder.
+* `and-cli webpack -c -R` - Optionally cleans and restores npm packages before running the frontend application.

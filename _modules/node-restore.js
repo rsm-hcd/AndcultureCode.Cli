@@ -6,7 +6,6 @@
 
 const dir          = require("./dir");
 const echo         = require("./echo");
-const frontendPath = require("./frontend-path");
 const shell        = require("shelljs");
 
 
@@ -19,14 +18,12 @@ const nodeRestore = {
         return "npm install";
     },
     description() {
-        return `Restore the frontend project's dependencies (via ${this.cmd}) found in ${frontendPath.projectDir()}`;
+        return `Restore the frontend project's dependencies (via ${this.cmd()}) found in ${shell.pwd()}`;
     },
     run() {
-        dir.pushd(frontendPath.projectDir());
-        echo.message(`Restoring npm packages (via ${this.cmd})...`);
-        shell.exec(this.cmd);
-        echo.success("Frontend project restored");
-        dir.popd();
+        echo.message(`Restoring npm packages (via ${this.cmd()}) in ${shell.pwd()}...`);
+        shell.exec(this.cmd(), { silent: false });
+        echo.success("npm packages restored");
     },
 };
 
