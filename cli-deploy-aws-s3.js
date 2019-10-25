@@ -4,12 +4,9 @@
  * Imports
  **************************************************************************************************/
 
-const dir     = require("./_modules/dir");
-const echo    = require("./_modules/echo");
-const file    = require("./_modules/file");
-const path    = require("path");
-const program = require("commander");
-const shell   = require("shelljs");
+const program        = require("commander");
+const shell          = require("shelljs");
+const webpackPublish = require("./_modules/webpack-publish");
 
 
 /**************************************************************************************************
@@ -31,7 +28,11 @@ const deployAwsS3 = {
         return "Publish build artifacts to Amazon S3 storage";
     },
     run() {
-
+        // Locally publish frontend
+        const publishResult = webpackPublish.run();
+        if (!publishResult) {
+            shell.exit(1);
+        }
     },
 
 };
