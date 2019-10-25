@@ -1,6 +1,6 @@
 {
   "name": "and-cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "and-cli command-line tool to manage the development of software applications",
   "bin": {
     "and-cli": "cli.js"
