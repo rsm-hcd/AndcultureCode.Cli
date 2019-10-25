@@ -23,4 +23,8 @@ module.exports = {
         command:     "nuget",
         description: "Manages publishing of nuget dotnet core projects",
     },
+    webpack: {
+        command:     "webpack",
+        description: "Run various webpack commands for the project",
+    },
 };
