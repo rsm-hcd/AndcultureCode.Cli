@@ -4,9 +4,8 @@
  * Imports
  **************************************************************************************************/
 
-const dir          = require("./dir");
-const echo         = require("./echo");
-const shell        = require("shelljs");
+const echo  = require("./echo");
+const shell = require("shelljs");
 
 
 /**************************************************************************************************
@@ -18,7 +17,7 @@ const nodeRestore = {
         return "npm install";
     },
     description() {
-        return `Restore the frontend project's dependencies (via ${this.cmd()}) found in ${shell.pwd()}`;
+        return `Restore npm dependencies (via ${this.cmd()}) in the current directory`;
     },
     run() {
         echo.message(`Restoring npm packages (via ${this.cmd()}) in ${shell.pwd()}...`);

@@ -17,7 +17,7 @@ const nodeClean = {
         return 'rm -rf node_modules';
     },
     description() {
-        return `Clean the frontend project's node modules (via ${this.cmd()})`;
+        return `Clean the npm dependencies (via ${this.cmd()}) in the current directory`;
     },
     run() {
         echo.message(`Recursively deleting 'node_modules' directory in ${shell.pwd()}...`);

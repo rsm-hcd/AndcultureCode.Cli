@@ -132,7 +132,7 @@ While the dotnet core cli provides some nuget commands, the process start to fin
 
 ## webpack
 
-Starts webpack built projects located in our team's conventional 'frontend' folder by way of conventional `npm run start` command.
+Starts webpack built projects located in our team's conventional 'frontend' folder by way of the `npm run start` command.
 
 ### Commands
 
