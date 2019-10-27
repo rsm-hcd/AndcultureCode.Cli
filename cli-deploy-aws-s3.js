@@ -5,6 +5,7 @@
  **************************************************************************************************/
 
 const echo           = require("./_modules/echo");
+const frontendPath   = require("./_modules/frontend-path");
 const program        = require("commander");
 const shell          = require("shelljs");
 const webpackPublish = require("./_modules/webpack-publish");
@@ -15,6 +16,7 @@ const webpackPublish = require("./_modules/webpack-publish");
  **************************************************************************************************/
 
 const pythonInstallerUrl = "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
+let   sourcePath         = frontendPath.publishDir();
 
 
 /**************************************************************************************************
@@ -36,14 +38,20 @@ const deployAwsS3 = {
         this.validateOrExit();
 
         // Locally publish frontend
-        const publishResult = webpackPublish.run();
-        if (!publishResult) {
-            shell.exit(1);
+        if (program.publish) {
+            const publishResult = webpackPublish.run();
+            if (!publishResult) {
+                shell.exit(1);
+            }
         }
 
         // Deploy build artifacts to S3
         const accessKey = program.accessKey;
         const secretKey = program.secretKey;
+
+        echo.message("Copying local build artifacts to Amazon S3...");
+        echo.message(` - Source path: ${sourcePath}`);
+
     },
     validateOrExit() {
         const errors = [];
@@ -57,6 +65,10 @@ const deployAwsS3 = {
         const secretKey = program.secretKey;
         if (secretKey === undefined || secretKey === null) {
             errors.push("--secret-key is required");
+        }
+
+        if (program.source !== undefined && program.source !== null) {
+            sourcePath = program.source;
         }
 
         // Bail if up-front arguments are errored
@@ -110,7 +122,9 @@ program
     .description(deployAwsS3.description())
     .option("--access-key <key>", "Required remote storage access key")
     .option("--public-url <url>", "Optional URL replaced in release files (ie. absolute S3 bucket URL)")
+    .option("--publish",          "Optional flag to run a webpack publish")
     .option("--secret-key <key>", "Required remote storage secret key")
+    .option("--source <source>",  `Optional path of folder to copy from this machine. Default is '${frontendPath.publishDir()}'`)
     .option("--webpack",          "Deploy webpack built frontend application")
     .parse(process.argv);
 

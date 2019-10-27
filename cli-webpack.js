@@ -4,14 +4,15 @@
  * Imports
  **************************************************************************************************/
 
-const commands      = require("./_modules/commands");
-const dir           = require("./_modules/dir");
-const echo          = require("./_modules/echo");
-const frontendPath  = require("./_modules/frontend-path");
-const nodeClean     = require("./_modules/node-clean");
-const nodeRestore   = require("./_modules/node-restore");
-const program       = require("commander");
-const shell         = require("shelljs");
+const commands       = require("./_modules/commands");
+const dir            = require("./_modules/dir");
+const echo           = require("./_modules/echo");
+const frontendPath   = require("./_modules/frontend-path");
+const nodeClean      = require("./_modules/node-clean");
+const nodeRestore    = require("./_modules/node-restore");
+const program        = require("commander");
+const shell          = require("shelljs");
+const webpackPublish = require("./_modules/webpack-publish");
 
 
 /**************************************************************************************************
@@ -66,8 +67,16 @@ program
         "(--clean and --restore can be used in conjunction)."
     )
     .option("-c, --clean",   nodeClean.description())
+    .option("-p, --publish", webpackPublish.description())
     .option("-R, --restore", nodeRestore.description())
     .parse(process.argv);
+
+// Publish
+if (program.publish) {
+    const result = webpackPublish.run();
+    shell.exit(result ? 0 : 1);
+    return;
+}
 
 // If no options are passed in, run application
 webpack.run();
