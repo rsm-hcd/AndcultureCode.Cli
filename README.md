@@ -34,6 +34,11 @@ The documentation for `and-cli` can be found in [COMMANDS.md](./COMMANDS.md).
 
 ## Troubleshooting
 
+### Leading slash auto-converted to absolute path
+Due to POSIX auto path conversion if you have an argument that needs to start with a leading slash "/". Escape it with an additional slash "//".
+
+Upon application startup the CLI will replace it with the single slash "/".
+
 ### Value for command arguments are out of order
 Depending upon the shell/terminal you are using, the node process sometimes requires the `--` delimiter between the command and the arguments. Otherwise, especially in a shell like windows command prompt, the value for arguments gets piped out of order.
 

@@ -15,6 +15,8 @@ const webpackPublish = require("./_modules/webpack-publish");
  * Variables
  **************************************************************************************************/
 
+let   destination        = null;
+let   profile            = null;
 const pythonInstallerUrl = "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
 let   sourcePath         = frontendPath.publishDir();
 
@@ -27,8 +29,8 @@ let   sourcePath         = frontendPath.publishDir();
 
 const deployAwsS3 = {
 
-    cmds: {
-        deploy: "",
+    cmd(src, dest) {
+        return `aws s3 sync ${src} s3://${dest}`;
     },
     description() {
         return "Publish build artifacts to Amazon S3 storage";
@@ -37,8 +39,8 @@ const deployAwsS3 = {
         // Check system/command requirements
         this.validateOrExit();
 
-        // Locally publish frontend
-        if (program.publish) {
+        // Locally publish frontend via webpack
+        if (program.publish && program.webpack) {
             const publishResult = webpackPublish.run();
             if (!publishResult) {
                 shell.exit(1);
@@ -46,25 +48,33 @@ const deployAwsS3 = {
         }
 
         // Deploy build artifacts to S3
-        const accessKey = program.accessKey;
-        const secretKey = program.secretKey;
-
         echo.message("Copying local build artifacts to Amazon S3...");
+        echo.message(` - Profile: ${profile}`);
         echo.message(` - Source path: ${sourcePath}`);
+        echo.message(` - Destination path: ${destination}`);
 
+        const syncCommand = this.cmd(sourcePath, destination) + ` --profile ${profile}`;
+        echo.message(` - Command: ${syncCommand}`);
+        if (shell.exec(syncCommand, { silent: false }).code !== 0) {
+            echo.error(" - Failed to deploy to AWS S3");
+            shell.exit(1);
+        }
+
+        echo.newLine();
+        echo.success("Application successfully deployed to AWS S3!");
     },
     validateOrExit() {
         const errors = [];
 
         // Validate arguments
-        const accessKey = program.accessKey;
-        if (accessKey === undefined || accessKey === null) {
-            errors.push("--access-key is required");
+        profile = program.profile;
+        if (profile === undefined || profile === null) {
+            errors.push("--profile is required");
         }
 
-        const secretKey = program.secretKey;
-        if (secretKey === undefined || secretKey === null) {
-            errors.push("--secret-key is required");
+        destination = program.destination;
+        if (destination === undefined || destination === null) {
+            errors.push("--destination is required");
         }
 
         if (program.source !== undefined && program.source !== null) {
@@ -120,12 +130,12 @@ const deployAwsS3 = {
 program
     .usage("option")
     .description(deployAwsS3.description())
-    .option("--access-key <key>", "Required remote storage access key")
-    .option("--public-url <url>", "Optional URL replaced in release files (ie. absolute S3 bucket URL)")
-    .option("--publish",          "Optional flag to run a webpack publish")
-    .option("--secret-key <key>", "Required remote storage secret key")
-    .option("--source <source>",  `Optional path of folder to copy from this machine. Default is '${frontendPath.publishDir()}'`)
-    .option("--webpack",          "Deploy webpack built frontend application")
+    .option("--destination <destination>", "Required container/bucket folder path (ie. my-bucket/path/to/folder)")
+    .option("--profile <profile>",         "Required AWS S3 profile configured in either ~/.aws/config or ~/.aws/credentials")
+    .option("--public-url <url>",          "Optional URL replaced in release files (ie. absolute S3 bucket URL)")
+    .option("--publish",                   "Optional flag to run a webpack publish")
+    .option("--source <source>",           `Optional path of folder to copy from this machine. Default is '${frontendPath.publishDir()}'`)
+    .option("--webpack",                   "Deploy webpack built frontend application")
     .parse(process.argv);
 
 // #endregion Entrypoint / Command router

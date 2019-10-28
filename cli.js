@@ -9,6 +9,31 @@ const program   = require("commander");
 
 
 /**************************************************************************************************
+ * Functions
+ **************************************************************************************************/
+
+// #region Functions
+
+/**
+ * Argument POSIX path conversion fix
+ * - To pass arguments that start with a '/', you must escape it with '//'
+ */
+const fixArgumentPosixPathConversion = () => {
+    for (var i = 0; i <= process.argv.length; i++) {
+        let arg = process.argv[i];
+
+        if (arg === undefined || arg === null || !arg.startsWith("//")) {
+            continue;
+        }
+
+        process.argv[i] = arg.substring(1);
+    }
+};
+
+// #endregion Functions
+
+
+/**************************************************************************************************
  * Entrypoint / Command router
  **************************************************************************************************/
 
@@ -24,7 +49,9 @@ commandObjects.forEach((commandObject) => {
     program.command(commandObject.command, commandObject.description);
 });
 
-program.parse(process.argv)
+fixArgumentPosixPathConversion();
+
+program.parse(process.argv);
 
 // #endregion Entrypoint / Command router
 
