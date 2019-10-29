@@ -100,7 +100,8 @@ const deployAwsS3 = {
         if (!shell.which("aws")) {
             echo.message("AWS CLI not found. Installing via PIP...");
 
-            if (shell.exec("pip install awscli").code !== 0) {
+            // Unfortunately we must lock down our awscli and awsebcli versions so they use compatible dependencies https://github.com/aws/aws-cli/issues/3550
+            if (shell.exec("pip install awscli==1.16.9").code !== 0) {
                 echo.error("Failed to install aws cli via pip");
                 shell.exit(1);
             }
