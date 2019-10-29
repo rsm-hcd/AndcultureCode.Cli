@@ -109,6 +109,12 @@ const dotnetPath = {
         shell.exit(1);
     },
 
+    /**
+     * Retrieves the dotnet solution's release directory path
+     */
+    releaseDir() {
+        return upath.toUnix(path.join(shell.pwd().toString(), this.solutionDir(), "release"));
+    },
 
     /**
      * Retrieves the dotnet solution's folder path

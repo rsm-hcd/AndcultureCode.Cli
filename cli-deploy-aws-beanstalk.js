@@ -44,8 +44,7 @@ const deployAwsBeanstalk = {
 
         // Publish dotnet if enabled
         if (program.dotnet) {
-            const releasePath = upath.toUnix(path.join(shell.pwd().toString(), dotnetPath.solutionDir(), "release"))
-            dotnetPublish.run(releasePath);
+            dotnetPublish.run();
             projectDir = `${dotnetPath.solutionDir()}/`;
         }
 
