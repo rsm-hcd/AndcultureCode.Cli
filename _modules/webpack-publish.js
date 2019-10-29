@@ -25,7 +25,11 @@ const webpackPublish = {
     run() {
         // Clean publish directory
         echo.message(`Cleaning publish directory ${frontendPath.publishDir()}...`);
-        shell.rm("-rf", frontendPath.publishDir());
+
+        if (shell.rm("-rf", frontendPath.publishDir()).code !== 0) {
+            echo.error("Failed cleaning publish directory");
+            shell.exit(1);
+        }
         echo.success("Publish directory cleaned");
 
         // Change directory into frontend folder

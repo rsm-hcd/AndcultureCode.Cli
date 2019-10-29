@@ -4,22 +4,29 @@
  * Imports
  **************************************************************************************************/
 
-const commands      = require("./_modules/commands");
-const echo          = require("./_modules/echo");
-const program       = require("commander");
-const shell         = require("shelljs");
+const commands = require("./_modules/commands");
+const echo     = require("./_modules/echo");
+const program  = require("commander");
+const shell    = require("shelljs");
 
 
 /**************************************************************************************************
  * Commands
  **************************************************************************************************/
 
-// #region NuGet commands
+// #region Copy commands
 
 const copy = {
     description() {
         return "Copies files and/ or directories";
     },
+
+    /**
+     * Copy file or folder to target directory
+     * @param {string} source Path to source file or directory to copy
+     * @param {string} destination Path to output directory
+     * @param {string} options Options for the copy operation (See https://github.com/shelljs/shelljs)
+     */
     run(source, destination, options) {
 
         echo.message(`Copying '${source}' to '${destination}'...`);
@@ -42,7 +49,7 @@ const copy = {
     },
 }
 
-// #endregion NuGet commands
+// #endregion Copy commands
 
 
 /**************************************************************************************************
