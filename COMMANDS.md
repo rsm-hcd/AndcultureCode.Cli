@@ -2,6 +2,14 @@
 
 The `and-cli` is built upon our team's best practices for setting up projects.
 
+## copy
+
+Cross-platform wrapper of file and directory copying. See [shelljs cp command](https://github.com/shelljs/shelljs#cpoptions-source_array-dest) for additional options for the `--flags` argument.
+
+### Commands
+* `and-cli copy --source path/to/existing/file.txt --destination path/to/destination/folder` - Copy file to destination folder
+* `and-cli copy --source path/to/existingfolder --destination path/to/destination/folder --flags "-r"` - Copy file to destination folder recursively
+
 ## deploy
 
 Collection of deployment sub-commands to manage a variety of application types.

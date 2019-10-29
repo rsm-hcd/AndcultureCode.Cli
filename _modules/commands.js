@@ -1,4 +1,8 @@
 module.exports = {
+    copy: {
+        command:     "copy",
+        description: "Copy files and/ or directories",
+    },
     deploy: {
         command:     "deploy",
         description: "Deploy various application types",
