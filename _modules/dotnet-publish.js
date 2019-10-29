@@ -26,7 +26,17 @@ const dotnetPublish = {
     description() {
         return `Publishes the dotnet solution from the root of the project (via ${this.cmd()})`;
     },
+
+    /**
+     * Runs a publish of the dotnet solution to the local file system
+     * @param {string} absoluteOutputDir Optional absolute path of release output directory. If not provided,
+     * defaults to dotnet solution's 'release' directory
+     */
     run(absoluteOutputDir) {
+
+        if (absoluteOutputDir === undefined || absoluteOutputDir === null) {
+            absoluteOutputDir = dotnetPath.releaseDir();
+        }
 
         echo.message(`Cleaning release directory '${absoluteOutputDir}'...`);
         shell.rm("-rf", absoluteOutputDir);

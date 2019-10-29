@@ -10,6 +10,7 @@ const dotnetBuild   = require("./_modules/dotnet-build");
 const dotnetClean   = require("./_modules/dotnet-clean");
 const dotnetCli     = require("./_modules/dotnet-cli");
 const dotnetPath    = require("./_modules/dotnet-path");
+const dotnetPublish = require("./_modules/dotnet-publish");
 const dotnetRestore = require("./_modules/dotnet-restore");
 const echo          = require("./_modules/echo");
 const formatters    = require("./_modules/formatters");
@@ -112,6 +113,7 @@ program
     .option("-c, --clean",   dotnetClean.description())
     .option("-C, --cli",     dotnetCli.description())
     .option("-k, --kill",    dotnetKill.description())
+    .option("-p, --publish", dotnetPublish.description())
     .option("-R, --restore", dotnetRestore.description())
     .option("-r, --run",     dotnet.description("run"))
     .option("-w, --watch",   dotnet.description("watch run"))
@@ -130,11 +132,12 @@ if ((!program.build && !program.run && !program.watch) && program.restore) {
     dotnetRestore.run();
 }
 
-if (program.build) { dotnetBuild.run(program.clean, program.restore); }
-if (program.cli)   { dotnetCli.run(program.args.join(" "));           }
-if (program.kill)  { dotnetKill.run();                                }
-if (program.run)   { dotnet.run("run");                               }
-if (program.watch) { dotnet.run("watch run");                         }
+if (program.build)   { dotnetBuild.run(program.clean, program.restore); }
+if (program.cli)     { dotnetCli.run(program.args.join(" "));           }
+if (program.kill)    { dotnetKill.run();                                }
+if (program.publish) { dotnetPublish.run();                             }
+if (program.run)     { dotnet.run("run");                               }
+if (program.watch)   { dotnet.run("watch run");                         }
 
 // If no options are passed in, performs a build
 if (process.argv.slice(2).length === 0) { dotnet.run("run"); }

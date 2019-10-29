@@ -2,11 +2,20 @@
 
 The `and-cli` is built upon our team's best practices for setting up projects.
 
+## copy
+
+Cross-platform wrapper of file and directory copying. See [shelljs cp command](https://github.com/shelljs/shelljs#cpoptions-source_array-dest) for additional options for the `--flags` argument.
+
+### Commands
+* `and-cli copy --source path/to/existing/file.txt --destination path/to/destination/folder` - Copy file to destination folder
+* `and-cli copy --source path/to/existingfolder --destination path/to/destination/folder --flags "-r"` - Copy file to destination folder recursively
+
 ## deploy
 
 Collection of deployment sub-commands to manage a variety of application types.
 
-### AWS Beanstalk Usage
+### AWS Commands
+Amazon provides a variety of command-line tools to interact with their services. Below are general system and project configuration requirements to run them via `and-cli`
 
 System requirements:
 - [Python 3.7+](https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe)
@@ -15,11 +24,12 @@ System requirements:
     - Log into AWS console
     - Click Username dropdown > My Security Credentials > Users
     - Click `Add User`
-        - Add User name `nfpa-{environment}` (ie. nfpa-working)
+        - Add User name `{project}-{environment}` (ie. andculture-working)
         - Select `Programmatic Access` and `AWS Management Console access`
     - Click `Next: Permissions
     - Click `Attach existing policies directly`
         - `AWSElasticBeanstalkFullAccess`
+        - Any other policies necessary
 
 Project requirements:
 - Add new AWS EB profile to your `~/.aws/config` file
@@ -28,6 +38,11 @@ Project requirements:
     aws_access_key_id = YOUR_ACCESS_KEY_ID
     aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
     ```
+
+
+### AWS Beanstalk Usage
+- Ensure general AWS system/project requirements are met
+- Ensure your IAM User has the `AWSElasticBeanstalkFullAccess` security policy enabled
 - Perform initial EB setup in project repository in desired git branch
     - `$: eb init --profile {YOUR_PROFILE_NAME}`
     - Or for an existing application update your `.elasticbeanstalk/config` file
@@ -73,6 +88,15 @@ Project requirements:
 ##### Commands
 * `and-cli deploy aws-beanstalk --dotnet` - Deploy dotnet core application to AWS beanstalk
 
+
+### AWS S3 Usage
+- Ensure general AWS system/project requirements are met
+- Ensure your IAM User has the `AWSS3FullAccess` security policy enabled
+
+##### Commands
+* `and-cli deploy aws-s3 --webpack --destination my-bucket/folder/name --profile andculture-working
+    * Copies webpack build artifacts from `frontend/build` and deploys them to `--destination`
+    * Optionally pass `--publish` flag to perform webpack build as a part of the call
 
 ## dotnet
 

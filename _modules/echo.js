@@ -29,6 +29,11 @@ const echo = {
     error(message) {
         shell.echo(`${this.sdkString} ${variables.colors.red}[ERROR]${variables.colors.clear} ${message}`)
     },
+    errors(messages) {
+        for (const message of messages) {
+            this.error(message);
+        }
+    },
     headerError(message) {
         this.newLine();
         this.divider();
