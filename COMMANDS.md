@@ -94,7 +94,7 @@ Project requirements:
 - Ensure your IAM User has the `AWSS3FullAccess` security policy enabled
 
 ##### Commands
-* `and-cli deploy aws-s3 --webpack --destination my-bucket/folder/name --profile andculture-working
+* `and-cli deploy aws-s3 --webpack --destination my-bucket/folder/name --profile andculture-working`
     * Copies webpack build artifacts from `frontend/build` and deploys them to `--destination`
     * Optionally pass `--publish` flag to perform webpack build as a part of the call
 
