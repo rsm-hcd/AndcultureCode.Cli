@@ -111,7 +111,8 @@ const deployAwsBeanstalk = {
         if (!shell.which("eb")) {
             echo.message("AWS EB CLI not found. Installing via PIP...");
 
-            if (shell.exec("pip install awsebcli").code !== 0) {
+            // Unfortunately we must lock down our awscli and awsebcli versions so they use compatible dependencies https://github.com/aws/aws-cli/issues/3550
+            if (shell.exec("pip install awsebcli==3.14.4").code !== 0) {
                 echo.error("Failed to install eb cli via pip");
                 shell.exit(1);
             }
