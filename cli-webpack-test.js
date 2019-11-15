@@ -84,8 +84,9 @@ const webpackTest = {
 program
     .usage("option(s)")
     .description(
-        `${commands.webpackTest.description} Certain options can be chained together for specific behavior` +
-        "(--clean and --restore can be used in conjunction)."
+        webpackTest.description() +
+        "\r\nCertain options can be chained together for specific behavior" +
+        " (--clean and --restore can be used in conjunction)."
     )
     .option("--ci",          "Run the command for continuous integration instead of as a daemon")
     .option("-c, --clean",   nodeClean.description())
