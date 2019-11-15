@@ -31,4 +31,8 @@ module.exports = {
         command:     "webpack",
         description: "Run various webpack commands for the project",
     },
+    webpackTest: {
+        command:     "webpack-test",
+        description: "Run various webpack test commands for the project",
+    },
 };

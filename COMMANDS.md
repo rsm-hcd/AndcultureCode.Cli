@@ -162,3 +162,6 @@ Starts webpack built projects located in our team's conventional 'frontend' fold
 
 * `and-cli webpack` - Starts webpack development server configured in the 'frontend' folder.
 * `and-cli webpack -c -R` - Optionally cleans and restores npm packages before running the frontend application.
+* `and-cli webpack-test` - Starts interactive frontend tests via `npm run test` in 'frontend' folder
+* `and-cli webpack-test -c -R` - Optionally cleans and restores npm packages before running test suite
+* `and-cli webpack-test --ci` - Optionally runs frontend tests synchronously for use in continous integration
