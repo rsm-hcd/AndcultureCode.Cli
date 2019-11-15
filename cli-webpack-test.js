@@ -7,7 +7,7 @@
 const commands       = require("./_modules/commands");
 const dir            = require("./_modules/dir");
 const echo           = require("./_modules/echo");
-const { exec, spawn }      = require("child_process");
+const { spawn }      = require("child_process");
 const frontendPath   = require("./_modules/frontend-path");
 const nodeClean      = require("./_modules/node-clean");
 const nodeRestore    = require("./_modules/node-restore");
@@ -84,7 +84,7 @@ const webpackTest = {
 program
     .usage("option(s)")
     .description(
-        `${commands.webpack.description} Certain options can be chained together for specific behavior` +
+        `${commands.webpackTest.description} Certain options can be chained together for specific behavior` +
         "(--clean and --restore can be used in conjunction)."
     )
     .option("--ci",          "Run the command for continuous integration instead of as a daemon")
@@ -92,8 +92,6 @@ program
     .option("-R, --restore", nodeRestore.description())
     .parse(process.argv);
 
-
-// If no options are passed in, run application
 webpackTest.run();
 
 // #endregion Entrypoint / Command router
