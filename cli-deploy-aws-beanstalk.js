@@ -137,8 +137,8 @@ const deployAwsBeanstalk = {
 program
     .usage("option")
     .description(deployAwsBeanstalk.description())
-    .option("--dotnet",  "Deploy dotnet core application via beanstalk")
-    .option("--timeout", `Optional elastic beanstalk deploy timeout. Default is ${timeout} minutes. When exceeded, exits with error`)
+    .option("--dotnet",            "Deploy dotnet core application via beanstalk")
+    .option("--timeout <timeout>", `Optional elastic beanstalk deploy timeout. Default is ${timeout} minutes. When exceeded, exits with error`)
     .parse(process.argv);
 
 // #endregion Entrypoint / Command router
