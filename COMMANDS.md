@@ -97,7 +97,7 @@ Project requirements:
 * `and-cli deploy aws-s3 --webpack --destination my-bucket/folder/name --profile {YOUR_PROFILE_NAME}`
     * Copies webpack build artifacts from `frontend/build` and deploys them to `--destination`
     * Optionally pass `--publish` flag to perform webpack build as a part of the call
-    * `--profile` argument gives eb-cli permissions to access the s3 bucket. Defined in the initial setup (`eb-init`)
+    * `--profile` argument specifies IAM profile with permissions to S3.
 
 ## dotnet
 
