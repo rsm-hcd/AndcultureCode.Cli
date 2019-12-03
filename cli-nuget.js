@@ -9,6 +9,7 @@ const dotnetPath    = require("./_modules/dotnet-path");
 const echo          = require("./_modules/echo");
 const formatters    = require("./_modules/formatters");
 const program       = require("commander");
+const readline      = require("readline");
 const shell         = require("shelljs");
 
 
@@ -95,14 +96,24 @@ const nugetUpgrade = {
         version: `${formatters.red("(Required with --upgrade)")} Specifies the version of the package to upgrade to.`
     },
     run() {
-        const packageName    = program.upgrade;
-        const packageVersion = program.version;
+        const packageName  = program.upgrade;
+        let packageVersion = "";
+        console.log("packageName:", packageName);
+        console.log("packageVersion:", packageVersion);
 
-        if (!packageVersion.match(versionRegexPattern)) {
-            echo.error(ERROR_INVALID_VERSION_STRING);
-            shell.exit(1);
-            return;
-        }
+        const prompt = readline.createInterface({
+            input:  process.stdin,
+            output: process.stdout,
+        });
+
+        prompt.question(formatters.yellow(`Please enter a version to upgade '${packageName}' to: `), (response) => {
+            if (!response.match(versionRegexPattern)) {
+                echo.error(ERROR_INVALID_VERSION_STRING);
+                shell.exit(1);
+            }
+
+            packageVersion = response;
+        });
 
         echo.message(`Upgrading package '${packageName}' to version ${packageVersion}...`);
 
@@ -132,18 +143,10 @@ program
     .description(commands.nuget.description)
     .option("-p, --publish <version>", nugetPublish.description())
     .option("-u, --upgrade <package>", nugetUpgrade.description.upgrade)
-    .option("-v, --version <version>", nugetUpgrade.description.version)
     .parse(process.argv);
 
-if (program.publish)                    { nugetPublish.run(); }
-if (program.upgrade && program.version) { nugetUpgrade.run(); }
-
-// User-friendly error checking to make sure upgrade & version flags are used together
-if ((program.upgrade && !program.version) ||
-    (!program.upgrade && program.version)) {
-        echo.error("-u or --upgrade must be used in conjunction with -v or --version");
-        program.help();
-}
+if (program.publish) { nugetPublish.run(); }
+if (program.upgrade) { nugetUpgrade.run(); }
 
 // If no options are passed in, output help
 if (process.argv.slice(2).length === 0) { program.help(); }
