@@ -23,6 +23,17 @@ const nugetUrl = "https://api.nuget.org/v3/index.json";
 const versionRegexPattern = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
 
 const ERROR_INVALID_VERSION_STRING = "Invalid package version string (see https://docs.microsoft.com/en-us/nuget/concepts/package-versioning)";
+const ERROR_READING_CSPROJ_FILES   = "There was an error reading csproj files.";
+
+/**************************************************************************************************
+ * Helper functions
+ **************************************************************************************************/
+
+const _isNonEmptyString = (value) =>
+    value !== undefined &&
+    value !== null &&
+    typeof value === "string" &&
+    value.length > 1;
 
 /**************************************************************************************************
  * Commands
@@ -89,43 +100,71 @@ const nugetPublish = {
 
 const nugetUpgrade = {
     description() {
-        return
-    },
-    description: {
-        upgrade: "Upgrades a specified NuGet package for all projects in a solution.",
-        version: `${formatters.red("(Required with --upgrade)")} Specifies the version of the package to upgrade to.`
+        return "Upgrades a specified NuGet package for all projects in a solution.";
     },
     run() {
-        const packageName  = program.upgrade;
-        let packageVersion = "";
-        console.log("packageName:", packageName);
-        console.log("packageVersion:", packageVersion);
-
         const prompt = readline.createInterface({
             input:  process.stdin,
             output: process.stdout,
         });
 
-        prompt.question(formatters.yellow(`Please enter a version to upgade '${packageName}' to: `), (response) => {
-            if (!response.match(versionRegexPattern)) {
-                echo.error(ERROR_INVALID_VERSION_STRING);
-                shell.exit(1);
+        let packageName    = "";
+        let packageVersion = "";
+
+        echo.message("Please enter a package to upgade:");
+        prompt.question("", (packageNameResponse) => {
+            packageName = packageNameResponse;
+            if (packageName.trim() === "") {
+                echo.error("Please enter a valid package name.");
+                shell.exit(-1);
             }
 
-            packageVersion = response;
+            echo.message(`Please enter a version to upgade '${packageName}' to:`);
+            prompt.question("", (packageVersionResponse) => {
+                if (!packageVersionResponse.match(versionRegexPattern)) {
+                    echo.error(ERROR_INVALID_VERSION_STRING);
+                    shell.exit(1);
+                }
+
+                packageVersion = packageVersionResponse;
+
+                echo.message(`Looking for packages matching '${packageName}'...`);
+
+                const lsResult = shell.ls("**/*.csproj");
+                if (lsResult.code !== 0) {
+                    echo.error(ERROR_READING_CSPROJ_FILES);
+                    shell.exit(lsResult.code);
+                }
+
+                const csprojFiles = lsResult.stdout.split("\n").filter((file) => file.trim() !== "");
+                if (csprojFiles.length === 0) {
+                    echo.error("No csproj files could be found. Please check the directory you're in.");
+                    shell.exit(-1);
+                }
+
+                const grepResult = shell.grep("-l", packageName, csprojFiles);
+                if (grepResult.code !== 0) {
+                    echo.error(ERROR_READING_CSPROJ_FILES);
+                    shell.exit(grepResult.code);
+                }
+
+                const matchingProjects = grepResult.stdout.split("\n").filter((result) => result.trim() !== "");
+                if (matchingProjects.length === 0) {
+                    echo.message(`No projects found with package '${packageName}'. Exiting.`);
+                    shell.exit(-1);
+                }
+
+                echo.message(`${formatters.red(matchingProjects.length)} projects found with package '${packageName}'.`);
+                prompt.question(`Continue? ${formatters.yellow("(y/n)")}: `, (confirmationResponse) => {
+                    if (!confirmationResponse.match(/([yY][eE][sS]|[yY])/)) {
+                        shell.exit(0);
+                    }
+
+                    shell.exit(0);
+                });
+            });
         });
 
-        echo.message(`Upgrading package '${packageName}' to version ${packageVersion}...`);
-
-        const grepResult       = shell.grep("-l", packageName, shell.ls("**/*.csproj"));
-        const matchingProjects = grepResult.stdout.split("\n").filter((result) => result.trim() !== "");
-
-        if (matchingProjects.length === 0) {
-            echo.message(`No projects found with package '${packageName}'. Exiting.`);
-            shell.exit(0);
-        }
-
-        echo.message(`${formatters.red(matchingProjects.length)} projects found with package '${packageName}'. Continue? (y/n)`);
     }
 }
 
@@ -142,7 +181,7 @@ program
     .usage("option(s)")
     .description(commands.nuget.description)
     .option("-p, --publish <version>", nugetPublish.description())
-    .option("-u, --upgrade <package>", nugetUpgrade.description.upgrade)
+    .option("-u, --upgrade [package]", nugetUpgrade.description())
     .parse(process.argv);
 
 if (program.publish) { nugetPublish.run(); }
