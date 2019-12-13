@@ -26,16 +26,6 @@ const ERROR_INVALID_VERSION_STRING = "Invalid package version string (see https:
 const ERROR_READING_CSPROJ_FILES   = "There was an error reading csproj files.";
 
 /**************************************************************************************************
- * Helper functions
- **************************************************************************************************/
-
-const _isNonEmptyString = (value) =>
-    value !== undefined &&
-    value !== null &&
-    typeof value === "string" &&
-    value.length > 1;
-
-/**************************************************************************************************
  * Commands
  **************************************************************************************************/
 
