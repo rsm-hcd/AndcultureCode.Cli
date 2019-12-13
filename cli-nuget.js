@@ -160,6 +160,13 @@ const nugetUpgrade = {
                         shell.exit(0);
                     }
 
+                    const sedResult = shell.sed("-i", `(<PackageReference[ ]*Include[ ]*=[ ]*\"${packageName}\"[ ]*Version[ ]*=[ ]*\")([0-9]+.[0-9]+.[0-9]+)`, `$1${packageVersion}`, matchingProjects);
+                    if (sedResult.code !== 0) {
+                        echo.error(`There was an error updating csproj files: ${sedResult}`);
+                        shell.exit(sedResult.code);
+                    }
+
+                    echo.success(`Successfully updated '${packageName}' to version ${packageVersion}. Please check your git status before committing.`);
                     shell.exit(0);
                 });
             });
