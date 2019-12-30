@@ -40,9 +40,15 @@ const dotnetBuild = {
 
         echo.message(`Building solution (via ${this.cmd()})...`);
 
-        let output = shell.exec(this.cmd(), { silent: true });
+        const buildResult = shell.exec(this.cmd(), { silent: true });
+        shell.echo(formatters.dotnet(buildResult));
 
-        shell.echo(formatters.dotnet(output));
+        if (buildResult.code !== 0) {
+            echo.error("Solution failed to build. See output for details.");
+            shell.exit(buildResult.code);
+        }
+
+        shell.exit(0);
     },
 };
 
