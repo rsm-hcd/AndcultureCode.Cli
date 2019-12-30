@@ -21,6 +21,7 @@ const zip           = require("./_modules/zip");
  **************************************************************************************************/
 
 const pythonInstallerUrl = "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
+let   timeout            = 20; // Default AWSEBCLI command timeout in minutes
 
 
 /**************************************************************************************************
@@ -40,12 +41,16 @@ const deployAwsBeanstalk = {
         // Check system requirements
         this.validateOrExit();
 
+        // Handling incoming arguments
+        if (program.timeout) {
+            timeout = program.timeout;
+        }
+
         let projectDir = "";
 
         // Publish dotnet if enabled
         if (program.dotnet) {
-            const releasePath = upath.toUnix(path.join(shell.pwd().toString(), dotnetPath.solutionDir(), "release"))
-            dotnetPublish.run(releasePath);
+            dotnetPublish.run();
             projectDir = `${dotnetPath.solutionDir()}/`;
         }
 
@@ -78,7 +83,7 @@ const deployAwsBeanstalk = {
 
         // Call EB deploy
         echo.message("Deploying to AWS beanstalk. Check AWS console for realtime output. This could take a few minutes...");
-        if (shell.exec(this.cmds.deploy).code !== 0) {
+        if (shell.exec(this.cmds.deploy + ` --timeout ${timeout}`).code !== 0) {
             echo.error(" - Failed to deploy to AWS beanstalk");
             shell.exit(1);
         }
@@ -106,7 +111,8 @@ const deployAwsBeanstalk = {
         if (!shell.which("eb")) {
             echo.message("AWS EB CLI not found. Installing via PIP...");
 
-            if (shell.exec("pip install awsebcli").code !== 0) {
+            // Unfortunately we must lock down our awscli and awsebcli versions so they use compatible dependencies https://github.com/aws/aws-cli/issues/3550
+            if (shell.exec("pip install awsebcli==3.14.4").code !== 0) {
                 echo.error("Failed to install eb cli via pip");
                 shell.exit(1);
             }
@@ -131,7 +137,8 @@ const deployAwsBeanstalk = {
 program
     .usage("option")
     .description(deployAwsBeanstalk.description())
-    .option("--dotnet", "Deploy dotnet core application via beanstalk")
+    .option("--dotnet",            "Deploy dotnet core application via beanstalk")
+    .option("--timeout <timeout>", `Optional elastic beanstalk deploy timeout. Default is ${timeout} minutes. When exceeded, exits with error`)
     .parse(process.argv);
 
 // #endregion Entrypoint / Command router

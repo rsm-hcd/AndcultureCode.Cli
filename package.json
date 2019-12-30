@@ -1,6 +1,6 @@
 {
   "name": "and-cli",
-  "version": "0.1.0",
+  "version": "0.4.0",
   "description": "and-cli command-line tool to manage the development of software applications",
   "bin": {
     "and-cli": "cli.js"
@@ -31,6 +31,7 @@
     "upath": "^1.1.2"
   },
   "devDependencies": {
+    "cross-env": "^6.0.3",
     "jest": "^24.9.0",
     "pryjs": "1.0.3"
   }
