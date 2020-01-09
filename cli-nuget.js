@@ -90,7 +90,7 @@ const nugetPublish = {
 
 const nugetUpgrade = {
     description() {
-        return "Upgrades a specified NuGet package for all projects in a solution.";
+        return "Prompts the user to specify a NuGet package to upgrade for all projects in a solution.";
     },
     run() {
         const prompt = readline.createInterface({
@@ -178,7 +178,7 @@ program
     .usage("option(s)")
     .description(commands.nuget.description)
     .option("-p, --publish <version>", nugetPublish.description())
-    .option("-u, --upgrade [package]", nugetUpgrade.description())
+    .option("-u, --upgrade", nugetUpgrade.description())
     .parse(process.argv);
 
 if (program.publish) { nugetPublish.run(); }
