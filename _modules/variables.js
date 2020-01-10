@@ -1,10 +1,10 @@
 exports.colors = {
-    clear:  "\033[0m",
-    green:  "\033[0;32m",
-    purple: "\033[1;35m",
-    red:    "\033[0;31m",
-    white:  "\033[1;37m",
-    yellow: "\033[1;33m"
+    clear:  "\x1b[0m",
+    green:  "\x1b[0;32m",
+    purple: "\x1b[1;35m",
+    red:    "\x1b[31m",
+    white:  "\x1b[1;37m",
+    yellow: "\x1b[1;33m"
 };
 
 exports.symbols = {
