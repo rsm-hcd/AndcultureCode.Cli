@@ -161,7 +161,7 @@ const nugetUpgrade = {
         this.promptForConfirmation();
     },
     validatePackageName(packageName) {
-        if (packageName.trim() === "") {
+        if (packageName == null || packageName.trim() === "") {
             echo.error("Please enter a valid package name.");
             shell.exit(-1);
         }
@@ -201,3 +201,5 @@ if (program.upgrade) { nugetUpgrade.run(); }
 if (process.argv.slice(2).length === 0) { program.help(); }
 
 // #endregion Entrypoint / Command router
+
+exports.nugetUpgrade = nugetUpgrade;
