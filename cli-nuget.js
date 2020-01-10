@@ -9,7 +9,7 @@ const dotnetPath    = require("./_modules/dotnet-path");
 const echo          = require("./_modules/echo");
 const formatters    = require("./_modules/formatters");
 const program       = require("commander");
-const readline      = require("readline");
+const readlineSync  = require("readline-sync");
 const shell         = require("shelljs");
 
 
@@ -92,76 +92,89 @@ const nugetUpgrade = {
     description() {
         return "Prompts the user to specify a NuGet package to upgrade for all projects in a solution.";
     },
+    findCsprojFiles() {
+        echo.message("Looking for csproj files under the current directory...");
+
+        const lsResult = shell.ls("**/*.csproj");
+        if (lsResult.code !== 0) {
+            echo.error(ERROR_READING_CSPROJ_FILES);
+            shell.exit(lsResult.code);
+        }
+
+        const csprojFiles = lsResult.stdout.split("\n").filter((file) => file.trim() !== "");
+        if (csprojFiles.length === 0) {
+            echo.error("No csproj files could be found. Please check the directory you're in.");
+            shell.exit(-1);
+        }
+
+        return csprojFiles;
+    },
+    getCsprojFilesContainingPackage(csprojFiles) {
+        echo.message(`Looking for packages matching '${this.packageName}'...`);
+
+        const grepResult = shell.grep("-l", this.packageName, csprojFiles);
+        if (grepResult.code !== 0) {
+            echo.error(ERROR_READING_CSPROJ_FILES);
+            shell.exit(grepResult.code);
+        }
+
+        const matchingProjects = grepResult.stdout.split("\n").filter((result) => result.trim() !== "");
+        if (matchingProjects.length === 0) {
+            echo.message(`No projects found with package '${this.packageName}'. Exiting.`);
+            shell.exit(-1);
+        }
+
+        return matchingProjects;
+    },
+    matchingProjects: [],
+    packageName: "",
+    packageVersion: "",
+    promptForConfirmation() {
+        echo.message(`${formatters.red(this.matchingProjects.length)} projects found with package '${this.packageName}'.`);
+        if (readlineSync.keyInYN(`Continue? ${formatters.yellow("(y/n)")}`)) {
+            this.replacePackageVersion();
+        }
+    },
+    promptForPackageName() {
+        const packageName = readlineSync.question("Please enter a package to upgade: ");
+        this.validatePackageName(packageName);
+    },
+    promptForPackageVersion() {
+        const packageVersion = readlineSync.question(`Please enter a version to upgrade '${this.packageName}' to: `);
+        this.validatePackageVersion(packageVersion);
+    },
+    replacePackageVersion() {
+        const sedResult = shell.sed("-i", `(<PackageReference[ ]*Include[ ]*=[ ]*\"${this.packageName}\"[ ]*Version[ ]*=[ ]*\")([0-9]+.[0-9]+.[0-9]+)`, `$1${this.packageVersion}`, this.matchingProjects);
+        if (sedResult.code !== 0) {
+            echo.error(`There was an error updating csproj files: ${sedResult}`);
+            shell.exit(sedResult.code);
+        }
+
+        echo.success(`Successfully updated '${this.packageName}' to version ${this.packageVersion}. Please check your git status before committing.`);
+        shell.exit(0);
+    },
     run() {
-        const prompt = readline.createInterface({
-            input:  process.stdin,
-            output: process.stdout,
-        });
+        this.promptForPackageName();
+        this.promptForPackageVersion();
+        const csprojFiles     = this.findCsprojFiles();
+        this.matchingProjects = this.getCsprojFilesContainingPackage(csprojFiles);
+        this.promptForConfirmation();
+    },
+    validatePackageName(packageName) {
+        if (packageName.trim() === "") {
+            echo.error("Please enter a valid package name.");
+            shell.exit(-1);
+        }
 
-        let packageName    = "";
-        let packageVersion = "";
+        this.packageName = packageName;
+    },
+    validatePackageVersion(packageVersion) {
+        if (!packageVersion.match(versionRegexPattern)) {
+            echo.error(ERROR_INVALID_VERSION_STRING);
+            shell.exit(1);
+        }
 
-        echo.message("Please enter a package to upgade:");
-        prompt.question("", (packageNameResponse) => {
-            packageName = packageNameResponse;
-            if (packageName.trim() === "") {
-                echo.error("Please enter a valid package name.");
-                shell.exit(-1);
-            }
-
-            echo.message(`Please enter a version to upgade '${packageName}' to:`);
-            prompt.question("", (packageVersionResponse) => {
-                if (!packageVersionResponse.match(versionRegexPattern)) {
-                    echo.error(ERROR_INVALID_VERSION_STRING);
-                    shell.exit(1);
-                }
-
-                packageVersion = packageVersionResponse;
-
-                echo.message(`Looking for packages matching '${packageName}'...`);
-
-                const lsResult = shell.ls("**/*.csproj");
-                if (lsResult.code !== 0) {
-                    echo.error(ERROR_READING_CSPROJ_FILES);
-                    shell.exit(lsResult.code);
-                }
-
-                const csprojFiles = lsResult.stdout.split("\n").filter((file) => file.trim() !== "");
-                if (csprojFiles.length === 0) {
-                    echo.error("No csproj files could be found. Please check the directory you're in.");
-                    shell.exit(-1);
-                }
-
-                const grepResult = shell.grep("-l", packageName, csprojFiles);
-                if (grepResult.code !== 0) {
-                    echo.error(ERROR_READING_CSPROJ_FILES);
-                    shell.exit(grepResult.code);
-                }
-
-                const matchingProjects = grepResult.stdout.split("\n").filter((result) => result.trim() !== "");
-                if (matchingProjects.length === 0) {
-                    echo.message(`No projects found with package '${packageName}'. Exiting.`);
-                    shell.exit(-1);
-                }
-
-                echo.message(`${formatters.red(matchingProjects.length)} projects found with package '${packageName}'.`);
-                prompt.question(`Continue? ${formatters.yellow("(y/n)")}: `, (confirmationResponse) => {
-                    if (!confirmationResponse.match(/([yY][eE][sS]|[yY])/)) {
-                        shell.exit(0);
-                    }
-
-                    const sedResult = shell.sed("-i", `(<PackageReference[ ]*Include[ ]*=[ ]*\"${packageName}\"[ ]*Version[ ]*=[ ]*\")([0-9]+.[0-9]+.[0-9]+)`, `$1${packageVersion}`, matchingProjects);
-                    if (sedResult.code !== 0) {
-                        echo.error(`There was an error updating csproj files: ${sedResult}`);
-                        shell.exit(sedResult.code);
-                    }
-
-                    echo.success(`Successfully updated '${packageName}' to version ${packageVersion}. Please check your git status before committing.`);
-                    shell.exit(0);
-                });
-            });
-        });
-
+        this.packageVersion = packageVersion;
     }
 }
 
