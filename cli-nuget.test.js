@@ -19,6 +19,40 @@ describe("nugetUpgrade", () => {
     });
 
     /**************************************************************************************************
+     * replacePackageVersion()
+     **************************************************************************************************/
+
+    describe("replacePackageVersion()", () => {
+        test("when shell.sed returns non-zero exit code, it calls shell.exit with that code", () => {
+            // Arrange
+            const shellSedMock = jest.fn().mockImplementation(() => {
+                return { code: -1 };
+            });
+            shell.sed = shellSedMock;
+
+            // Act
+            sut.replacePackageVersion();
+
+            // Assert
+            expect(shell.exit).toHaveBeenCalledWith(-1);
+        });
+
+        test("when shell.sed returns zero exit code, it calls shell.exit code 0", () => {
+            // Arrange
+            const shellSedMock = jest.fn().mockImplementation(() => {
+                return { code: 0 };
+            });
+            shell.sed = shellSedMock;
+
+            // Act
+            sut.replacePackageVersion();
+
+            // Assert
+            expect(shell.exit).toHaveBeenCalledWith(0);
+        });
+    });
+
+    /**************************************************************************************************
      * validatePackageName()
      **************************************************************************************************/
 
