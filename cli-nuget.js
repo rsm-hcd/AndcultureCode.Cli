@@ -169,9 +169,9 @@ const nugetUpgrade = {
         this.packageName = packageName;
     },
     validatePackageVersion(packageVersion) {
-        if (!packageVersion.match(versionRegexPattern)) {
+        if (packageVersion == null || !packageVersion.match(versionRegexPattern)) {
             echo.error(ERROR_INVALID_VERSION_STRING);
-            shell.exit(1);
+            shell.exit(-1);
         }
 
         this.packageVersion = packageVersion;
