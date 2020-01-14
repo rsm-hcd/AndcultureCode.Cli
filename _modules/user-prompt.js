@@ -47,7 +47,7 @@ const prompt = {
     async confirmOrExit(question, exitStatus = 0) {
         const prompt = this.getPrompt();
 
-        const answer = await prompt.questionAsync(`${question} ${formatters.yellow("(y/n)")}: `);
+        const answer = await prompt.questionAsync(`${question} ${formatters.yellow("(y/N)")}: `);
         if (!answer.match(/[yY]/)) {
             shell.exit(exitStatus);
         }

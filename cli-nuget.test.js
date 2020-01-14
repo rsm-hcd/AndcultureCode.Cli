@@ -28,13 +28,13 @@ describe("nugetUpgrade", () => {
     describe("findCsprojFiles()", () => {
         test("when shell.find returns non-zero exit code, it calls shell.exit with that code", () => {
             // Arrange
-            shell.find = mockShellFn(-1);
+            shell.find = mockShellFn(1);
 
             // Act
             sut.findCsprojFiles();
 
             // Assert
-            expect(shell.exit).toHaveBeenCalledWith(-1);
+            expect(shell.exit).toHaveBeenCalledWith(1);
         });
     });
 
@@ -54,7 +54,7 @@ describe("nugetUpgrade", () => {
             expect(shell.exit).toHaveBeenCalledWith(100);
         });
 
-        test("when shell.grep returns zero exit code but no files with the package are found, it calls shell.exit with -1 exit code", () => {
+        test("when shell.grep returns zero exit code but no files with the package are found, it calls shell.exit with 1 exit code", () => {
             // Arrange
             shell.grep = mockShellFn(0);
 
@@ -62,7 +62,7 @@ describe("nugetUpgrade", () => {
             sut.getCsprojFilesContainingPackage([]);
 
             // Assert
-            expect(shell.exit).toHaveBeenCalledWith(-1);
+            expect(shell.exit).toHaveBeenCalledWith(1);
         });
     });
 
@@ -73,13 +73,13 @@ describe("nugetUpgrade", () => {
     describe("replacePackageVersion()", () => {
         test("when shell.sed returns non-zero exit code, it calls shell.exit with that code", () => {
             // Arrange
-            shell.sed = mockShellFn(-1);
+            shell.sed = mockShellFn(1);
 
             // Act
             sut.replacePackageVersion();
 
             // Assert
-            expect(shell.exit).toHaveBeenCalledWith(-1);
+            expect(shell.exit).toHaveBeenCalledWith(1);
         });
 
         test("when shell.sed returns zero exit code, it calls shell.exit with code zero", () => {
@@ -108,7 +108,7 @@ describe("nugetUpgrade", () => {
             sut.validatePackageName(packageName);
 
             // Assert
-            expect(shellExitSpy).toHaveBeenCalledWith(-1);
+            expect(shellExitSpy).toHaveBeenCalledWith(1);
         });
 
         test("when given a string with >= 1 characters, it does not call shell.exit", () => {
@@ -134,7 +134,7 @@ describe("nugetUpgrade", () => {
             sut.validatePackageVersion(packageVersion);
 
             // Assert
-            expect(shellExitSpy).toHaveBeenCalledWith(-1);
+            expect(shellExitSpy).toHaveBeenCalledWith(1);
         });
 
         test.each`

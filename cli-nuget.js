@@ -117,7 +117,7 @@ const nugetUpgrade = {
         const matchingProjects = grepResult.stdout.split("\n").filter((result) => result.trim() !== "");
         if (matchingProjects.length === 0) {
             echo.message(`No projects found with package '${this.packageName}'. Exiting.`);
-            shell.exit(-1);
+            shell.exit(1);
         }
 
         return matchingProjects;
@@ -171,7 +171,7 @@ const nugetUpgrade = {
     validatePackageName(packageName) {
         if (packageName == null || packageName.trim() === "") {
             echo.error("Please enter a valid package name.");
-            shell.exit(-1);
+            shell.exit(1);
         }
 
         return packageName.trim();
@@ -179,7 +179,7 @@ const nugetUpgrade = {
     validatePackageVersion(packageVersion) {
         if (packageVersion == null || !packageVersion.match(versionRegexPattern)) {
             echo.error(ERROR_INVALID_VERSION_STRING);
-            shell.exit(-1);
+            shell.exit(1);
         }
 
         return packageVersion;
