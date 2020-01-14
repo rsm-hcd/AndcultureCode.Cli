@@ -11,8 +11,8 @@ const shell     = require("shelljs");
 const sut = cli_nuget.nugetUpgrade;
 
 describe("nugetUpgrade", () => {
-    const mockFnExitStatus = (code) => jest.fn().mockImplementation(() => {
-        return { code };
+    const mockShellFn = (code = 0, stdout = "") => jest.fn().mockImplementation(() => {
+        return { code, stdout };
     });
 
     let shellExitSpy;
@@ -28,10 +28,38 @@ describe("nugetUpgrade", () => {
     describe("findCsprojFiles()", () => {
         test("when shell.find returns non-zero exit code, it calls shell.exit with that code", () => {
             // Arrange
-            shell.find = mockFnExitStatus(-1);
+            shell.find = mockShellFn(-1);
 
             // Act
             sut.findCsprojFiles();
+
+            // Assert
+            expect(shell.exit).toHaveBeenCalledWith(-1);
+        });
+    });
+
+    /**************************************************************************************************
+     * getCsprojFilesContainingPackage()
+     **************************************************************************************************/
+
+    describe("getCsprojFilesContainingPackage()", () => {
+        test("when shell.grep returns non-zero exit code, it calls shell.exit with that code", () => {
+            // Arrange
+            shell.grep = mockShellFn(100);
+
+            // Act
+            sut.getCsprojFilesContainingPackage([]);
+
+            // Assert
+            expect(shell.exit).toHaveBeenCalledWith(100);
+        });
+
+        test("when shell.grep returns zero exit code but no files with the package are found, it calls shell.exit with -1 exit code", () => {
+            // Arrange
+            shell.grep = mockShellFn(0);
+
+            // Act
+            sut.getCsprojFilesContainingPackage([]);
 
             // Assert
             expect(shell.exit).toHaveBeenCalledWith(-1);
@@ -45,7 +73,7 @@ describe("nugetUpgrade", () => {
     describe("replacePackageVersion()", () => {
         test("when shell.sed returns non-zero exit code, it calls shell.exit with that code", () => {
             // Arrange
-            shell.sed = mockFnExitStatus(-1);
+            shell.sed = mockShellFn(-1);
 
             // Act
             sut.replacePackageVersion();
@@ -56,7 +84,7 @@ describe("nugetUpgrade", () => {
 
         test("when shell.sed returns zero exit code, it calls shell.exit with code zero", () => {
             // Arrange
-            shell.sed = mockFnExitStatus(0);
+            shell.sed = mockShellFn(0);
 
             // Act
             sut.replacePackageVersion();
@@ -73,8 +101,6 @@ describe("nugetUpgrade", () => {
     describe("validatePackageName()", () => {
         test.each`
             packageName
-            ${undefined}
-            ${null}
             ${""}
             ${" "}
         `("when given '$packageName' as a package name, it calls shell.exit with non-zero code", ({ packageName }) => {
