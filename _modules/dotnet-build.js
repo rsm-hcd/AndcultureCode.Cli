@@ -48,7 +48,7 @@ const dotnetBuild = {
             shell.exit(buildResult.code);
         }
 
-        shell.exit(0);
+        return buildResult.code;
     },
 };
 
