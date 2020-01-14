@@ -93,15 +93,17 @@ const nugetUpgrade = {
         return "Prompts the user to specify a NuGet package to upgrade for all projects in a solution.";
     },
     findCsprojFiles() {
+        const solutionDir = dotnetPath.solutionDir();
+
         echo.message("Looking for csproj files under the current directory...");
 
-        const lsResult = shell.ls("**/*.csproj");
-        if (lsResult.code !== 0) {
+        const findResult = shell.find(`${solutionDir}/**/*.csproj`);
+        if (findResult.code !== 0) {
             echo.error(ERROR_READING_CSPROJ_FILES);
-            shell.exit(lsResult.code);
+            shell.exit(findResult.code);
         }
 
-        const csprojFiles = lsResult.stdout.split("\n").filter((file) => file.trim() !== "");
+        const csprojFiles = findResult.filter((file) => file.trim() !== "");
         if (csprojFiles.length === 0) {
             echo.error("No csproj files could be found. Please check the directory you're in.");
             shell.exit(-1);
@@ -137,11 +139,11 @@ const nugetUpgrade = {
     },
     promptForPackageName() {
         const packageName = readlineSync.question("Please enter a package to upgade: ");
-        this.validatePackageName(packageName);
+        return this.validatePackageName(packageName);
     },
     promptForPackageVersion() {
         const packageVersion = readlineSync.question(`Please enter a version to upgrade '${this.packageName}' to: `);
-        this.validatePackageVersion(packageVersion);
+        return this.validatePackageVersion(packageVersion);
     },
     replacePackageVersion() {
         const sedResult = shell.sed("-i", `(<PackageReference[ ]*Include[ ]*=[ ]*\"${this.packageName}\"[ ]*Version[ ]*=[ ]*\")([0-9]+.[0-9]+.[0-9]+)`, `$1${this.packageVersion}`, this.matchingProjects);
@@ -154,8 +156,11 @@ const nugetUpgrade = {
         shell.exit(0);
     },
     run() {
-        this.promptForPackageName();
-        this.promptForPackageVersion();
+        // Ensure we are in a directory that has a dotnet solution.
+        dotnetPath.solutionPathOrExit();
+
+        this.packageName      = this.promptForPackageName();
+        this.packageVersion   = this.promptForPackageVersion();
         const csprojFiles     = this.findCsprojFiles();
         this.matchingProjects = this.getCsprojFilesContainingPackage(csprojFiles);
         this.promptForConfirmation();
@@ -166,7 +171,7 @@ const nugetUpgrade = {
             shell.exit(-1);
         }
 
-        this.packageName = packageName;
+        return packageName.trim();
     },
     validatePackageVersion(packageVersion) {
         if (packageVersion == null || !packageVersion.match(versionRegexPattern)) {
@@ -174,7 +179,7 @@ const nugetUpgrade = {
             shell.exit(-1);
         }
 
-        this.packageVersion = packageVersion;
+        return packageVersion;
     }
 }
 
