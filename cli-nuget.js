@@ -4,13 +4,13 @@
  * Imports
  **************************************************************************************************/
 
-const commands      = require("./_modules/commands");
-const dotnetPath    = require("./_modules/dotnet-path");
-const echo          = require("./_modules/echo");
-const formatters    = require("./_modules/formatters");
-const program       = require("commander");
-const readlineSync  = require("readline-sync");
-const shell         = require("shelljs");
+const commands   = require("./_modules/commands");
+const dotnetPath = require("./_modules/dotnet-path");
+const echo       = require("./_modules/echo");
+const formatters = require("./_modules/formatters");
+const program    = require("commander");
+const shell      = require("shelljs");
+const userPrompt = require("./_modules/user-prompt");
 
 
 /**************************************************************************************************
@@ -125,18 +125,18 @@ const nugetUpgrade = {
     matchingProjects: [],
     packageName: "",
     packageVersion: "",
-    promptForConfirmation() {
+    prompt: null,
+    async promptForConfirmation() {
         echo.message(`${formatters.red(this.matchingProjects.length)} projects found with package '${this.packageName}'.`);
-        if (readlineSync.keyInYN(`Continue? ${formatters.yellow("(y/n)")}`)) {
-            this.replacePackageVersion();
-        }
+        await userPrompt.confirmOrExit("Continue?");
+        this.replacePackageVersion();
     },
-    promptForPackageName() {
-        const packageName = readlineSync.question("Please enter a package to upgade: ");
+    async promptForPackageName() {
+        const packageName = await this.prompt.questionAsync("Please enter a package to upgade: ");
         return this.validatePackageName(packageName);
     },
-    promptForPackageVersion() {
-        const packageVersion = readlineSync.question(`Please enter a version to upgrade '${this.packageName}' to: `);
+    async promptForPackageVersion() {
+        const packageVersion = await this.prompt.questionAsync(`Please enter a version to upgrade '${this.packageName}' to: `);
         return this.validatePackageVersion(packageVersion);
     },
     replacePackageVersion() {
@@ -149,15 +149,24 @@ const nugetUpgrade = {
         echo.success(`Successfully updated '${this.packageName}' to version ${this.packageVersion}. Please check your git status before committing.`);
         shell.exit(0);
     },
-    run() {
+    async run() {
         // Ensure we are in a directory that has a dotnet solution.
         dotnetPath.solutionPathOrExit();
 
-        this.packageName      = this.promptForPackageName();
-        this.packageVersion   = this.promptForPackageVersion();
+        // Retrieve the cached prompt interface so we don't have multiple streams of input
+        this.prompt = userPrompt.getPrompt();
+
+        // Ask for the package name & version to upgrade
+        this.packageName    = await this.promptForPackageName();
+        this.packageVersion = await this.promptForPackageVersion();
+
+        // Find all of the csproj files and then narrow down the results to those that actually
+        // require the package.
         const csprojFiles     = this.findCsprojFiles();
         this.matchingProjects = this.getCsprojFilesContainingPackage(csprojFiles);
-        this.promptForConfirmation();
+
+        // Finally, confirm the operation from the user to replace the package in those files
+        await this.promptForConfirmation();
     },
     validatePackageName(packageName) {
         if (packageName == null || packageName.trim() === "") {
