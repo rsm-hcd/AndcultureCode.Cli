@@ -11,11 +11,31 @@ const shell     = require("shelljs");
 const sut = cli_nuget.nugetUpgrade;
 
 describe("nugetUpgrade", () => {
+    const mockFnExitStatus = (code) => jest.fn().mockImplementation(() => {
+        return { code };
+    });
 
     let shellExitSpy;
 
     beforeEach(() => {
         shellExitSpy = jest.spyOn(shell, "exit").mockImplementation(() => {});
+    });
+
+    /**************************************************************************************************
+     * findCsprojFiles()
+     **************************************************************************************************/
+
+    describe("findCsprojFiles()", () => {
+        test("when shell.find returns non-zero exit code, it calls shell.exit with that code", () => {
+            // Arrange
+            shell.find = mockFnExitStatus(-1);
+
+            // Act
+            sut.findCsprojFiles();
+
+            // Assert
+            expect(shell.exit).toHaveBeenCalledWith(-1);
+        });
     });
 
     /**************************************************************************************************
@@ -25,10 +45,7 @@ describe("nugetUpgrade", () => {
     describe("replacePackageVersion()", () => {
         test("when shell.sed returns non-zero exit code, it calls shell.exit with that code", () => {
             // Arrange
-            const shellSedMock = jest.fn().mockImplementation(() => {
-                return { code: -1 };
-            });
-            shell.sed = shellSedMock;
+            shell.sed = mockFnExitStatus(-1);
 
             // Act
             sut.replacePackageVersion();
@@ -37,12 +54,9 @@ describe("nugetUpgrade", () => {
             expect(shell.exit).toHaveBeenCalledWith(-1);
         });
 
-        test("when shell.sed returns zero exit code, it calls shell.exit code 0", () => {
+        test("when shell.sed returns zero exit code, it calls shell.exit with code zero", () => {
             // Arrange
-            const shellSedMock = jest.fn().mockImplementation(() => {
-                return { code: 0 };
-            });
-            shell.sed = shellSedMock;
+            shell.sed = mockFnExitStatus(0);
 
             // Act
             sut.replacePackageVersion();
@@ -63,7 +77,7 @@ describe("nugetUpgrade", () => {
             ${null}
             ${""}
             ${" "}
-        `("when given '$packageName' as a package name, it calls shell.exit", ({ packageName }) => {
+        `("when given '$packageName' as a package name, it calls shell.exit with non-zero code", ({ packageName }) => {
             // Arrange & Act
             sut.validatePackageName(packageName);
 

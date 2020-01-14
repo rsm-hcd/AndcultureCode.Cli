@@ -103,13 +103,7 @@ const nugetUpgrade = {
             shell.exit(findResult.code);
         }
 
-        const csprojFiles = findResult.filter((file) => file.trim() !== "");
-        if (csprojFiles.length === 0) {
-            echo.error("No csproj files could be found. Please check the directory you're in.");
-            shell.exit(-1);
-        }
-
-        return csprojFiles;
+        return findResult;
     },
     getCsprojFilesContainingPackage(csprojFiles) {
         echo.message(`Looking for packages matching '${this.packageName}'...`);
