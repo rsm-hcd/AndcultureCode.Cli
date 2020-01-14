@@ -97,8 +97,6 @@ describe("nugetUpgrade", () => {
     describe("validatePackageVersion()", () => {
         test.each`
             packageVersion
-            ${undefined}
-            ${null}
             ${""}
             ${" "}
             ${"1"}
