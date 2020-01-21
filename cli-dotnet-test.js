@@ -12,6 +12,7 @@ const echo        = require("./_modules/echo");
 const formatters  = require("./_modules/formatters");
 const program     = require("commander");
 const shell       = require("shelljs");
+const { spawn }   = require("child_process");
 
 
 /**************************************************************************************************
@@ -56,17 +57,17 @@ const dotnetTest = {
 
         echo.message(message);
 
-        const result = shell.exec(cmd, { silent: true, async: false });
+        const child = spawn(cmd, { stdio: "inherit", shell: true });
+        child.on("exit", (code, signal) => {
+            if (code !== 0) {
+                echo.error(`Exited with error '${signal}'`);
+                shell.exit(code);
+            }
 
-        shell.echo(formatters.dotnet(result.stdout));
-        shell.echo(formatters.dotnet(result.stderr));
-
-        dir.popd();
-
-        if (result.code !== 0) {
-            echo.headerError("One or many test projects failed to compile or pass tests");
-            shell.exit(result.code);
-        }
+            dir.popd();
+            echo.newLine();
+            echo.message("Exited dotnet-test");
+        });
     },
 };
 
