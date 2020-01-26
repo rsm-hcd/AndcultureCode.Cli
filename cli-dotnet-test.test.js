@@ -2,13 +2,7 @@
  * Imports
  **************************************************************************************************/
 const { dotnetTest } = require("./cli-dotnet-test");
-const dotnetBuild = require("./_modules/dotnet-build");
-const dotnetClean = require("./_modules/dotnet-clean");
-
-
-/**************************************************************************************************
- * Variables
- **************************************************************************************************/
+const dotnetBuild    = require("./_modules/dotnet-build");
 
 describe("dotnetTest", () => {
 
@@ -17,10 +11,10 @@ describe("dotnetTest", () => {
      **************************************************************************************************/
 
     describe("runBySolution()", () => {
-        let dotnetBuildMock;
+        let dotnetBuildSpy;
 
         beforeEach(() => {
-            dotnetBuildMock = jest.spyOn(dotnetBuild, "run").mockImplementation(() => {});
+            dotnetBuildSpy = jest.spyOn(dotnetBuild, "run").mockImplementation(() => {});
         });
 
         test("it calls dotnetBuild.run() by default", () => {
@@ -28,7 +22,7 @@ describe("dotnetTest", () => {
             dotnetTest.runBySolution();
 
             // Assert
-            expect(dotnetBuildMock).toHaveBeenCalledWith(true, true);
+            expect(dotnetBuildSpy).toHaveBeenCalledWith(true, true);
         });
 
         test("when skipClean is set to false, it calls dotnetBuild.run()", () => {
@@ -36,7 +30,7 @@ describe("dotnetTest", () => {
             dotnetTest.runBySolution(false);
 
             // Assert
-            expect(dotnetBuildMock).toHaveBeenCalledWith(true, true);
+            expect(dotnetBuildSpy).toHaveBeenCalledWith(true, true);
         });
 
         test("when skipClean is set to true, it does not call dotnetBuild.run()", () => {
@@ -44,7 +38,7 @@ describe("dotnetTest", () => {
             dotnetTest.runBySolution(true);
 
             // Assert
-            expect(dotnetBuildMock).not.toHaveBeenCalled();
+            expect(dotnetBuildSpy).not.toHaveBeenCalled();
         });
     });
 });
