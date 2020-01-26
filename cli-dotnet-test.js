@@ -6,7 +6,6 @@
 
 const commands    = require("./_modules/commands");
 const dir         = require("./_modules/dir");
-const dotnetClean = require("./_modules/dotnet-clean");
 const dotnetBuild = require("./_modules/dotnet-build");
 const dotnetPath  = require("./_modules/dotnet-path");
 const echo        = require("./_modules/echo");
@@ -33,12 +32,11 @@ const dotnetTest = {
     description() {
         return `Runs dotnet test runner on the ${dotnetPath.solutionPath()} solution (via ${this.cmds.dotnetTest})`;
     },
-    runBySolution() {
+    runBySolution(skipClean) {
         // Check for the solution path before attempting any work
         dotnetPath.solutionPathOrExit();
 
-        if (program.skipClean == null) {
-            dotnetClean.run();
+        if (!skipClean) {
             dotnetBuild.run(true, true);
         }
 
@@ -91,6 +89,8 @@ program
     .option("--coverage",  "Additionally run tests with code coverage via coverlet")
     .parse(process.argv);
 
-dotnetTest.runBySolution();
+dotnetTest.runBySolution(program.skipClean);
 
 // #endregion Entrypoint / Command router
+
+exports.dotnetTest = dotnetTest;
