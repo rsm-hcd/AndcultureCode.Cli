@@ -6,7 +6,7 @@
 
 const commands    = require("./_modules/commands");
 const dir         = require("./_modules/dir");
-const dotnetClean = require("./_modules/dotnet-clean");
+const dotnetBuild = require("./_modules/dotnet-build");
 const dotnetPath  = require("./_modules/dotnet-path");
 const echo        = require("./_modules/echo");
 const formatters  = require("./_modules/formatters");
@@ -23,21 +23,23 @@ const { spawn }   = require("child_process");
 
 const dotnetTest = {
     cmds: {
-        dotnetTest:       "dotnet test",
-        dotnetTestFilter: "dotnet test --filter",
+        dotnetTest:       "dotnet test --no-build --no-restore",
+        dotnetTestFilter: "dotnet test --no-build --no-restore --filter",
     },
-    descriptionClean() {
-        return "Skips the clean step before running the dotnet test runner (used in conjunction with a project flag)";
+    descriptionSkipClean() {
+        return "Skips the clean, build, and restore steps before running the dotnet test runner. This will speed up sequential runs if intentionally running on the same assemblies.";
     },
-    description(testDirectory) {
+    description() {
         return `Runs dotnet test runner on the ${dotnetPath.solutionPath()} solution (via ${this.cmds.dotnetTest})`;
     },
-    runBySolution() {
-        if (program.clean) {
-            dotnetClean.run();
+    runBySolution(skipClean) {
+        // Check for the solution path before attempting any work
+        dotnetPath.solutionPathOrExit();
+
+        if (!skipClean) {
+            dotnetBuild.run(true, true);
         }
 
-        dotnetPath.solutionPathOrExit();
         const solutionDir = dotnetPath.solutionDir();
 
         dir.pushd(solutionDir);
@@ -82,11 +84,13 @@ const dotnetTest = {
 
 program
     .usage("option")
-    .description(commands.dotnetTest.description)
-    .option("-c, --clean", dotnetTest.descriptionClean())
+    .description(dotnetTest.description())
+    .option("-s, --skip-clean", dotnetTest.descriptionSkipClean())
     .option("--coverage",  "Additionally run tests with code coverage via coverlet")
     .parse(process.argv);
 
-dotnetTest.runBySolution();
+dotnetTest.runBySolution(program.skipClean);
 
 // #endregion Entrypoint / Command router
+
+exports.dotnetTest = dotnetTest;
