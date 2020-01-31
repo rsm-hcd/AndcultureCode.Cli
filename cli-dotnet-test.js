@@ -12,7 +12,7 @@ const echo        = require("./_modules/echo");
 const formatters  = require("./_modules/formatters");
 const program     = require("commander");
 const shell       = require("shelljs");
-const { spawn }   = require("child_process");
+const spawn       = require("await-spawn");
 
 /**************************************************************************************************
  * Variables
@@ -37,9 +37,13 @@ const dotnetTest = {
     description() {
         return `Runs dotnet test runner on the ${dotnetPath.solutionPath()} solution (via ${this.cmds.dotnetTest})`;
     },
-    runByProject() {
+    async runByProject(skipClean) {
         // Check for the solution path before attempting any work
         dotnetPath.solutionPathOrExit();
+
+        if (!skipClean) {
+            dotnetBuild.run(true, true);
+         }
 
         const solutionDir = dotnetPath.solutionDir();
         dir.pushd(solutionDir);
@@ -58,20 +62,21 @@ const dotnetTest = {
             cmd += coverageFlags;
         }
 
-        testProjects.map((project) => {
+        testProjects.map(async (project) => {
             echo.message(`Running tests in the ${project} project... via (${cmd} ${project})`);
 
-            const child = spawn(`${cmd} ${project}`, { stdio: "inherit", shell: true });
-            child.on("exit", (code, signal) => {
-                if (code !== 0) {
-                    echo.error(`Exited with error '${signal}'`);
-                    shell.exit(code);
-                }
+            try {
+                const stdout = await spawn(`${cmd} ${project}`);
+                echo.message(formatters.dotnet(stdout));
 
                 echo.newLine();
                 echo.success(`Tests for ${project} succeeded.`);
-            });
-        })
+            }
+            catch (error) {
+                echo.error(`Exited with status code ${error.code}: '${error.stderr}'`);
+                shell.exit(error.code);
+            }
+        });
 
         dir.popd();
     },
@@ -138,7 +143,7 @@ if (!program.byProject) {
 }
 
 if (program.byProject === true) {
-    dotnetTest.runByProject();
+    dotnetTest.runByProject(program.skipClean);
 }
 
 // #endregion Entrypoint / Command router
