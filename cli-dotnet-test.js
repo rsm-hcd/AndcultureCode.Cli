@@ -14,6 +14,11 @@ const program     = require("commander");
 const shell       = require("shelljs");
 const { spawn }   = require("child_process");
 
+/**************************************************************************************************
+ * Variables
+ **************************************************************************************************/
+
+const coverageFlags = " -p:CollectCoverage=true -p:CoverletOutputFormat=opencover";
 
 /**************************************************************************************************
  * Commands
@@ -31,6 +36,44 @@ const dotnetTest = {
     },
     description() {
         return `Runs dotnet test runner on the ${dotnetPath.solutionPath()} solution (via ${this.cmds.dotnetTest})`;
+    },
+    runByProject() {
+        // Check for the solution path before attempting any work
+        dotnetPath.solutionPathOrExit();
+
+        const solutionDir = dotnetPath.solutionDir();
+        dir.pushd(solutionDir);
+            
+        const testProjects = shell.find("**/*.Test*.csproj");
+        if (testProjects == null || testProjects.length === 0) {
+            echo.error("Could not find any csproj files matching the pattern *.Test*.csproj.");
+            shell.exit(1);
+        }
+
+        echo.message(`Found ${testProjects.length} test projects in the ${dotnetPath.solutionDir()} solution...`);
+
+        let cmd = this.cmds.dotnetTest;
+
+        if (program.coverage) {
+            cmd += coverageFlags;
+        }
+
+        testProjects.map((project) => {
+            echo.message(`Running tests in the ${project} project... via (${cmd} ${project})`);
+
+            const child = spawn(`${cmd} ${project}`, { stdio: "inherit", shell: true });
+            child.on("exit", (code, signal) => {
+                if (code !== 0) {
+                    echo.error(`Exited with error '${signal}'`);
+                    shell.exit(code);
+                }
+
+                echo.newLine();
+                echo.success(`Tests for ${project} succeeded.`);
+            });
+        })
+
+        dir.popd();
     },
     runBySolution(skipClean) {
         // Check for the solution path before attempting any work
@@ -54,7 +97,7 @@ const dotnetTest = {
         }
 
         if (program.coverage) {
-            cmd += " -p:CollectCoverage=true -p:CoverletOutputFormat=opencover";
+            cmd += coverageFlags
         }
 
         echo.message(message);
@@ -85,11 +128,18 @@ const dotnetTest = {
 program
     .usage("option")
     .description(dotnetTest.description())
-    .option("-s, --skip-clean", dotnetTest.descriptionSkipClean())
+    .option("--by-project", "Runs all test projects for the solution in serial")
     .option("--coverage",  "Additionally run tests with code coverage via coverlet")
+    .option("-s, --skip-clean", dotnetTest.descriptionSkipClean())
     .parse(process.argv);
 
-dotnetTest.runBySolution(program.skipClean);
+if (!program.byProject) {
+    dotnetTest.runBySolution(program.skipClean);
+}
+
+if (program.byProject === true) {
+    dotnetTest.runByProject();
+}
 
 // #endregion Entrypoint / Command router
 
