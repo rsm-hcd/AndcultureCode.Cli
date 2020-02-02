@@ -4,12 +4,10 @@
  * Imports
  **************************************************************************************************/
 
-const commands    = require("./_modules/commands");
 const dir         = require("./_modules/dir");
 const dotnetBuild = require("./_modules/dotnet-build");
 const dotnetPath  = require("./_modules/dotnet-path");
 const echo        = require("./_modules/echo");
-const formatters  = require("./_modules/formatters");
 const program     = require("commander");
 const shell       = require("shelljs");
 const { spawn, spawnSync } = require("child_process");
