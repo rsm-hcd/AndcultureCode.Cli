@@ -12,7 +12,7 @@ const echo        = require("./_modules/echo");
 const formatters  = require("./_modules/formatters");
 const program     = require("commander");
 const shell       = require("shelljs");
-const spawn       = require("await-spawn");
+const { spawn, spawnSync } = require("child_process");
 
 /**************************************************************************************************
  * Variables
@@ -37,13 +37,13 @@ const dotnetTest = {
     description() {
         return `Runs dotnet test runner on the ${dotnetPath.solutionPath()} solution (via ${this.cmds.dotnetTest})`;
     },
-    async runByProject(skipClean) {
+    runByProject(skipClean) {
         // Check for the solution path before attempting any work
         dotnetPath.solutionPathOrExit();
 
         if (!skipClean) {
             dotnetBuild.run(true, true);
-         }
+        }
 
         const solutionDir = dotnetPath.solutionDir();
         dir.pushd(solutionDir);
@@ -62,23 +62,19 @@ const dotnetTest = {
             cmd += coverageFlags;
         }
 
-        testProjects.map(async (project) => {
+        testProjects.map((project) => {
             echo.message(`Running tests in the ${project} project... via (${cmd} ${project})`);
 
-            try {
-                const stdout = await spawn(`${cmd} ${project}`);
-                echo.message(formatters.dotnet(stdout));
-
-                echo.newLine();
-                echo.success(`Tests for ${project} succeeded.`);
-            }
-            catch (error) {
-                echo.error(`Exited with status code ${error.code}: '${error.stderr}'`);
-                shell.exit(error.code);
+            const result = spawnSync("dotnet", ["test", project, "--no-build", "--no-restore"], { stdio: "inherit", shell: true });
+            if (result.status !== 0) {
+                echo.error(`Exited with error '${result.status}'`);
+                shell.exit(result.status);
             }
         });
-
+        
         dir.popd();
+        echo.newLine();
+        echo.message("Exited dotnet-test");
     },
     runBySolution(skipClean) {
         // Check for the solution path before attempting any work
