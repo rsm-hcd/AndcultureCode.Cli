@@ -45,31 +45,36 @@ const dotnetTest = {
 
         const solutionDir = dotnetPath.solutionDir();
         dir.pushd(solutionDir);
-            
+
         const testProjects = shell.find("**/*.Test*.csproj");
         if (testProjects == null || testProjects.length === 0) {
             echo.error("Could not find any csproj files matching the pattern *.Test*.csproj.");
             shell.exit(1);
         }
 
+        echo.newLine();
         echo.message(`Found ${testProjects.length} test projects in the ${dotnetPath.solutionDir()} solution...`);
+        echo.newLine();
 
-        let cmd = this.cmds.dotnetTest;
-
-        if (program.coverage) {
-            cmd += coverageFlags;
-        }
+        let cmd = "dotnet";
 
         testProjects.map((project) => {
-            echo.message(`Running tests in the ${project} project... via (${cmd} ${project})`);
+            const args = ["test", project, "--no-build", "--no-restore"];
 
-            const result = spawnSync("dotnet", ["test", project, "--no-build", "--no-restore"], { stdio: "inherit", shell: true });
+            // TODO: Fix coverage flags
+            if (program.coverage) {
+                cmd += coverageFlags;
+            }
+
+            echo.message(`Running tests in the ${project} project... via (${cmd} ${args.join(" ")})`);
+
+            const result = spawnSync(cmd, args, { stdio: "inherit", shell: true });
             if (result.status !== 0) {
                 echo.error(`Exited with error '${result.status}'`);
                 shell.exit(result.status);
             }
         });
-        
+
         dir.popd();
         echo.newLine();
         echo.message("Exited dotnet-test");
