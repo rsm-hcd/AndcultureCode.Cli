@@ -51,8 +51,8 @@ const dotnetTest = {
 
         echo.message(`Found ${testProjects.length} test projects in the ${dotnetPath.solutionDir()} solution...`);
 
-        // Since the spawnSync function takes the base command and arguments separately, we cannot
-        // leverage the base dotnet test command here. We'll build out the arg list in an array.
+        // Since the spawnSync function takes the base command and all arguments separately, we cannot
+        // leverage the base dotnet test command string here. We'll build out the arg list in an array.
         let cmd = "dotnet";
 
         testProjects.map((project) => {
