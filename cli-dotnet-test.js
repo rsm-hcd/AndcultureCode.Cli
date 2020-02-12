@@ -55,7 +55,17 @@ const dotnetTest = {
         // leverage the base dotnet test command string here. We'll build out the arg list in an array.
         let cmd = "dotnet";
 
-        testProjects.map((project) => {
+        /* Keep an array of result objects to output later, in the structure of:
+            {
+                code: 1,
+                name: "ExampleProject.Core.Tests",
+                stderr: "...",
+                stdout: "...",
+            }
+        */
+        const results = [];
+
+        testProjects.forEach((project) => {
             const args = ["test", "--no-build", "--no-restore"];
 
             if (program.coverage) {
@@ -77,12 +87,27 @@ const dotnetTest = {
 
             echo.message(message);
 
-            const result = spawnSync(cmd, args, { stdio: "inherit", shell: true });
-            if (result.status !== 0) {
-                echo.error(`Exited with error '${result.status}'`);
-                shell.exit(result.status);
-            }
+            const result = spawnSync(cmd, args, { stdio: "pipe", shell: false });
+            results.push({
+                code: result.status,
+                name: project,
+                stderr: result.stderr,
+                stdout: result.stdout,
+            });
+            echo.message(result.stdout);
         });
+
+        // Check the results array for any non-zero exit codes and display helpful output for each
+        const failedProjects = results.filter((testResult) => testResult.code !== 0);
+        if (failedProjects.length > 0) {
+            failedProjects.forEach((testResult) => {
+                echo.headerError(`Failed tests for ${testResult.name}`);
+                echo.error(testResult.stderr);
+            });
+
+            echo.error(`${failedProjects.length} test projects exited with non-zero exit status. See above output for more detail.`);
+            shell.exit(1);
+        }
 
         dir.popd();
         echo.newLine();
@@ -143,7 +168,7 @@ const dotnetTest = {
 program
     .usage("option")
     .description(dotnetTest.description())
-    .option("--by-project", "Runs all test projects for the solution in serial")
+    .option("--by-project", "Runs all test projects for the solution serially")
     .option("--coverage",  "Additionally run tests with code coverage via coverlet")
     .option("-s, --skip-clean", dotnetTest.descriptionSkipClean())
     .parse(process.argv);
