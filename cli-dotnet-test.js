@@ -64,7 +64,7 @@ const dotnetTest = {
                 args.push(coverageFlags);
             }
 
-            let message = `Running tests in the ${project} project... via (${cmd} ${args.join(" ")})`
+            let message = `Running tests in the ${project} project... via (${cmd} ${args.join(" ")})`;
 
             if (program.args.length > 0) {
                 const filter = program.args;
