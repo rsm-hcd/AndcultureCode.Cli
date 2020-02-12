@@ -74,12 +74,12 @@ const dotnetTest = {
                 args.push(coverageFlags);
             }
 
-            let message = `Running tests in the ${project} project... via (${cmd} ${args.join(" ")})`;
+            let message = `Running tests in the ${project} project... via (${cmd} ${args.join(" ")} ${project})`;
 
             if (program.args.length > 0) {
                 const filter = program.args;
                 args.push("--filter", filter);
-                message = `Running tests in the ${project} project that match the xunit filter of '${filter}' via (${cmd} ${args.join(" ")})`;
+                message = `Running tests in the ${project} project that match the xunit filter of '${filter}' via (${cmd} ${args.join(" ")} ${project})`;
             }
 
             // Push the project name on as the last arg in the array
@@ -87,6 +87,7 @@ const dotnetTest = {
 
             echo.message(message);
 
+            // Intentionally piping output to capture it for later use when determining failures
             const result = spawnSync(cmd, args, { stdio: "pipe", shell: false });
             results.push({
                 code: result.status,
@@ -94,6 +95,7 @@ const dotnetTest = {
                 stderr: result.stderr,
                 stdout: result.stdout,
             });
+
             echo.message(result.stdout);
         });
 
