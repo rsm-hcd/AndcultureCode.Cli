@@ -9,6 +9,7 @@ const dir                  = require("./_modules/dir");
 const dotnetBuild          = require("./_modules/dotnet-build");
 const dotnetPath           = require("./_modules/dotnet-path");
 const echo                 = require("./_modules/echo");
+const formatters           = require("./_modules/formatters");
 const program              = require("commander");
 const shell                = require("shelljs");
 
@@ -86,25 +87,44 @@ const dotnetTest = {
             args.push(project);
 
             echo.message(message);
-
-            // Intentionally piping output to capture it for later use when determining failures
-            const result = spawnSync(cmd, args, { stdio: "pipe", shell: false });
+            
+            // Determine the stdio mode based on whether or not this is being run in ci mode.
+            // If in ci mode, we need to pipe output to capture stdout/stderr for the output summary.
+            const stdioMode = program.ci ? "pipe" : "inherit";
+            const result = spawnSync(cmd, args, { stdio: stdioMode, shell: true });
             results.push({
                 code: result.status,
                 name: project,
                 stderr: result.stderr,
                 stdout: result.stdout,
             });
+            
+            // We only need to manually output stdout/stderr in ci mode since we're piping it.
+            // For regular use, stdout/stderr will be inherited and output automatically.
+            if (program.ci) {
+                echo.message(result.stdout);
 
-            echo.message(result.stdout);
+                if (result.stderr != null && result.stderr.length !== 0) {
+                    echo.error(result.stderr);
+                }
+            }
         });
 
         // Check the results array for any non-zero exit codes and display helpful output for each
         const failedProjects = results.filter((testResult) => testResult.code !== 0);
         if (failedProjects.length > 0) {
             failedProjects.forEach((testResult) => {
-                echo.headerError(`Failed tests for ${testResult.name}`);
-                echo.error(testResult.stderr);
+                const errorMessage = `Failed tests for ${testResult.name}`;
+
+                if (program.ci) {
+                    echo.headerError(errorMessage);
+                    echo.error(testResult.stderr);
+                    
+                    return;
+                } 
+                
+
+                echo.error(errorMessage);
             });
 
             echo.error(`${failedProjects.length} test projects exited with non-zero exit status. See above output for more detail.`);
@@ -171,17 +191,22 @@ program
     .usage("option")
     .description(dotnetTest.description())
     .option("--by-project", "Runs all test projects for the solution serially")
+    .option("--ci", "Runs the command in 'ci' mode, which provides a summary of failed test projects")
     .option("--coverage",  "Additionally run tests with code coverage via coverlet")
     .option("-s, --skip-clean", dotnetTest.descriptionSkipClean())
     .parse(process.argv);
 
 if (!program.byProject) {
-    dotnetTest.runBySolution(program.skipClean);
+    // dotnetTest.runBySolution(program.skipClean);
 }
 
 if (program.byProject === true) {
     dotnetTest.runByProject(program.skipClean);
+    return;
 }
+
+dotnetTest.runBySolution(program.skipClean);
+
 
 // #endregion Entrypoint / Command router
 
