@@ -87,7 +87,7 @@ const dotnetTest = {
             args.push(project);
 
             echo.message(message);
-            
+
             // Determine the stdio mode based on whether or not this is being run in ci mode.
             // If in ci mode, we need to pipe output to capture stdout/stderr for the output summary.
             const stdioMode = program.ci ? "pipe" : "inherit";
@@ -98,7 +98,7 @@ const dotnetTest = {
                 stderr: result.stderr,
                 stdout: result.stdout,
             });
-            
+
             // We only need to manually output stdout/stderr in ci mode since we're piping it.
             // For regular use, stdout/stderr will be inherited and output automatically.
             if (program.ci) {
@@ -114,17 +114,15 @@ const dotnetTest = {
         const failedProjects = results.filter((testResult) => testResult.code !== 0);
         if (failedProjects.length > 0) {
             failedProjects.forEach((testResult) => {
-                const errorMessage = `Failed tests for ${testResult.name}`;
-
                 if (program.ci) {
-                    echo.headerError(errorMessage);
+                    echo.headerError(`Failed tests for ${testResult.name}`);
                     echo.error(testResult.stderr);
-                    
-                    return;
-                } 
-                
 
-                echo.error(errorMessage);
+                    return;
+                }
+
+
+                echo.error(`Tests failed for ${testResult.name}. Scroll up or search the output for the project name for more detail.`);
             });
 
             echo.error(`${failedProjects.length} test projects exited with non-zero exit status. See above output for more detail.`);
