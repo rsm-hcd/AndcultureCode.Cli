@@ -9,7 +9,6 @@ const dir                  = require("./_modules/dir");
 const dotnetBuild          = require("./_modules/dotnet-build");
 const dotnetPath           = require("./_modules/dotnet-path");
 const echo                 = require("./_modules/echo");
-const formatters           = require("./_modules/formatters");
 const program              = require("commander");
 const shell                = require("shelljs");
 
