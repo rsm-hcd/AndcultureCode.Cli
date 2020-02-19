@@ -208,7 +208,7 @@ if (program.byProject === true) {
     dotnetTest.runSolutionByProject(program.skipClean);
 }
 
-if (!program.byProject == null) {
+if (program.byProject == null || !program.byProject) {
     dotnetTest.runBySolution(program.skipClean);
 }
 
