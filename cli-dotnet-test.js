@@ -206,10 +206,11 @@ program
 
 if (program.byProject === true) {
     dotnetTest.runSolutionByProject(program.skipClean);
-    return;
 }
 
-dotnetTest.runBySolution(program.skipClean);
+if (!program.byProject == null) {
+    dotnetTest.runBySolution(program.skipClean);
+}
 
 // #endregion Entrypoint / Command router
 
