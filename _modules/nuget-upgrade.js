@@ -1,10 +1,16 @@
+/**************************************************************************************************
+ * Imports
+ **************************************************************************************************/
+const constants  = require("./constants");
 const dotnetPath = require("./dotnet-path");
 const echo       = require("./echo");
+const formatters = require("./formatters");
 const shell      = require("shelljs");
 const userPrompt = require("./user-prompt");
-const formatters = require("./formatters");
-const constants = require("./constants");
 
+/**************************************************************************************************
+ * Functions
+ **************************************************************************************************/
 
 const nugetUpgrade = {
     description() {
