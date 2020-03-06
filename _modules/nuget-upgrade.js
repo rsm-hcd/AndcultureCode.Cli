@@ -102,7 +102,7 @@ const nugetUpgrade = {
     },
     validatePackageVersion(packageVersion) {
         if (packageVersion == null || !packageVersion.match(constants.VERSION_REGEX_PATTERN)) {
-            echo.error(ERROR_INVALID_VERSION_STRING);
+            echo.error(constants.ERROR_INVALID_VERSION_STRING);
             shell.exit(1);
         }
 

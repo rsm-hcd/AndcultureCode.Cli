@@ -25,19 +25,19 @@ describe("nugetUpgrade", () => {
      * findCsprojFiles()
      **************************************************************************************************/
 
-    describe.only("findCsprojFiles()", () => {
+    describe("findCsprojFiles()", () => {
         test("when shell.find returns non-zero exit code, it calls shell.exit with that code", () => {
             // Arrange
-            const findReturnCode = faker.random.number({ min: 1 });
+            const mockReturnCode = faker.random.number({ min: 1 });
             const mockDirname = faker.random.word();
-            jest.spyOn(shell, "find").mockImplementation(mockShellFn(findReturnCode));
+            jest.spyOn(shell, "find").mockImplementation(mockShellFn(mockReturnCode));
             jest.spyOn(path, "dirname").mockImplementation(() => mockDirname);
 
             // Act
             nugetUpgrade.findCsprojFiles();
 
             // Assert
-            expect(shell.exit).toHaveBeenCalledWith(findReturnCode);
+            expect(shellExitSpy).toHaveBeenCalledWith(mockReturnCode);
         });
     });
 
@@ -48,24 +48,25 @@ describe("nugetUpgrade", () => {
     describe("getCsprojFilesContainingPackage()", () => {
         test("when shell.grep returns non-zero exit code, it calls shell.exit with that code", () => {
             // Arrange
-            shell.grep = mockShellFn(100);
+            const mockReturnCode = faker.random.number({ min: 1 });
+            jest.spyOn(shell, "grep").mockImplementation(mockShellFn(mockReturnCode));
 
             // Act
             nugetUpgrade.getCsprojFilesContainingPackage([]);
 
             // Assert
-            expect(shell.exit).toHaveBeenCalledWith(100);
+            expect(shellExitSpy).toHaveBeenCalledWith(mockReturnCode);
         });
 
         test("when shell.grep returns zero exit code but no files with the package are found, it calls shell.exit with 1 exit code", () => {
             // Arrange
-            shell.grep = mockShellFn(0);
+            jest.spyOn(shell, "grep").mockImplementation(mockShellFn(0));
 
             // Act
             nugetUpgrade.getCsprojFilesContainingPackage([]);
 
             // Assert
-            expect(shell.exit).toHaveBeenCalledWith(1);
+            expect(shellExitSpy).toHaveBeenCalledWith(1);
         });
     });
 
@@ -76,24 +77,25 @@ describe("nugetUpgrade", () => {
     describe("replacePackageVersion()", () => {
         test("when shell.sed returns non-zero exit code, it calls shell.exit with that code", () => {
             // Arrange
-            shell.sed = mockShellFn(1);
+            const mockReturnCode = faker.random.number({ min: 1 });
+            jest.spyOn(shell, "sed").mockImplementation(mockShellFn(mockReturnCode));
 
             // Act
             nugetUpgrade.replacePackageVersion();
 
             // Assert
-            expect(shell.exit).toHaveBeenCalledWith(1);
+            expect(shellExitSpy).toHaveBeenCalledWith(mockReturnCode);
         });
 
         test("when shell.sed returns zero exit code, it calls shell.exit with code zero", () => {
             // Arrange
-            shell.sed = mockShellFn(0);
+            jest.spyOn(shell, "sed").mockImplementation(mockShellFn(0));
 
             // Act
             nugetUpgrade.replacePackageVersion();
 
             // Assert
-            expect(shell.exit).toHaveBeenCalledWith(0);
+            expect(shellExitSpy).toHaveBeenCalledWith(0);
         });
     });
 
