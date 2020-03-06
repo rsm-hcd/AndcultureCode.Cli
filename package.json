@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "cross-env": "^6.0.3",
+    "faker": "4.1.0",
     "jest": "^24.9.0",
     "pryjs": "1.0.3"
   }
