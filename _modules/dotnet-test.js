@@ -141,7 +141,7 @@ const dotnetTest = {
             dir.popd();
             echo.newLine();
             echo.message("Exited dotnet-test");
-            shell.exit(0);
+            return 0;
         }
 
         failedProjects.forEach((testResult) => {
