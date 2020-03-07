@@ -71,7 +71,7 @@ const nugetUpgrade = {
         }
 
         echo.success(`Successfully updated '${this.packageName}' to version ${this.packageVersion}. Please check your git status before committing.`);
-        shell.exit(0);
+        return 0;
     },
     async run() {
         // Ensure we are in a directory that has a dotnet solution.
