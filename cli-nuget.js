@@ -4,12 +4,13 @@
  * Imports
  **************************************************************************************************/
 
-const commands   = require("./_modules/commands");
-const dotnetPath = require("./_modules/dotnet-path");
-const echo       = require("./_modules/echo");
+const commands     = require("./_modules/commands");
+const constants    = require("./_modules/constants");
+const dotnetPath   = require("./_modules/dotnet-path");
+const echo         = require("./_modules/echo");
 const nugetUpgrade = require("./_modules/nuget-upgrade");
-const program    = require("commander");
-const shell      = require("shelljs");
+const program      = require("commander");
+const shell        = require("shelljs");
 
 
 /**************************************************************************************************
@@ -17,12 +18,6 @@ const shell      = require("shelljs");
  **************************************************************************************************/
 
 const nugetUrl = "https://api.nuget.org/v3/index.json";
-
-// Semver regex pattern for validating version number (see https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string)
-const versionRegexPattern = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
-
-const ERROR_INVALID_VERSION_STRING = "Invalid package version string (see https://docs.microsoft.com/en-us/nuget/concepts/package-versioning)";
-const ERROR_READING_CSPROJ_FILES   = "There was an error reading csproj files.";
 
 /**************************************************************************************************
  * Commands
@@ -41,8 +36,8 @@ const nugetPublish = {
     run() {
         const publishVersion = program.publish;
 
-        if (!publishVersion.match(versionRegexPattern)) {
-            echo.error(ERROR_INVALID_VERSION_STRING);
+        if (!publishVersion.match(constants.VERSION_REGEX_PATTERN)) {
+            echo.error(constants.ERROR_INVALID_VERSION_STRING);
             shell.exit(1);
             return;
         }
