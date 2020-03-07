@@ -1,8 +1,17 @@
 /**************************************************************************************************
  * Imports
  **************************************************************************************************/
-const { dotnetTest } = require("./cli-dotnet-test");
-const dotnetBuild    = require("./_modules/dotnet-build");
+const dotnetBuild = require("./dotnet-build");
+const dotnetTest  = require("./dotnet-test");
+const shell       = require("shelljs");
+
+/**************************************************************************************************
+ * Mocks
+ **************************************************************************************************/
+jest.mock("./dir");
+// Mocking the echo module explicitly to suppress extra output from the module.
+jest.mock("./echo");
+jest.mock("path");
 
 describe("dotnetTest", () => {
 
@@ -15,6 +24,7 @@ describe("dotnetTest", () => {
 
         beforeEach(() => {
             dotnetBuildSpy = jest.spyOn(dotnetBuild, "run").mockImplementation(() => {});
+            jest.spyOn(shell, "exit").mockImplementation(() => {});
         });
 
         test("it calls dotnetBuild.run() by default", () => {
@@ -27,7 +37,7 @@ describe("dotnetTest", () => {
 
         test("when skipClean is set to false, it calls dotnetBuild.run()", () => {
             // Arrange & Act
-            dotnetTest.runBySolution(false);
+            dotnetTest.skipClean(false).runBySolution();
 
             // Assert
             expect(dotnetBuildSpy).toHaveBeenCalledWith(true, true);
@@ -35,7 +45,7 @@ describe("dotnetTest", () => {
 
         test("when skipClean is set to true, it does not call dotnetBuild.run()", () => {
             // Arrange & Act
-            dotnetTest.runBySolution(true);
+            dotnetTest.skipClean(true).runBySolution();
 
             // Assert
             expect(dotnetBuildSpy).not.toHaveBeenCalled();
