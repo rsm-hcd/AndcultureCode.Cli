@@ -7,8 +7,11 @@ const path         = require("path");
 const shell        = require("shelljs");
 
 // **************************************************************************************************
-// * Variables
+// * Mocks
 // **************************************************************************************************/
+
+// Mocking the echo module explicitly to suppress extra output from the module.
+jest.mock("./echo");
 
 describe("nugetUpgrade", () => {
     const mockShellFn = (code = 0, stdout = "") => jest.fn().mockImplementation(() => {

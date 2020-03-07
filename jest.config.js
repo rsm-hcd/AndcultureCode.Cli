@@ -2,14 +2,8 @@
 // https://jestjs.io/docs/en/configuration.html
 
 module.exports = {
-  automock: true,
+  automock: false,
   clearMocks: true,
   coverageDirectory: "coverage",
   testEnvironment: "node",
-  unmockedModulePathPatterns: [
-    "_modules/*", // Don't mock the modules that we're testing
-    "./cli-*",    // Don't mock the commands that we're testing
-    "commander",  // Throws a TypeError for description() method
-    "glob",       // Throws a TypeError for 'inflight' and 'once' package dependencies
-  ],
 };
