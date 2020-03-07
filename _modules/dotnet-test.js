@@ -13,30 +13,47 @@ const program              = require("commander");
 const shell                = require("shelljs");
 
 /**************************************************************************************************
+ * Constants
+ **************************************************************************************************/
+
+const COVERAGE_FLAGS = "-p:CollectCoverage=true -p:CoverletOutputFormat=opencover";
+
+/**************************************************************************************************
  * Variables
  **************************************************************************************************/
 
-const coverageFlags = "-p:CollectCoverage=true -p:CoverletOutputFormat=opencover";
+ let _ciMode = false;
+ let _filter = [];
+ let _skipClean = false;
+ let _withCoverage = false;
 
 /**************************************************************************************************
  * Functions
  **************************************************************************************************/
 
 const dotnetTest = {
-    cmd: "dotnet test --no-build --no-restore",
-    descriptionSkipClean() {
-        return "Skips the clean, build, and restore steps before running the dotnet test runner. This will speed up sequential runs if intentionally running on the same assemblies.";
+    ciMode(ciMode) {
+        if (ciMode != null) {
+            _ciMode = ciMode;
+        }
+
+        return this;
     },
+    cmd: "dotnet test --no-build --no-restore",
     description() {
         return `Runs dotnet test runner on the ${dotnetPath.solutionPath()} solution (via ${this.cmd})`;
+    },
+    filter(filter) {
+        if (filter != null) {
+            _filter = filter;
+        }
+
+        return this;
     },
     /**
      * Runs dotnet test synchronously for the given test project
      *
      * @param {string} project The name of the test project to be run.
-     * @param {(boolean | undefined)} ciMode Determines whether the command is being run by a continuous integration process
-     * @param {(boolean | undefined)} withCoverage Determines whether the command should collect code coverage results from the test run.
-     * @param {(string[] | undefined)} filter An array of string
      * @returns {any} An object containing the project name, exit code, and stdout/stderr if 'ciMode' is true.
      * @example
      * // An example of the result object to be returned. Code = 0 signifies a successful run,
@@ -48,24 +65,24 @@ const dotnetTest = {
             stdout: "...",
         }
      */
-    runProject(project, ciMode, withCoverage, filter) {
+    runProject(project) {
         // Since the spawnSync function takes the base command and all arguments separately, we cannot
         // leverage the base dotnet test command string here. We'll build out the arg list in an array.
 
         const cmd = "dotnet";
         const args = ["test", "--no-build", "--no-restore"];
 
-        if (withCoverage) {
+        if (_withCoverage) {
             // The two coverage flags need to be pushed onto the args array before the project name
             // it seems. The dotnet command was not recognizing them at the end of the args array.
-            args.push(coverageFlags);
+            args.push(COVERAGE_FLAGS);
         }
 
         let message = `Running tests in the ${project} project... via (${cmd} ${args.join(" ")} ${project})`;
 
-        if (filter != null && filter.length > 0) {
-            args.push("--filter", filter);
-            message = `Running tests in the ${project} project that match the xunit filter of '${filter}' via (${cmd} ${args.join(" ")} ${project})`;
+        if (_filter != null && _filter.length > 0) {
+            args.push("--filter", _filter);
+            message = `Running tests in the ${project} project that match the xunit filter of '${_filter}' via (${cmd} ${args.join(" ")} ${project})`;
         }
 
         // Push the project name on as the last arg in the array
@@ -75,12 +92,12 @@ const dotnetTest = {
 
         // Determine the stdio mode based on whether or not this is being run in ci mode.
         // If in ci mode, we need to pipe output to capture stdout/stderr for the output summary.
-        const stdioMode = ciMode ? "pipe" : "inherit";
+        const stdioMode = _ciMode ? "pipe" : "inherit";
         const result = spawnSync(cmd, args, { stdio: stdioMode, shell: true });
 
         // We only need to manually output stdout/stderr in ci mode since we're piping it.
         // For regular use, stdout/stderr will be inherited and output automatically.
-        if (ciMode) {
+        if (_ciMode) {
             echo.message(result.stdout);
 
             if (result.stderr != null && result.stderr.length > 0) {
@@ -95,11 +112,11 @@ const dotnetTest = {
             stdout: result.stdout,
         };
     },
-    runSolutionByProject(skipClean) {
+    runSolutionByProject() {
         // Check for the solution path before attempting any work
         dotnetPath.solutionPathOrExit();
 
-        if (!skipClean) {
+        if (!_skipClean) {
             dotnetBuild.run(true, true);
         }
 
@@ -116,7 +133,7 @@ const dotnetTest = {
 
         // Call runProject() for each project found that matches the pattern. This will return an object containing
         // the project name, exit status and stdout/stderr (if in ci mode)
-        const results = testProjects.map((testProject) => this.runProject(testProject, program.ci, program.coverage, program.args));
+        const results = testProjects.map((testProject) => this.runProject(testProject));
 
         // Check the results array for any non-zero exit codes and display helpful output for each
         const failedProjects = results.filter((testResult) => testResult.code !== 0);
@@ -128,7 +145,7 @@ const dotnetTest = {
         }
 
         failedProjects.forEach((testResult) => {
-            if (program.ci) {
+            if (_ciMode) {
                 echo.headerError(`Failed tests for ${testResult.name}`);
                 echo.error(testResult.stderr);
 
@@ -141,11 +158,11 @@ const dotnetTest = {
         echo.error(`${failedProjects.length} test projects exited with non-zero exit status. See above output for more detail.`);
         shell.exit(1);
     },
-    runBySolution(skipClean) {
+    runBySolution() {
         // Check for the solution path before attempting any work
         dotnetPath.solutionPathOrExit();
 
-        if (!skipClean) {
+        if (!_skipClean) {
             dotnetBuild.run(true, true);
         }
 
@@ -157,15 +174,14 @@ const dotnetTest = {
         let cmd = this.cmd;
 
         if (program.coverage) {
-            cmd = `${cmd} ${coverageFlags}`;
+            cmd = `${cmd} ${COVERAGE_FLAGS}`;
         }
 
         let message = `Running all tests in the ${dotnetPath.solutionPath()} solution... via (${cmd})`;
 
-        if (program.args.length > 0) {
-            const filter = program.args;
-            cmd = `${cmd} --filter ${filter}`;
-            message = `Running tests in the ${dotnetPath.solutionPath()} solution that match the xunit filter of '${filter}' via (${cmd})`;
+        if (_filter != null && _filter.length > 0) {
+            cmd = `${cmd} --filter ${_filter}`;
+            message = `Running tests in the ${dotnetPath.solutionPath()} solution that match the xunit filter of '${_filter}' via (${cmd})`;
         }
 
         echo.message(message);
@@ -173,7 +189,7 @@ const dotnetTest = {
         const child = spawn(cmd, { stdio: "inherit", shell: true });
         child.on("exit", (code, signal) => {
             if (code !== 0) {
-                echo.error(`Exited with error '${signal ? signal : code}'`);
+                echo.error(`Exited with error '${signal || code}'`);
                 shell.exit(code);
             }
 
@@ -182,6 +198,20 @@ const dotnetTest = {
             echo.message("Exited dotnet-test");
         });
     },
+    skipClean(skipClean) {
+        if (skipClean != null) {
+            _skipClean = skipClean;
+        }
+
+        return this;
+    },
+    withCoverage(withCoverage) {
+        if (withCoverage != null) {
+            _withCoverage = withCoverage;
+        }
+
+        return this;
+    }
 };
 
 module.exports = dotnetTest;
