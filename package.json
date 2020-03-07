@@ -13,7 +13,7 @@
     "cli"
   ],
   "scripts": {
-    "test": "jest --passWithNoTests"
+    "test": "jest --coverage"
   },
   "repository": {
     "type": "git",
