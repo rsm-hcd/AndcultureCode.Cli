@@ -90,15 +90,15 @@ describe("nugetUpgrade", () => {
             expect(shellExitSpy).toHaveBeenCalledWith(mockReturnCode);
         });
 
-        test("when shell.sed returns zero exit code, it calls shell.exit with code zero", () => {
+        test("when shell.sed returns zero exit code, it returns zero", () => {
             // Arrange
             jest.spyOn(shell, "sed").mockImplementation(mockShellFn(0));
 
             // Act
-            nugetUpgrade.replacePackageVersion();
+            const result = nugetUpgrade.replacePackageVersion();
 
             // Assert
-            expect(shellExitSpy).toHaveBeenCalledWith(0);
+            expect(result).toBe(0);
         });
     });
 
