@@ -1,107 +1,108 @@
 #!/usr/bin/env node
+require("./command-runner").run(async () => {
+    /**************************************************************************************************
+     * Imports
+     **************************************************************************************************/
 
-/**************************************************************************************************
- * Imports
- **************************************************************************************************/
-
-const commands     = require("./_modules/commands");
-const constants    = require("./_modules/constants");
-const dotnetPath   = require("./_modules/dotnet-path");
-const echo         = require("./_modules/echo");
-const nugetUpgrade = require("./_modules/nuget-upgrade");
-const program      = require("commander");
-const shell        = require("shelljs");
+    const commands     = require("./_modules/commands");
+    const constants    = require("./_modules/constants");
+    const dotnetPath   = require("./_modules/dotnet-path");
+    const echo         = require("./_modules/echo");
+    const nugetUpgrade = require("./_modules/nuget-upgrade");
+    const program      = require("commander");
+    const shell        = require("shelljs");
 
 
-/**************************************************************************************************
- * Variables
- **************************************************************************************************/
+    /**************************************************************************************************
+     * Variables
+     **************************************************************************************************/
 
-const nugetUrl = "https://api.nuget.org/v3/index.json";
+    const nugetUrl = "https://api.nuget.org/v3/index.json";
 
-/**************************************************************************************************
- * Commands
- **************************************************************************************************/
+    /**************************************************************************************************
+     * Commands
+     **************************************************************************************************/
 
-// #region NuGet commands
+    // #region NuGet commands
 
-const nugetPublish = {
-    cmds: {
-        pack: "dotnet pack",
-        publish: "dotnet nuget push"
-    },
-    description() {
-        return "Publishes NuGet packages for dotnet core projects";
-    },
-    run() {
-        const publishVersion = program.publish;
+    const nugetPublish = {
+        cmds: {
+            pack: "dotnet pack",
+            publish: "dotnet nuget push"
+        },
+        description() {
+            return "Publishes NuGet packages for dotnet core projects";
+        },
+        run() {
+            const publishVersion = program.publish;
 
-        if (!publishVersion.match(constants.VERSION_REGEX_PATTERN)) {
-            echo.error(constants.ERROR_INVALID_VERSION_STRING);
-            shell.exit(1);
-            return;
-        }
-
-        echo.message(`Publishing version '${publishVersion}'...`);
-
-        // Update version number in .csproj files
-        shell.ls("**/*.csproj").forEach(function (file) {
-            shell.sed("-i", "<Version>(.*)</Version>", `<Version>${publishVersion}</Version>`, file);
-        });
-
-        const solutionPath = dotnetPath.solutionPathOrExit();
-
-        // Create new nupkg file
-        if (shell.exec(`dotnet pack ${solutionPath}`).code !== 0) {
-            echo.error("Failed to pack dotnet project");
-            shell.exit(1);
-        }
-
-        // Push nupkg to nuget servers
-        const errored    = [];
-        const successful = [];
-        shell.ls(`**/*.${publishVersion}.nupkg`).forEach(function(file) {
-
-            if (shell.exec(`dotnet nuget push ${file} -s ${nugetUrl}`).code !== 0) {
-                errored.push(file);
-                echo.error(`[FAILED] Publishing nuget package: '${file}'`);
+            if (!publishVersion.match(constants.VERSION_REGEX_PATTERN)) {
+                echo.error(constants.ERROR_INVALID_VERSION_STRING);
+                shell.exit(1);
                 return;
             }
 
-            echo.success(`[SUCCESS] Publishing nuget package: '${file}'`);
-            successful.push(file);
-        });
+            echo.message(`Publishing version '${publishVersion}'...`);
 
-        // Error output
-        if (errored.length > 0) {
-            echo.error(`Failed to publish ${errored.length} nuget package(s): ${JSON.stringify(errored)}`);
-            shell.exit(1);
-        }
+            // Update version number in .csproj files
+            shell.ls("**/*.csproj").forEach(function (file) {
+                shell.sed("-i", "<Version>(.*)</Version>", `<Version>${publishVersion}</Version>`, file);
+            });
 
-        echo.success(`Successfully published version ${publishVersion}`);
-    },
-}
+            const solutionPath = dotnetPath.solutionPathOrExit();
 
-// #endregion NuGet commands
+            // Create new nupkg file
+            if (shell.exec(`dotnet pack ${solutionPath}`).code !== 0) {
+                echo.error("Failed to pack dotnet project");
+                shell.exit(1);
+            }
 
+            // Push nupkg to nuget servers
+            const errored    = [];
+            const successful = [];
+            shell.ls(`**/*.${publishVersion}.nupkg`).forEach(function(file) {
 
-/**************************************************************************************************
- * Entrypoint / Command router
- **************************************************************************************************/
+                if (shell.exec(`dotnet nuget push ${file} -s ${nugetUrl}`).code !== 0) {
+                    errored.push(file);
+                    echo.error(`[FAILED] Publishing nuget package: '${file}'`);
+                    return;
+                }
 
-// #region Entrypoint / Command router
+                echo.success(`[SUCCESS] Publishing nuget package: '${file}'`);
+                successful.push(file);
+            });
 
-program
-    .usage("option(s)")
-    .description(commands.nuget.description)
-    .option("-p, --publish <version>", nugetPublish.description())
-    .option("-u, --upgrade", nugetUpgrade.description())
-    .parse(process.argv);
+            // Error output
+            if (errored.length > 0) {
+                echo.error(`Failed to publish ${errored.length} nuget package(s): ${JSON.stringify(errored)}`);
+                shell.exit(1);
+            }
 
-if (program.publish) { nugetPublish.run(); }
-if (program.upgrade) { nugetUpgrade.run(); }
+            echo.success(`Successfully published version ${publishVersion}`);
+        },
+    }
 
-// If no options are passed in, output help
-if (process.argv.slice(2).length === 0) { program.help(); }
+    // #endregion NuGet commands
 
-// #endregion Entrypoint / Command router
+    /**************************************************************************************************
+     * Entrypoint / Command router
+     **************************************************************************************************/
+
+    // #region Entrypoint / Command router
+
+    program
+        .usage("option(s)")
+        .description(commands.nuget.description)
+        .option("-p, --publish <version>", nugetPublish.description())
+        .option("-u, --upgrade", nugetUpgrade.description())
+        .parse(process.argv);
+
+    if (program.publish) { nugetPublish.run(); }
+    if (program.upgrade) { await nugetUpgrade.run(); }
+
+    // If no options are passed in, output help
+    if (process.argv.slice(2).length === 0) { program.help(); }
+
+    // #endregion Entrypoint / Command router
+});
+
