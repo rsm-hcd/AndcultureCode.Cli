@@ -13,6 +13,10 @@ const userPrompt = require("./user-prompt");
  **************************************************************************************************/
 
 const nugetUpgrade = {
+    matchingProjects: [],
+    packageName: "",
+    packageVersion: "",
+    prompt: null,
     description() {
         return "Prompts the user to specify a NuGet package to upgrade for all projects in a solution.";
     },
@@ -46,10 +50,6 @@ const nugetUpgrade = {
 
         return matchingProjects;
     },
-    matchingProjects: [],
-    packageName: "",
-    packageVersion: "",
-    prompt: null,
     async promptForConfirmation() {
         echo.message(`${formatters.red(this.matchingProjects.length)} projects found with package '${this.packageName}'.`);
         await userPrompt.confirmOrExit("Continue?");
