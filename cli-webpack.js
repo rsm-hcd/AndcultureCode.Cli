@@ -26,11 +26,13 @@ require("./command-runner").run(async () => {
             return {
                 args: ["run", "start"],
                 cmd:  "npm",
+                toString() {
+                    return `${this.cmd} ${this.args.join(" ")}`
+                },
             }
         },
         description() {
-            const { cmd, args } = this.cmd();
-            return `Runs the webpack project (via ${cmd} ${args.join(" ")}) found in ${frontendPath.projectDir()}`;
+            return `Runs the webpack project (via ${this.cmd().toString()}}) found in ${frontendPath.projectDir()}`;
         },
         run() {
             dir.pushd(frontendPath.projectDir());
@@ -47,7 +49,7 @@ require("./command-runner").run(async () => {
             // leverage the base dotnet command string here. We'll build out the arg list in an array.
             const { cmd, args } = this.cmd();
 
-            echo.message(`Running frontend (via ${cmd} ${args.join(" ")})...`);
+            echo.message(`Running frontend (via ${this.cmd().toString()})...`);
             const result = spawnSync(cmd, args, { stdio: "inherit", shell: true });
 
             if (result.status !== 0) {

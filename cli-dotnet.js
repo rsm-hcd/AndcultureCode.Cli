@@ -28,11 +28,13 @@ require("./command-runner").run(async () => {
             return {
                 args: [mode, "--no-restore"],
                 cmd:  "dotnet",
-            }
+                toString() {
+                    return `${this.cmd} ${this.args.join(" ")}`;
+                },
+            };
         },
         description(mode) {
-            const { cmd, args } = this.cmd(mode);
-            return `Runs the dotnet project (via ${cmd} ${args.join(" ")}) for ${dotnetPath.webProjectFilePath()}`;
+            return `Runs the dotnet project (via ${this.cmd(mode).toString()}) for ${dotnetPath.webProjectFilePath()}`;
         },
         run(mode) {
             if (program.clean) {
