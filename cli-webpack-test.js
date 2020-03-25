@@ -4,14 +4,14 @@ require("./command-runner").run(async () => {
      * Imports
      **************************************************************************************************/
 
-    const { spawn } = require("child_process");
-    const dir = require("./_modules/dir");
-    const echo = require("./_modules/echo");
-    const frontendPath = require("./_modules/frontend-path");
-    const nodeClean = require("./_modules/node-clean");
-    const nodeRestore = require("./_modules/node-restore");
-    const program = require("commander");
-    const shell = require("shelljs");
+    const { spawnSync } = require("child_process");
+    const dir           = require("./_modules/dir");
+    const echo          = require("./_modules/echo");
+    const frontendPath  = require("./_modules/frontend-path");
+    const nodeClean     = require("./_modules/node-clean");
+    const nodeRestore   = require("./_modules/node-restore");
+    const program       = require("commander");
+    const shell         = require("shelljs");
 
     /**************************************************************************************************
      * Commands
@@ -20,11 +20,17 @@ require("./command-runner").run(async () => {
     // #region Webpack commands
 
     const webpackTest = {
-        cmds: {
-            webpackTest: "npm run test",
+        cmd() {
+            return {
+                args: ["run", "test"],
+                cmd:  "npm",
+                toString() {
+                    return `${this.cmd} ${this.args.join(" ")}`;
+                },
+            };
         },
         description() {
-            return `Runs the webpack project tests in ${frontendPath.projectDir()} (via ${this.cmds.webpackTest})`;
+            return `Runs the webpack project tests in ${frontendPath.projectDir()} (via ${this.cmd().toString()})`;
         },
         run() {
             dir.pushd(frontendPath.projectDir());
@@ -37,11 +43,11 @@ require("./command-runner").run(async () => {
                 nodeRestore.run();
             }
 
-            echo.message(`Running frontend tests (via ${this.cmds.webpackTest})...`);
+            echo.message(`Running frontend tests (via ${this.cmd().toString()})...`);
 
             // Continuous Integration mode (ci)
             if (program.ci) {
-                const result = shell.exec(`npx cross-env CI=true ${this.cmds.webpackTest}`, { silent: false });
+                const result = shell.exec(`npx cross-env CI=true ${this.cmd().toString()}`, { silent: false });
 
                 if (result.code !== 0) {
                     echo.headerError("One or many tests failed");
@@ -51,23 +57,25 @@ require("./command-runner").run(async () => {
             }
 
             // Interactive mode (non-ci)
-            // BSCOTT: Refactor this to use spawnSync
-            const child = spawn(this.cmds.webpackTest, { stdio: "inherit", shell: true });
-            child.on("exit", (code, signal) => {
-                if (code !== 0) {
-                    echo.error(`Exited with error ${signal}`);
-                    shell.exit(code);
-                }
 
-                dir.popd();
-                echo.newLine();
-                echo.message("Exited webpack-test");
-            });
+            // Since the spawnSync function takes the base command and all arguments separately, we cannot
+            // leverage the base dotnet command string here. We'll build out the arg list in an array.
+            const { cmd, args } = this.cmd();
+
+            const result = spawnSync(cmd, args, { stdio: "inherit", shell: true });
+
+            if (result.status !== 0) {
+                echo.error(`Exited with error: ${result.status}`);
+                shell.exit(result.status);
+            }
+
+            dir.popd();
+            echo.newLine();
+            echo.message("Exited webpack-test");
         },
     };
 
     // #endregion Webpack commands
-
 
     /**************************************************************************************************
      * Entrypoint / Command router
@@ -82,8 +90,8 @@ require("./command-runner").run(async () => {
             "\r\nCertain options can be chained together for specific behavior" +
             " (--clean and --restore can be used in conjunction)."
         )
-        .option("--ci", "Run the command for continuous integration instead of as a daemon")
-        .option("-c, --clean", nodeClean.description())
+        .option("--ci",          "Run the command for continuous integration instead of as a daemon")
+        .option("-c, --clean",   nodeClean.description())
         .option("-R, --restore", nodeRestore.description())
         .parse(process.argv);
 
