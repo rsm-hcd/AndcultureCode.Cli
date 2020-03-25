@@ -1,6 +1,5 @@
 const shell = require("shelljs");
 
-
 /**
  * Runner method for cli commands. Awaits the 'body' of the command function and calls shell.exit
  * automatically, to prevent any lingering asynchronous work from a module.
