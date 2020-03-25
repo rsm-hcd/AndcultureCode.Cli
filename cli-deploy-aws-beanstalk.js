@@ -1,146 +1,147 @@
 #!/usr/bin/env node
+require("./command-runner").run(async () => {
+    /**************************************************************************************************
+     * Imports
+     **************************************************************************************************/
 
-/**************************************************************************************************
- * Imports
- **************************************************************************************************/
-
-const dir           = require("./_modules/dir");
-const dotnetPath    = require("./_modules/dotnet-path");
-const dotnetPublish = require("./_modules/dotnet-publish");
-const echo          = require("./_modules/echo");
-const file          = require("./_modules/file");
-const path          = require("path");
-const program       = require("commander");
-const shell         = require("shelljs");
-const upath         = require ("upath");
-const zip           = require("./_modules/zip");
-
-
-/**************************************************************************************************
- * Variables
- **************************************************************************************************/
-
-const pythonInstallerUrl = "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
-let   timeout            = 20; // Default AWSEBCLI command timeout in minutes
+    const dir           = require("./_modules/dir");
+    const dotnetPath    = require("./_modules/dotnet-path");
+    const dotnetPublish = require("./_modules/dotnet-publish");
+    const echo          = require("./_modules/echo");
+    const file          = require("./_modules/file");
+    const path          = require("path");
+    const program       = require("commander");
+    const shell         = require("shelljs");
+    const upath         = require ("upath");
+    const zip           = require("./_modules/zip");
 
 
-/**************************************************************************************************
- * Commands
- **************************************************************************************************/
+    /**************************************************************************************************
+     * Variables
+     **************************************************************************************************/
 
-// #region Commands
+    const pythonInstallerUrl = "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
+    let   timeout            = 20; // Default AWSEBCLI command timeout in minutes
 
-const deployAwsBeanstalk = {
-    cmds: {
-        deploy: "eb deploy",
-    },
-    description() {
-        return `Runs dotnet publish on ${dotnetPath.solutionPath()} solution and deploys to configured AWS Elastic Beanstalk environment`;
-    },
-    async run() {
-        // Check system requirements
-        this.validateOrExit();
 
-        // Handling incoming arguments
-        if (program.timeout) {
-            timeout = program.timeout;
-        }
+    /**************************************************************************************************
+     * Commands
+     **************************************************************************************************/
 
-        let projectDir = "";
+    // #region Commands
 
-        // Publish dotnet if enabled
-        if (program.dotnet) {
-            dotnetPublish.run();
-            projectDir = `${dotnetPath.solutionDir()}/`;
-        }
+    const deployAwsBeanstalk = {
+        cmds: {
+            deploy: "eb deploy",
+        },
+        description() {
+            return `Runs dotnet publish on ${dotnetPath.solutionPath()} solution and deploys to configured AWS Elastic Beanstalk environment`;
+        },
+        async run() {
+            // Check system requirements
+            this.validateOrExit();
 
-        // Create inner release zip
-        const innerReleaseFilename = "release.zip";
-        const innerReleaseDir      = `${projectDir}release`;
-        const innerReleaseZipFile  = `${projectDir}${innerReleaseFilename}`;
-        file.deleteIfExists(innerReleaseZipFile);
-        await zip.create([{ source: innerReleaseDir, destination: "/" }], null, innerReleaseZipFile);
+            // Handling incoming arguments
+            if (program.timeout) {
+                timeout = program.timeout;
+            }
 
-        // Create outer bundle release zip
-        const awsBundleManifestFilename = "aws-windows-deployment-manifest.json"; // TODO: Refactor to intelligently locate aws manifest file (ie. don't assume windows)
-        const awsBundleManifestFile     = `${projectDir}${awsBundleManifestFilename}`;
-        const outerReleaseZipFile       = `${projectDir}release-bundle.zip`;
-        file.deleteIfExists(outerReleaseZipFile);
+            let projectDir = "";
 
-        const inputDirectories = [];
-        const awsBundleExtensionsDirname = ".ebextensions";
-        const awsBundleExtensionsDir     = `${projectDir}${awsBundleExtensionsDirname}`;
-        if (shell.test("-e", awsBundleExtensionsDir)) {
-            echo.message("Adding .ebextensions directory");
-            inputDirectories.push({ source: awsBundleExtensionsDir, destination: awsBundleExtensionsDirname });
-        }
+            // Publish dotnet if enabled
+            if (program.dotnet) {
+                dotnetPublish.run();
+                projectDir = `${dotnetPath.solutionDir()}/`;
+            }
 
-        const inputFiles = [
-            { source: innerReleaseZipFile,   destination: innerReleaseFilename      },
-            { source: awsBundleManifestFile, destination: awsBundleManifestFilename },
-        ];
-        await zip.create(inputDirectories, inputFiles, outerReleaseZipFile);
+            // Create inner release zip
+            const innerReleaseFilename = "release.zip";
+            const innerReleaseDir      = `${projectDir}release`;
+            const innerReleaseZipFile  = `${projectDir}${innerReleaseFilename}`;
+            file.deleteIfExists(innerReleaseZipFile);
+            await zip.create([{ source: innerReleaseDir, destination: "/" }], null, innerReleaseZipFile);
 
-        // Call EB deploy
-        echo.message("Deploying to AWS beanstalk. Check AWS console for realtime output. This could take a few minutes...");
-        if (shell.exec(this.cmds.deploy + ` --timeout ${timeout}`).code !== 0) {
-            echo.error(" - Failed to deploy to AWS beanstalk");
-            shell.exit(1);
-        }
+            // Create outer bundle release zip
+            const awsBundleManifestFilename = "aws-windows-deployment-manifest.json"; // TODO: Refactor to intelligently locate aws manifest file (ie. don't assume windows)
+            const awsBundleManifestFile     = `${projectDir}${awsBundleManifestFilename}`;
+            const outerReleaseZipFile       = `${projectDir}release-bundle.zip`;
+            file.deleteIfExists(outerReleaseZipFile);
 
-        // Cleanup
-        dir.deleteIfExists(innerReleaseDir);
-        file.deleteIfExists(innerReleaseZipFile);
-        file.deleteIfExists(outerReleaseZipFile);
+            const inputDirectories = [];
+            const awsBundleExtensionsDirname = ".ebextensions";
+            const awsBundleExtensionsDir     = `${projectDir}${awsBundleExtensionsDirname}`;
+            if (shell.test("-e", awsBundleExtensionsDir)) {
+                echo.message("Adding .ebextensions directory");
+                inputDirectories.push({ source: awsBundleExtensionsDir, destination: awsBundleExtensionsDirname });
+            }
 
-        echo.newLine();
-        echo.success("Application successfully deployed to AWS beanstalk!");
-    },
+            const inputFiles = [
+                { source: innerReleaseZipFile,   destination: innerReleaseFilename      },
+                { source: awsBundleManifestFile, destination: awsBundleManifestFilename },
+            ];
+            await zip.create(inputDirectories, inputFiles, outerReleaseZipFile);
 
-    validateOrExit() {
-        if (!shell.which("python")) {
-            echo.error(`Python 3.7+ is required - ${pythonInstallerUrl}`);
-            shell.exit(1);
-        }
-
-        if (!shell.which("pip")) {
-            echo.error(`PIP is required - ${pythonInstallerUrl}`);
-            shell.exit(1);
-        }
-
-        if (!shell.which("eb")) {
-            echo.message("AWS EB CLI not found. Installing via PIP...");
-
-            // Unfortunately we must lock down our awscli and awsebcli versions so they use compatible dependencies https://github.com/aws/aws-cli/issues/3550
-            if (shell.exec("pip install awsebcli==3.14.4").code !== 0) {
-                echo.error("Failed to install eb cli via pip");
+            // Call EB deploy
+            echo.message("Deploying to AWS beanstalk. Check AWS console for realtime output. This could take a few minutes...");
+            if (shell.exec(this.cmds.deploy + ` --timeout ${timeout}`).code !== 0) {
+                echo.error(" - Failed to deploy to AWS beanstalk");
                 shell.exit(1);
             }
 
-            echo.success(" - Successfully installed AWS EB CLI");
-        }
+            // Cleanup
+            dir.deleteIfExists(innerReleaseDir);
+            file.deleteIfExists(innerReleaseZipFile);
+            file.deleteIfExists(outerReleaseZipFile);
 
-        return true;
-    },
+            echo.newLine();
+            echo.success("Application successfully deployed to AWS beanstalk!");
+        },
 
-};
+        validateOrExit() {
+            if (!shell.which("python")) {
+                echo.error(`Python 3.7+ is required - ${pythonInstallerUrl}`);
+                shell.exit(1);
+            }
 
-// #endregion Commands
+            if (!shell.which("pip")) {
+                echo.error(`PIP is required - ${pythonInstallerUrl}`);
+                shell.exit(1);
+            }
+
+            if (!shell.which("eb")) {
+                echo.message("AWS EB CLI not found. Installing via PIP...");
+
+                // Unfortunately we must lock down our awscli and awsebcli versions so they use compatible dependencies https://github.com/aws/aws-cli/issues/3550
+                if (shell.exec("pip install awsebcli==3.14.4").code !== 0) {
+                    echo.error("Failed to install eb cli via pip");
+                    shell.exit(1);
+                }
+
+                echo.success(" - Successfully installed AWS EB CLI");
+            }
+
+            return true;
+        },
+
+    };
+
+    // #endregion Commands
 
 
-/**************************************************************************************************
- * Entrypoint / Command router
- **************************************************************************************************/
+    /**************************************************************************************************
+     * Entrypoint / Command router
+     **************************************************************************************************/
 
-// #region Entrypoint / Command router
+    // #region Entrypoint / Command router
 
-program
-    .usage("option")
-    .description(deployAwsBeanstalk.description())
-    .option("--dotnet",            "Deploy dotnet core application via beanstalk")
-    .option("--timeout <timeout>", `Optional elastic beanstalk deploy timeout. Default is ${timeout} minutes. When exceeded, exits with error`)
-    .parse(process.argv);
+    program
+        .usage("option")
+        .description(deployAwsBeanstalk.description())
+        .option("--dotnet",            "Deploy dotnet core application via beanstalk")
+        .option("--timeout <timeout>", `Optional elastic beanstalk deploy timeout. Default is ${timeout} minutes. When exceeded, exits with error`)
+        .parse(process.argv);
 
-// #endregion Entrypoint / Command router
+    // #endregion Entrypoint / Command router
 
-deployAwsBeanstalk.run();
+    deployAwsBeanstalk.run();
+});
