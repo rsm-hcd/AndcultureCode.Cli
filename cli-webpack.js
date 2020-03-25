@@ -4,6 +4,7 @@ require("./command-runner").run(async () => {
      * Imports
      **************************************************************************************************/
 
+    const { spawnSync }  = require("child_process");
     const commands       = require("./_modules/commands");
     const dir            = require("./_modules/dir");
     const echo           = require("./_modules/echo");
@@ -22,10 +23,14 @@ require("./command-runner").run(async () => {
 
     const webpack = {
         cmd() {
-            return `npm run start`;
+            return {
+                args: ["run", "start"],
+                cmd:  "npm",
+            }
         },
         description() {
-            return `Runs the webpack project (via ${this.cmd()}) found in ${frontendPath.projectDir()}`;
+            const { cmd, args } = this.cmd();
+            return `Runs the webpack project (via ${cmd} ${args.join(" ")}) found in ${frontendPath.projectDir()}`;
         },
         run() {
             dir.pushd(frontendPath.projectDir());
@@ -38,15 +43,23 @@ require("./command-runner").run(async () => {
                 nodeRestore.run();
             }
 
-            echo.message(`Running frontend (via ${this.cmd()})...`);
-            shell.exec(this.cmd(), { silent: false, async: true });
+            // Since the spawnSync function takes the base command and all arguments separately, we cannot
+            // leverage the base dotnet command string here. We'll build out the arg list in an array.
+            const { cmd, args } = this.cmd();
+
+            echo.message(`Running frontend (via ${cmd} ${args.join(" ")})...`);
+            const result = spawnSync(cmd, args, { stdio: "inherit", shell: true });
+
+            if (result.status !== 0) {
+                echo.error(`Exited with error: ${result.status}`);
+                shell.exit(result.status);
+            }
 
             dir.popd();
         },
     };
 
     // #endregion Webpack commands
-
 
     /**************************************************************************************************
      * Entrypoint / Command router
