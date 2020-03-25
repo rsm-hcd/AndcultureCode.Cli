@@ -4,14 +4,14 @@ require("./command-runner").run(async () => {
      * Imports
      **************************************************************************************************/
 
-    const { spawn }    = require("child_process");
-    const dir          = require("./_modules/dir");
-    const echo         = require("./_modules/echo");
+    const { spawn } = require("child_process");
+    const dir = require("./_modules/dir");
+    const echo = require("./_modules/echo");
     const frontendPath = require("./_modules/frontend-path");
-    const nodeClean    = require("./_modules/node-clean");
-    const nodeRestore  = require("./_modules/node-restore");
-    const program      = require("commander");
-    const shell        = require("shelljs");
+    const nodeClean = require("./_modules/node-clean");
+    const nodeRestore = require("./_modules/node-restore");
+    const program = require("commander");
+    const shell = require("shelljs");
 
     /**************************************************************************************************
      * Commands
@@ -51,6 +51,7 @@ require("./command-runner").run(async () => {
             }
 
             // Interactive mode (non-ci)
+            // BSCOTT: Refactor this to use spawnSync
             const child = spawn(this.cmds.webpackTest, { stdio: "inherit", shell: true });
             child.on("exit", (code, signal) => {
                 if (code !== 0) {
@@ -81,8 +82,8 @@ require("./command-runner").run(async () => {
             "\r\nCertain options can be chained together for specific behavior" +
             " (--clean and --restore can be used in conjunction)."
         )
-        .option("--ci",          "Run the command for continuous integration instead of as a daemon")
-        .option("-c, --clean",   nodeClean.description())
+        .option("--ci", "Run the command for continuous integration instead of as a daemon")
+        .option("-c, --clean", nodeClean.description())
         .option("-R, --restore", nodeRestore.description())
         .parse(process.argv);
 
