@@ -24,7 +24,7 @@ require("./command-runner").run(async () => {
 
     // Configure dotnetTest module based on passed in args/options
     dotnetTest
-        .ciMode(program.ciMode)
+        .ciMode(program.ci)
         .filter(program.args)
         .skipClean(program.skipClean)
         .withCoverage(program.coverage);
