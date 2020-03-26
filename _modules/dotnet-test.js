@@ -5,12 +5,12 @@
  **************************************************************************************************/
 
 const { spawn, spawnSync } = require("child_process");
-const dir                  = require("./dir");
-const dotnetBuild          = require("./dotnet-build");
-const dotnetPath           = require("./dotnet-path");
-const echo                 = require("./echo");
-const program              = require("commander");
-const shell                = require("shelljs");
+const dir = require("./dir");
+const dotnetBuild = require("./dotnet-build");
+const dotnetPath = require("./dotnet-path");
+const echo = require("./echo");
+const program = require("commander");
+const shell = require("shelljs");
 
 /**************************************************************************************************
  * Constants
@@ -22,10 +22,10 @@ const COVERAGE_FLAGS = "-p:CollectCoverage=true -p:CoverletOutputFormat=opencove
  * Variables
  **************************************************************************************************/
 
- let _ciMode = false;
- let _filter = [];
- let _skipClean = false;
- let _withCoverage = false;
+let _ciMode = false;
+let _filter = [];
+let _skipClean = false;
+let _withCoverage = false;
 
 /**************************************************************************************************
  * Functions
@@ -39,9 +39,17 @@ const dotnetTest = {
 
         return this;
     },
-    cmd: "dotnet test --no-build --no-restore",
+    cmd() {
+        return {
+            args: ["test", "--no-build", "--no-restore"],
+            cmd: "dotnet",
+            toString() {
+                return `${this.cmd} ${this.args.join(" ")}`;
+            },
+        };
+    },
     description() {
-        return `Runs dotnet test runner on the ${dotnetPath.solutionPath()} solution (via ${this.cmd})`;
+        return `Runs dotnet test runner on the ${dotnetPath.solutionPath()} solution (via ${this.cmd().toString()})`;
     },
     filter(filter) {
         if (filter != null) {
@@ -69,8 +77,7 @@ const dotnetTest = {
         // Since the spawnSync function takes the base command and all arguments separately, we cannot
         // leverage the base dotnet test command string here. We'll build out the arg list in an array.
 
-        const cmd = "dotnet";
-        const args = ["test", "--no-build", "--no-restore"];
+        const { cmd, args } = this.cmd();
 
         if (_withCoverage) {
             // The two coverage flags need to be pushed onto the args array before the project name
@@ -78,11 +85,11 @@ const dotnetTest = {
             args.push(COVERAGE_FLAGS);
         }
 
-        let message = `Running tests in the ${project} project... via (${cmd} ${args.join(" ")} ${project})`;
+        let message = `Running tests in the ${project} project... via (${cmd} ${args.join(" ")}} ${project})`;
 
         if (_filter != null && _filter.length > 0) {
             args.push("--filter", _filter);
-            message = `Running tests in the ${project} project that match the xunit filter of '${_filter}' via (${cmd} ${args.join(" ")} ${project})`;
+            message = `Running tests in the ${project} project that match the xunit filter of '${_filter}' via (${cmd} ${args.join(" ")}})} ${project})`;
         }
 
         // Push the project name on as the last arg in the array
@@ -170,33 +177,33 @@ const dotnetTest = {
 
         dir.pushd(solutionDir);
 
-        // Copy over base dotnet test command & args to chain on additional args and apply conditional messaging
-        let cmd = this.cmd;
+        // Since the spawnSync function takes the base command and all arguments separately, we cannot
+        // leverage the base dotnet test command string here. We'll build out the arg list in an array.
 
-        if (program.coverage) {
-            cmd = `${cmd} ${COVERAGE_FLAGS}`;
+        const { cmd, args } = this.cmd();
+
+        if (_withCoverage) {
+            args.push(COVERAGE_FLAGS);
         }
 
-        let message = `Running all tests in the ${dotnetPath.solutionPath()} solution... via (${cmd})`;
+        let message = `Running all tests in the ${dotnetPath.solutionPath()} solution... via (${cmd} ${args.join(" ")})`;
 
         if (_filter != null && _filter.length > 0) {
-            cmd = `${cmd} --filter ${_filter}`;
-            message = `Running tests in the ${dotnetPath.solutionPath()} solution that match the xunit filter of '${_filter}' via (${cmd})`;
+            args.push("--filter", _filter);
+            message = `Running tests in the ${dotnetPath.solutionPath()} solution that match the xunit filter of '${_filter}' via (${cmd} ${args.join(" ")})`;
         }
 
         echo.message(message);
 
-        const child = spawn(cmd, { stdio: "inherit", shell: true });
-        child.on("exit", (code, signal) => {
-            if (code !== 0) {
-                echo.error(`Exited with error '${signal || code}'`);
-                shell.exit(code);
-            }
+        const result = spawnSync(cmd, args, { stdio: "inherit", shell: true });
+        if (result.status !== 0) {
+            echo.error(`Exited with error: ${result.status}`);
+            shell.exit(result.status);
+        }
 
-            dir.popd();
-            echo.newLine();
-            echo.message("Exited dotnet-test");
-        });
+        dir.popd();
+        echo.newLine();
+        echo.message("Exited dotnet-test");
     },
     skipClean(skipClean) {
         if (skipClean != null) {
