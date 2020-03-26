@@ -4,13 +4,12 @@
  * Imports
  **************************************************************************************************/
 
-const { spawn, spawnSync } = require("child_process");
-const dir = require("./dir");
-const dotnetBuild = require("./dotnet-build");
-const dotnetPath = require("./dotnet-path");
-const echo = require("./echo");
-const program = require("commander");
-const shell = require("shelljs");
+const { spawnSync } = require("child_process");
+const dir           = require("./dir");
+const dotnetBuild   = require("./dotnet-build");
+const dotnetPath    = require("./dotnet-path");
+const echo          = require("./echo");
+const shell         = require("shelljs");
 
 /**************************************************************************************************
  * Constants
@@ -22,9 +21,9 @@ const COVERAGE_FLAGS = "-p:CollectCoverage=true -p:CoverletOutputFormat=opencove
  * Variables
  **************************************************************************************************/
 
-let _ciMode = false;
-let _filter = [];
-let _skipClean = false;
+let _ciMode       = false;
+let _filter       = [];
+let _skipClean    = false;
 let _withCoverage = false;
 
 /**************************************************************************************************
@@ -42,7 +41,7 @@ const dotnetTest = {
     cmd() {
         return {
             args: ["test", "--no-build", "--no-restore"],
-            cmd: "dotnet",
+            cmd:  "dotnet",
             toString() {
                 return `${this.cmd} ${this.args.join(" ")}`;
             },
