@@ -66,11 +66,11 @@ const dotnetTest = {
      * // An example of the result object to be returned. Code = 0 signifies a successful run,
      * // while any other code signifies a failure.
      *  {
-            code: 1,
-            name: "ExampleProject.Core.Tests",
-            stderr: "...",
-            stdout: "...",
-        }
+     *      code: 1,
+     *      name: "ExampleProject.Core.Tests",
+     *      stderr: "...",
+     *      stdout: "...",
+     *  }
      */
     runProject(project) {
         // Since the spawnSync function takes the base command and all arguments separately, we cannot

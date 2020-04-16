@@ -123,7 +123,6 @@ require("./command-runner").run(async () => {
         .option("-w, --watch",   dotnet.description("watch run"))
         .parse(process.argv);
 
-
     // Only run dotnet clean on its own if we aren't building, running, or watching in the same command
     // Otherwise, those commands will run the clean.
     if ((!program.build && !program.run && !program.watch) && program.clean) {

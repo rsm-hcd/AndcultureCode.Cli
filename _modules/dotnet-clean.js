@@ -9,8 +9,6 @@ const dotnetPath = require("./dotnet-path");
 const echo       = require("./echo");
 const formatters = require("./formatters");
 const shell      = require("shelljs");
-const variables  = require("./variables");
-
 
 /**************************************************************************************************
  * Functions
@@ -60,7 +58,6 @@ const dotnetClean = {
         echo.success("Dotnet solution cleaned");
     },
 }
-
 
 /**************************************************************************************************
  * Exports

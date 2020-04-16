@@ -8,8 +8,6 @@ const dir        = require("./dir");
 const dotnetPath = require("./dotnet-path");
 const echo       = require("./echo");
 const shell      = require("shelljs");
-const variables  = require("./variables");
-
 
 /**************************************************************************************************
  * Functions
@@ -28,7 +26,6 @@ const dotnetRestore = {
         dir.popd();
     },
 };
-
 
 /**************************************************************************************************
  * Exports

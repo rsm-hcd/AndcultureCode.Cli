@@ -9,12 +9,9 @@ require("./command-runner").run(async () => {
     const dotnetPublish = require("./_modules/dotnet-publish");
     const echo          = require("./_modules/echo");
     const file          = require("./_modules/file");
-    const path          = require("path");
     const program       = require("commander");
     const shell         = require("shelljs");
-    const upath         = require ("upath");
     const zip           = require("./_modules/zip");
-
 
     /**************************************************************************************************
      * Variables
@@ -22,7 +19,6 @@ require("./command-runner").run(async () => {
 
     const pythonInstallerUrl = "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
     let   timeout            = 20; // Default AWSEBCLI command timeout in minutes
-
 
     /**************************************************************************************************
      * Commands
@@ -126,7 +122,6 @@ require("./command-runner").run(async () => {
     };
 
     // #endregion Commands
-
 
     /**************************************************************************************************
      * Entrypoint / Command router

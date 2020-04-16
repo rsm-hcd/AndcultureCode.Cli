@@ -9,7 +9,6 @@ require("./command-runner").run(async () => {
     const program = require("commander");
     const shell = require("shelljs");
 
-
     /**************************************************************************************************
      * Commands
      **************************************************************************************************/
@@ -50,7 +49,6 @@ require("./command-runner").run(async () => {
     }
 
     // #endregion Copy commands
-
 
     /**************************************************************************************************
      * Entrypoint / Command router
