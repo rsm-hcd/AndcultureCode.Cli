@@ -1,76 +1,75 @@
 #!/usr/bin/env node
+require("./command-runner").run(async () => {
+    /**************************************************************************************************
+     * Imports
+     **************************************************************************************************/
 
-/**************************************************************************************************
- * Imports
- **************************************************************************************************/
+    const commands = require("./_modules/commands");
+    const echo = require("./_modules/echo");
+    const program = require("commander");
+    const shell = require("shelljs");
 
-const commands = require("./_modules/commands");
-const echo     = require("./_modules/echo");
-const program  = require("commander");
-const shell    = require("shelljs");
+    /**************************************************************************************************
+     * Commands
+     **************************************************************************************************/
 
+    // #region Copy commands
 
-/**************************************************************************************************
- * Commands
- **************************************************************************************************/
+    const copy = {
+        description() {
+            return "Copies files and/ or directories";
+        },
 
-// #region Copy commands
+        /**
+         * Copy file or folder to target directory
+         * @param {string} source Path to source file or directory to copy
+         * @param {string} destination Path to output directory
+         * @param {string} options Options for the copy operation (See https://github.com/shelljs/shelljs)
+         */
+        run(source, destination, options) {
 
-const copy = {
-    description() {
-        return "Copies files and/ or directories";
-    },
+            echo.message(`Copying '${source}' to '${destination}'...`);
 
-    /**
-     * Copy file or folder to target directory
-     * @param {string} source Path to source file or directory to copy
-     * @param {string} destination Path to output directory
-     * @param {string} options Options for the copy operation (See https://github.com/shelljs/shelljs)
-     */
-    run(source, destination, options) {
+            let result = null;
 
-        echo.message(`Copying '${source}' to '${destination}'...`);
+            if (options !== undefined && options !== null) {
+                echo.message(` - Options: ${options}`);
+                result = shell.cp(options, source, destination);
+            } else {
+                result = shell.cp(source, destination);
+            }
 
-        let result = null;
+            if (result.code !== 0) {
+                echo.error("Copy failed");
+                shell.exit(result.code);
+            }
 
-        if (options !== undefined && options !== null) {
-            echo.message(` - Options: ${options}`);
-            result = shell.cp(options, source, destination);
-        } else {
-            result = shell.cp(source, destination);
-        }
+            echo.success("Copy successful");
+        },
+    }
 
-        if (result.code !== 0) {
-            echo.error("Copy failed");
-            shell.exit(1);
-        }
+    // #endregion Copy commands
 
-        echo.success("Copy successful");
-    },
-}
+    /**************************************************************************************************
+     * Entrypoint / Command router
+     **************************************************************************************************/
 
-// #endregion Copy commands
+    // #region Entrypoint / Command router
 
+    program
+        .usage("option(s)")
+        .description(commands.copy.description)
+        .option("-d, --destination <destination>", "Required destination directory path")
+        .option("-f, --flags <options>", "Optional flags when copying (See https://github.com/shelljs/shelljs 'cp')")
+        .option("-s, --source <source>", "Required source file or directory path")
+        .parse(process.argv);
 
-/**************************************************************************************************
- * Entrypoint / Command router
- **************************************************************************************************/
+    if (program.source && program.destination) {
+        copy.run(program.source, program.destination, program.flags);
+    }
 
-// #region Entrypoint / Command router
+    // If no options are passed in, output help
+    if (process.argv.slice(2).length === 0) { program.help(); }
 
-program
-    .usage("option(s)")
-    .description(commands.copy.description)
-    .option("-d, --destination <destination>", "Required destination directory path")
-    .option("-f, --flags <options>",           "Optional flags when copying (See https://github.com/shelljs/shelljs 'cp')")
-    .option("-s, --source <source>",           "Required source file or directory path")
-    .parse(process.argv);
-
-if (program.source && program.destination) {
-    copy.run(program.source, program.destination, program.flags);
-}
-
-// If no options are passed in, output help
-if (process.argv.slice(2).length === 0) { program.help(); }
-
-// #endregion Entrypoint / Command router
+    // #endregion Entrypoint / Command router
+});

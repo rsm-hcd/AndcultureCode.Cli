@@ -7,7 +7,6 @@
 const commands  = require("./_modules/commands");
 const program   = require("commander");
 
-
 /**************************************************************************************************
  * Functions
  **************************************************************************************************/
@@ -32,7 +31,6 @@ const fixArgumentPosixPathConversion = () => {
 
 // #endregion Functions
 
-
 /**************************************************************************************************
  * Entrypoint / Command router
  **************************************************************************************************/
@@ -54,7 +52,6 @@ fixArgumentPosixPathConversion();
 program.parse(process.argv);
 
 // #endregion Entrypoint / Command router
-
 
 /**************************************************************************************************
  * Command validation
