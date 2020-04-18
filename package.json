@@ -24,7 +24,6 @@
   "homepage": "https://github.com/AndcultureCode/AndcultureCode.Cli#readme",
   "dependencies": {
     "archiver": "3.1.1",
-    "chalk": "^2.4.1",
     "commander": "^2.15.1",
     "readline-promise": "1.0.4",
     "require-all": "3.0.0",
@@ -34,7 +33,7 @@
   "devDependencies": {
     "cross-env": "^6.0.3",
     "faker": "4.1.0",
-    "jest": "^24.9.0",
+    "jest": "25.3.0",
     "pryjs": "1.0.3"
   }
 }

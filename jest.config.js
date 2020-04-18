@@ -4,6 +4,8 @@
 module.exports = {
   automock: false,
   clearMocks: true,
+  collectCoverage: true,
   coverageDirectory: "coverage",
+  restoreMocks: true,
   testEnvironment: "node",
 };
