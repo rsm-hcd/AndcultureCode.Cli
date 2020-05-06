@@ -1,20 +1,18 @@
-version: ~> 1.0
-
-language:
-  node_js
+version: "~> 1.0"
+language: node_js
 node_js:
-  - 8.16.2
+- 8.16.2
 notifications:
   slack:
     on_failure: always
     on_pull_requests: true
     on_success: always
     rooms:
-      secure: Lb4zNaOgM7hF705GykSv8ibU2paT9O8RxJQUkek+U1uIenxL8h0uF3gIn+/dmWkxtsPsbCt1it5NzYbLRcH/waQg6/xJIMEtVve9S1EnCaP8gZid8xDccPTFNlJk5v9bfWSXmvf4k7ufY2thit0COcm9DT4WoW4HUlSA487r40zmyhzHaD2h0ojF9le7yIxiXEG/Ojgi7TcAW+WLZeF8Y9o3sR4vqLTHxRaZ/YhyrmwJ6CjYMLQWFSIuuSdYzyUYyL2sHBpY6xqyCC5KcYqHLDwSG2vNJ0WTaJ0W4tiKGHdglPvCW2MCZdF1ROfJbv4dk2xUHJkB8Y3AMfaI5EWJyf3WVwGjioOsImXKP7Ga5DT6YnKf3iWi3eILCry2527UacaiDIlMvLWyqvHb++Zp+TnFFp9xYrBG7aCumbE/+ASBMxIEcyi1BbqJKAtYLN5XWLpyZ2VdIpaadab8LBehz/hBsLXnT7swlk7ANWGVXBe7GuKnj+z8hg/n74NqwbIqhBYymCPHFlMr4+uIkPaXXuBGyCgDWUDqMupe0ff/8wXYcFmZSmgMvat2eQ96fb8wcKCLOoeN0Dcq59nc++z741g8Tb3PHnmb9D7lw9IIOUyrpP14q15wug4PFVtDgq6n7uACgzTS/BC8RAeGcYeJoFzfYT8Wt1LTuE0tx896XGs=
+      secure: wdda+ChsX3Z6dVXbiHxQan1bMknQMjTWlY42zdyZykL//VtwXmAZfuySwNt+3o6D/JVzr8zpUFxzWS050TFwU2HTKX0p14WhYdWWpqPuE+is1Hss6W7GtflHNzbZW2CJfi6/PcHqSCtShPQUkFAPl9OVtc56B/bC6jx5c4MvxPUIzrBP+XHttp2kJDOH0HVv3E09ogpYnu6+XDgZuMQQJrQKPy1vy1VblTY7QSzBTTJDthzy7tDdNwFxuMg5GavGGyNQ2XEGWNzkau0pG+z9KW2VrlTl7iXpgGWjjyBDVUOUq2jYx2MHLsxHnmVjHdQzlNsa5HZKjBUKLk17Y2whT1kbt0u4CCO26C/cnsOx8TI6vUkYVh/A6GtLRGO84RqxiV452vJv7jDnfYDjjz2Z974hDyQEbgkBZWJoVFqHYyRNInL9+se6ltbzvHrJdr/pm7bNsX5T84qskksNS/ovK1bftvahQFrIKJnysRHW/3S/BHbsNhT3iCYGt4OimH9OxAYPhT8D7WPeBgyOXxwiKzZijXuq2UZG+qvLTYwjUOQL/+Rr/BAw5JmYAJczZABrcY3vH1eWEpYBJFzh+ws2qosIaipM/tVhn9FpAYAfRPelo/Lz5zBlv+uWNpeKu77J+K610dH7t///KHLhgPAqsVF3PNyIn0u1n59mZt60k2k=
 install:
-  - npm install -g codecov
+- npm install -g codecov
 before_script:
-  - npm install
+- npm install
 script:
-  - npm run test
-  - codecov --disable=gcov
+- npm run test
+- codecov --disable=gcov
