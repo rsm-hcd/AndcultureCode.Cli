@@ -6,6 +6,7 @@
 
 const commands  = require("./_modules/commands");
 const program   = require("commander");
+const version   = require("./package.json").version;
 
 /**************************************************************************************************
  * Functions
@@ -38,13 +39,18 @@ const fixArgumentPosixPathConversion = () => {
 // #region Entrypoint / Command router
 
 program.description("andculture cli");
+program.version(version);
 
 // Programatically loop over the 'commands' module, parsing the command + description out and
 // registering them with commander
 const commandObjects = Object.keys(commands).map((key) => commands[key]);
 
 commandObjects.forEach((commandObject) => {
-    program.command(commandObject.command, commandObject.description);
+    program.command(
+        commandObject.command,
+        commandObject.description,
+        { executableFile: `cli-${commandObject.command}` }
+    );
 });
 
 fixArgumentPosixPathConversion();
