@@ -2,7 +2,6 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const { red, tabbedNewLine } = formatters;
 const dir                    = require("./dir");
 const dotnetBuild            = require("./dotnet-build");
 const dotnetPath             = require("./dotnet-path");
@@ -12,6 +11,14 @@ const path                   = require("path");
 const shell                  = require("shelljs");
 
 // #endregion Imports
+
+// -----------------------------------------------------------------------------------------
+// #region Variables
+// -----------------------------------------------------------------------------------------
+
+const { red, tabbedNewLine } = formatters;
+
+// #endregion Variables
 
 // -----------------------------------------------------------------------------------------
 // #region Functions
