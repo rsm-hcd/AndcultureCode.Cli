@@ -1,29 +1,35 @@
-#!/usr/bin/env node
+// -----------------------------------------------------------------------------------------
+// #region Imports
+// -----------------------------------------------------------------------------------------
 
-/**************************************************************************************************
- * Imports
- **************************************************************************************************/
-
+const child_process = require("child_process");
 const dotnetClean   = require("./dotnet-clean");
 const dotnetPath    = require("./dotnet-path");
 const dotnetRestore = require("./dotnet-restore");
 const echo          = require("./echo");
-const formatters    = require("./formatters");
 const shell         = require("shelljs");
 
-/**************************************************************************************************
- * Functions
- **************************************************************************************************/
+// #endregion Imports
+
+// -----------------------------------------------------------------------------------------
+// #region Functions
+// -----------------------------------------------------------------------------------------
 
 const dotnetBuild = {
     cmd() {
-        return `dotnet build ${dotnetPath.solutionPath()} --no-restore`;
+        return {
+            args: ["build", dotnetPath.solutionPath(), "--no-restore"],
+            cmd: "dotnet",
+            toString() {
+                return `${this.cmd} ${this.args.join(" ")}`;
+            },
+        };
     },
     description() {
         return `Builds the dotnet project (via ${this.cmd()})`;
     },
     run(clean, restore) {
-
+        // Verify that the solution path exists or exit early.
         dotnetPath.solutionPathOrExit();
 
         if (clean) {
@@ -34,22 +40,26 @@ const dotnetBuild = {
             dotnetRestore.run();
         }
 
+        const { cmd, args } = this.cmd();
+
         echo.message(`Building solution (via ${this.cmd()})...`);
+        const { status } = child_process.spawnSync(cmd, args, { stdio: "inherit", shell: true });
 
-        const buildResult = shell.exec(this.cmd(), { silent: true });
-        shell.echo(formatters.dotnet(buildResult));
-
-        if (buildResult.code !== 0) {
+        if (status !== 0) {
             echo.error("Solution failed to build. See output for details.");
-            shell.exit(buildResult.code);
+            shell.exit(status);
         }
 
-        return buildResult.code;
+        return status;
     },
 };
 
-/**************************************************************************************************
- * Exports
- **************************************************************************************************/
+// #endregion Functions
+
+// -----------------------------------------------------------------------------------------
+// #region Exports
+// -----------------------------------------------------------------------------------------
 
 module.exports = dotnetBuild;
+
+// #endregion Exports

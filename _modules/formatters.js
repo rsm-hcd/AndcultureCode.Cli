@@ -1,10 +1,23 @@
+// -----------------------------------------------------------------------------------------
+// #region Imports
+// -----------------------------------------------------------------------------------------
 
-const variables = require("./variables");
 const shell     = require("shelljs");
+const variables = require("./variables");
+
+// #endregion Imports
+
+// -----------------------------------------------------------------------------------------
+// #region Variables
+// -----------------------------------------------------------------------------------------
 
 const { colors, symbols } = variables;
 
+// #endregion Variables
+
+// -----------------------------------------------------------------------------------------
 // #region Color formatters
+// -----------------------------------------------------------------------------------------
 
 exports.red    = (message) => `${colors.red}${message}${colors.clear}`;
 exports.yellow = (message) => `${colors.yellow}${message}${colors.clear}`;
@@ -14,7 +27,9 @@ exports.green  = (message) => `${colors.green}${message}${colors.clear}`;
 
 // #endregion Color formatters
 
+// -----------------------------------------------------------------------------------------
 // #region Dotnet formatters
+// -----------------------------------------------------------------------------------------
 
 exports.dotnet = (output, toConsole = false) => {
     // NOTE: Temporarily parsing output due to shelljs.exec not preserving colored output correctly
@@ -44,14 +59,18 @@ exports.dotnet = (output, toConsole = false) => {
 
 // #endregion Dotnet formatters
 
+// -----------------------------------------------------------------------------------------
 // #region Spacing formatters
+// -----------------------------------------------------------------------------------------
 
 exports.tab           = (message, times = 3) => "\t".repeat(times) + message;
 exports.tabbedNewLine = (message, times = 3) => "\n" + this.tab(message, times);
 
 // #endregion Spacing formatters
 
+// -----------------------------------------------------------------------------------------
 // #region Jest formatters
+// -----------------------------------------------------------------------------------------
 
 exports.jest = (output, toConsole = false) => {
     // NOTE: Temporarily parsing output due to shelljs.exec not preserving colored output correctly
@@ -77,7 +96,9 @@ exports.jest = (output, toConsole = false) => {
 
 // #endregion Jest formatters
 
+// -----------------------------------------------------------------------------------------
 // #region Npm formatters
+// -----------------------------------------------------------------------------------------
 
 exports.npm = (output, toConsole = false) => {
     // NOTE: Temporarily parsing output due to shelljs.exec not preserving colored output correctly
