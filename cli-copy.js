@@ -1,19 +1,19 @@
 #!/usr/bin/env node
 require("./command-runner").run(async () => {
-    /**************************************************************************************************
-     * Imports
-     **************************************************************************************************/
+    // -----------------------------------------------------------------------------------------
+    // #region Imports
+    // -----------------------------------------------------------------------------------------
 
     const commands = require("./_modules/commands");
-    const echo = require("./_modules/echo");
-    const program = require("commander");
-    const shell = require("shelljs");
+    const echo     = require("./_modules/echo");
+    const program  = require("commander");
+    const shell    = require("shelljs");
 
-    /**************************************************************************************************
-     * Commands
-     **************************************************************************************************/
+    // #endregion Imports
 
-    // #region Copy commands
+    // -----------------------------------------------------------------------------------------
+    // #region Functions
+    // -----------------------------------------------------------------------------------------
 
     const copy = {
         description() {
@@ -48,13 +48,11 @@ require("./command-runner").run(async () => {
         },
     }
 
-    // #endregion Copy commands
+    // #endregion Functions
 
-    /**************************************************************************************************
-     * Entrypoint / Command router
-     **************************************************************************************************/
-
-    // #region Entrypoint / Command router
+    // -----------------------------------------------------------------------------------------
+    // #region Entrypoint
+    // -----------------------------------------------------------------------------------------
 
     program
         .usage("option(s)")
@@ -71,5 +69,5 @@ require("./command-runner").run(async () => {
     // If no options are passed in, output help
     if (process.argv.slice(2).length === 0) { program.help(); }
 
-    // #endregion Entrypoint / Command router
+    // #endregion Entrypoint
 });

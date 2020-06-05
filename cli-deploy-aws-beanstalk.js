@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 require("./command-runner").run(async () => {
-    /**************************************************************************************************
-     * Imports
-     **************************************************************************************************/
+    // -----------------------------------------------------------------------------------------
+    // #region Imports
+    // -----------------------------------------------------------------------------------------
 
     const dir           = require("./_modules/dir");
     const dotnetPath    = require("./_modules/dotnet-path");
@@ -13,18 +13,20 @@ require("./command-runner").run(async () => {
     const shell         = require("shelljs");
     const zip           = require("./_modules/zip");
 
-    /**************************************************************************************************
-     * Variables
-     **************************************************************************************************/
+    // #endregion Imports
+
+    // -----------------------------------------------------------------------------------------
+    // #region Variables
+    // -----------------------------------------------------------------------------------------
 
     const pythonInstallerUrl = "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
-    let   timeout            = 20; // Default AWSEBCLI command timeout in minutes
+    let timeout              = 20; // Default AWSEBCLI command timeout in minutes
 
-    /**************************************************************************************************
-     * Commands
-     **************************************************************************************************/
+    // #endregion Variables
 
-    // #region Commands
+    // -----------------------------------------------------------------------------------------
+    // #region Functions
+    // -----------------------------------------------------------------------------------------
 
     const deployAwsBeanstalk = {
         cmds: {
@@ -63,7 +65,7 @@ require("./command-runner").run(async () => {
             const outerReleaseZipFile       = `${projectDir}release-bundle.zip`;
             file.deleteIfExists(outerReleaseZipFile);
 
-            const inputDirectories = [];
+            const inputDirectories           = [];
             const awsBundleExtensionsDirname = ".ebextensions";
             const awsBundleExtensionsDir     = `${projectDir}${awsBundleExtensionsDirname}`;
             if (shell.test("-e", awsBundleExtensionsDir)) {
@@ -121,13 +123,11 @@ require("./command-runner").run(async () => {
 
     };
 
-    // #endregion Commands
+    // #endregion Functions
 
-    /**************************************************************************************************
-     * Entrypoint / Command router
-     **************************************************************************************************/
-
-    // #region Entrypoint / Command router
+    // -----------------------------------------------------------------------------------------
+    // #region Entrypoint
+    // -----------------------------------------------------------------------------------------
 
     program
         .usage("option")
@@ -136,7 +136,7 @@ require("./command-runner").run(async () => {
         .option("--timeout <timeout>", `Optional elastic beanstalk deploy timeout. Default is ${timeout} minutes. When exceeded, exits with error`)
         .parse(process.argv);
 
-    // #endregion Entrypoint / Command router
-
     deployAwsBeanstalk.run();
+
+    // #endregion Entrypoint
 });

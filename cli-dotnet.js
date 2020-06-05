@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 require("./command-runner").run(async () => {
-    /**************************************************************************************************
-     * Imports
-     **************************************************************************************************/
+    // -----------------------------------------------------------------------------------------
+    // #region Imports
+    // -----------------------------------------------------------------------------------------
 
     const { spawnSync } = require("child_process");
     const commands      = require("./_modules/commands");
@@ -17,11 +17,11 @@ require("./command-runner").run(async () => {
     const program       = require("commander");
     const shell         = require("shelljs");
 
-    /**************************************************************************************************
-     * Commands
-     **************************************************************************************************/
+    // #endregion Imports
 
-    // #region Dotnet commands
+    // -----------------------------------------------------------------------------------------
+    // #region Functions
+    // -----------------------------------------------------------------------------------------
 
     const dotnet = {
         cmd(mode) {
@@ -34,7 +34,7 @@ require("./command-runner").run(async () => {
             };
         },
         description(mode) {
-            return `Runs the dotnet project (via ${this.cmd(mode).toString()}) for ${dotnetPath.webProjectFilePath()}`;
+            return `Runs the dotnet project (via ${this.cmd(mode)}) for ${dotnetPath.webProjectFilePath()}`;
         },
         run(mode) {
             if (program.clean) {
@@ -51,7 +51,7 @@ require("./command-runner").run(async () => {
             // leverage the base dotnet command string here. We'll build out the arg list in an array.
             const { cmd, args } = this.cmd(mode);
 
-            echo.message(`Running dotnet (via ${cmd} ${args.join(" ")})...`);
+            echo.message(`Running dotnet (via ${this.cmd(mode)})...`);
             const result = spawnSync(cmd, args, { stdio: "inherit", shell: true });
 
             if (result.status !== 0) {
@@ -99,13 +99,11 @@ require("./command-runner").run(async () => {
         },
     }
 
-    // #endregion Dotnet commands
+    // #endregion Functions
 
-    /**************************************************************************************************
-     * Entrypoint / Command router
-     **************************************************************************************************/
-
-    // #region Entrypoint / Command router
+    // -----------------------------------------------------------------------------------------
+    // #region Entrypoint
+    // -----------------------------------------------------------------------------------------
 
     program
         .usage("option(s)")
@@ -145,5 +143,5 @@ require("./command-runner").run(async () => {
     // If no options are passed in, performs a build
     if (process.argv.slice(2).length === 0) { dotnet.run("run"); }
 
-    // #endregion Entrypoint / Command router
+    // #endregion Entrypoint
 });

@@ -1,3 +1,7 @@
+// -----------------------------------------------------------------------------------------
+// #region Exports
+// -----------------------------------------------------------------------------------------
+
 module.exports = {
     copy: {
         command:     "copy",
@@ -36,3 +40,5 @@ module.exports = {
         description: "Run various webpack test commands for the project",
     },
 };
+
+// #endregion Exports

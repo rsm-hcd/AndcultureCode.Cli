@@ -7,5 +7,6 @@ module.exports = {
   collectCoverage: true,
   coverageDirectory: "coverage",
   restoreMocks: true,
+  setupFiles: ["./setupTests.js"],
   testEnvironment: "node",
 };

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 require("./command-runner").run(async () => {
-    /**************************************************************************************************
-     * Imports
-     **************************************************************************************************/
+    // -----------------------------------------------------------------------------------------
+    // #region Imports
+    // -----------------------------------------------------------------------------------------
 
     const commands = require("./_modules/commands");
     const echo     = require("./_modules/echo");
@@ -10,13 +10,13 @@ require("./command-runner").run(async () => {
     const path     = require("path");
     const program  = require("commander");
     const shell    = require("shelljs");
-    const upath    = require ("upath");
+    const upath    = require("upath");
 
-    /**************************************************************************************************
-     * Commands
-     **************************************************************************************************/
+    // #endregion Imports
 
-    // #region Install commands
+    // -----------------------------------------------------------------------------------------
+    // #region Functions
+    // -----------------------------------------------------------------------------------------
 
     const install = {
         cmds: {
@@ -49,7 +49,7 @@ require("./command-runner").run(async () => {
             // Developer alias
             echo.message("Configuring cli development `and-cli-dev` bash alias...");
             const pathToCli      = upath.toUnix(path.join(shell.pwd().toString(), "cli.js"));
-            const developerAlias = `alias and-cli-dev='${pathToCli}'`;
+            const developerAlias = `alias and-cli-dev = '${pathToCli}'`;
 
             if (shell.cat(file.bashFile()).grep(developerAlias).stdout.length > 1) {
                 echo.success("and-cli-dev bash alias already installed");
@@ -66,13 +66,11 @@ require("./command-runner").run(async () => {
         },
     }
 
-    // #endregion Install commands
+    // #endregion Functions
 
-    /**************************************************************************************************
-     * Entrypoint / Command router
-     **************************************************************************************************/
-
-    // #region Entrypoint / Command router
+    // -----------------------------------------------------------------------------------------
+    // #region Entrypoint
+    // -----------------------------------------------------------------------------------------
 
     program
         .usage("option(s)")
@@ -82,5 +80,5 @@ require("./command-runner").run(async () => {
     // If no options are passed in, performs installation steps
     if (process.argv.slice(2).length === 0) { install.run(); }
 
-    // #endregion Entrypoint / Command router
+    // #endregion Entrypoint
 });

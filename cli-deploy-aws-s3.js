@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 require("./command-runner").run(async () => {
-    /**************************************************************************************************
-     * Imports
-     **************************************************************************************************/
+    // -----------------------------------------------------------------------------------------
+    // #region Imports
+    // -----------------------------------------------------------------------------------------
 
     const echo           = require("./_modules/echo");
     const file           = require("./_modules/file");
@@ -13,9 +13,11 @@ require("./command-runner").run(async () => {
     const upath          = require("upath");
     const webpackPublish = require("./_modules/webpack-publish");
 
-    /**************************************************************************************************
-     * Variables
-     **************************************************************************************************/
+    // #endregion Imports
+
+    // -----------------------------------------------------------------------------------------
+    // #region Variables
+    // -----------------------------------------------------------------------------------------
 
     const environmentFileName = ".env.local";
     let   destination         = null;
@@ -23,11 +25,11 @@ require("./command-runner").run(async () => {
     const pythonInstallerUrl  = "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
     let   sourcePath          = frontendPath.publishDir();
 
-    /**************************************************************************************************
-     * Commands
-     **************************************************************************************************/
+    // #endregion Variables
 
-    // #region Commands
+    /// -----------------------------------------------------------------------------------------
+    // #region Functions
+    // -----------------------------------------------------------------------------------------
 
     const deployAwsS3 = {
 
@@ -136,13 +138,11 @@ require("./command-runner").run(async () => {
         },
     };
 
-    // #endregion Commands
+    // #endregion Functions
 
-    /**************************************************************************************************
-     * Entrypoint / Command router
-     **************************************************************************************************/
-
-    // #region Entrypoint / Command router
+    // -----------------------------------------------------------------------------------------
+    // #region Entrypoint
+    // -----------------------------------------------------------------------------------------
 
     program
         .usage("option")
@@ -155,7 +155,7 @@ require("./command-runner").run(async () => {
         .option("--webpack",                   "Deploy webpack built frontend application")
         .parse(process.argv);
 
-    // #endregion Entrypoint / Command router
-
     deployAwsS3.run();
+
+    // #endregion Entrypoint
 });

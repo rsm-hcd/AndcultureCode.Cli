@@ -1,21 +1,21 @@
-#!/usr/bin/env node
+// -----------------------------------------------------------------------------------------
+// #region Imports
+// -----------------------------------------------------------------------------------------
 
-/**************************************************************************************************
- * Imports
- **************************************************************************************************/
-
+const { red, tabbedNewLine } = formatters;
 const dir                    = require("./dir");
-const echo                   = require("./echo");
-const shell                  = require("shelljs");
 const dotnetBuild            = require("./dotnet-build");
 const dotnetPath             = require("./dotnet-path");
+const echo                   = require("./echo");
 const formatters             = require("./formatters");
 const path                   = require("path");
-const { red, tabbedNewLine } = formatters;
+const shell                  = require("shelljs");
 
-/**************************************************************************************************
- * Functions
- **************************************************************************************************/
+// #endregion Imports
+
+// -----------------------------------------------------------------------------------------
+// #region Functions
+// -----------------------------------------------------------------------------------------
 
 const dotnetCli = {
     cmd() {
@@ -24,7 +24,7 @@ const dotnetCli = {
     },
     description() {
         return `Shortcut that forwards any/all LMS Dotnet Cli commands to be run in the correct location in the project (via ${this.cmd()}) ` +
-        tabbedNewLine(red("NOTE: ") + "Arguments need to be wrapped in quotes, ie \"test database migrate\"");
+            tabbedNewLine(red("NOTE: ") + "Arguments need to be wrapped in quotes, ie \"test database migrate\"");
     },
     run(args) {
         const cliDir = dotnetPath.cliDir();
@@ -46,8 +46,12 @@ const dotnetCli = {
     },
 };
 
-/**************************************************************************************************
- * Exports
- **************************************************************************************************/
+// #endregion Functions
+
+// -----------------------------------------------------------------------------------------
+// #region Exports
+// -----------------------------------------------------------------------------------------
 
 module.exports = dotnetCli;
+
+// #endregion Exports

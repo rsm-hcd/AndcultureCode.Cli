@@ -1,4 +1,6 @@
-#!/usr/bin/env node
+// -----------------------------------------------------------------------------------------
+// #region Imports
+// -----------------------------------------------------------------------------------------
 
 const dir        = require("./dir");
 const dotnetPath = require("./dotnet-path");
@@ -7,11 +9,13 @@ const path       = require("path");
 const shell      = require("shelljs");
 const upath      = require("upath");
 
-/**************************************************************************************************
- * Constants
- **************************************************************************************************/
+// #endregion Imports
 
+// -----------------------------------------------------------------------------------------
 // #region Constants
+// -----------------------------------------------------------------------------------------
+
+// #endregion Constants
 
 const MIGRATION_MODE = {
     ADD:    "ADD",
@@ -25,25 +29,22 @@ const MIGRATION_COMMAND = {
     [MIGRATION_MODE.RUN]:    "database update",
 };
 
+const STARTUP_PROJECT_DIR = dotnetPath.webProjectFilePath();
+
 // #endregion Constants
 
-/**************************************************************************************************
- * Variables
- **************************************************************************************************/
-
+// -----------------------------------------------------------------------------------------
 // #region Variables
+// -----------------------------------------------------------------------------------------
 
-const _startupProjectDir = dotnetPath.webProjectFilePath();
 let   _migrationName     = null;
 let   _mode              = null;
 
 // #endregion Variables
 
-/**************************************************************************************************
- * Functions
- **************************************************************************************************/
-
+// -----------------------------------------------------------------------------------------
 // #region Functions
+// -----------------------------------------------------------------------------------------
 
 const migration = {
     cmd(mode, migrationName, startupProjectDir) {
@@ -64,11 +65,11 @@ const migration = {
     description(mode) {
         switch(mode) {
             case MIGRATION_MODE.ADD:
-                return `Create new entity framework migration (via ${this.cmd(mode, "<migration name>", _startupProjectDir)})`;
+                return `Create new entity framework migration (via ${this.cmd(mode, "<migration name>", STARTUP_PROJECT_DIR)})`;
             case MIGRATION_MODE.DELETE:
-                return `Delete most recent entity framework migration (via ${this.cmd(mode, "", _startupProjectDir)})`
+                return `Delete most recent entity framework migration (via ${this.cmd(mode, "", STARTUP_PROJECT_DIR)})`
             case MIGRATION_MODE.RUN:
-                return `Run (or revert) entity framework migration (via ${this.cmd(mode, "<migration name>", _startupProjectDir)})`
+                return `Run (or revert) entity framework migration (via ${this.cmd(mode, "<migration name>", STARTUP_PROJECT_DIR)})`
             default:
                 echo.error(`Invalid mode specified. Available options are: ${Object.keys(MIGRATION_MODE)}`);
                 shell.exit(1);
@@ -124,8 +125,10 @@ const migration = {
 
 // #endregion Functions
 
-/**************************************************************************************************
- * Exports
- **************************************************************************************************/
+// -----------------------------------------------------------------------------------------
+// #region Exports
+// -----------------------------------------------------------------------------------------
 
 module.exports = migration;
+
+// #endregion Exports
