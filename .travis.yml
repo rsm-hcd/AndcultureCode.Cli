@@ -1,7 +1,10 @@
 version: "~> 1.0"
-language: node_js
-node_js:
-- 8.16.2
+dotnet: 2.2.1
+env:
+  global:
+  - DOTNET_CLI_TELEMETRY_OPTOUT: 1
+language: csharp
+mono: none
 notifications:
   slack:
     on_failure: always
@@ -9,10 +12,11 @@ notifications:
     on_success: always
     rooms:
       secure: wdda+ChsX3Z6dVXbiHxQan1bMknQMjTWlY42zdyZykL//VtwXmAZfuySwNt+3o6D/JVzr8zpUFxzWS050TFwU2HTKX0p14WhYdWWpqPuE+is1Hss6W7GtflHNzbZW2CJfi6/PcHqSCtShPQUkFAPl9OVtc56B/bC6jx5c4MvxPUIzrBP+XHttp2kJDOH0HVv3E09ogpYnu6+XDgZuMQQJrQKPy1vy1VblTY7QSzBTTJDthzy7tDdNwFxuMg5GavGGyNQ2XEGWNzkau0pG+z9KW2VrlTl7iXpgGWjjyBDVUOUq2jYx2MHLsxHnmVjHdQzlNsa5HZKjBUKLk17Y2whT1kbt0u4CCO26C/cnsOx8TI6vUkYVh/A6GtLRGO84RqxiV452vJv7jDnfYDjjz2Z974hDyQEbgkBZWJoVFqHYyRNInL9+se6ltbzvHrJdr/pm7bNsX5T84qskksNS/ovK1bftvahQFrIKJnysRHW/3S/BHbsNhT3iCYGt4OimH9OxAYPhT8D7WPeBgyOXxwiKzZijXuq2UZG+qvLTYwjUOQL/+Rr/BAw5JmYAJczZABrcY3vH1eWEpYBJFzh+ws2qosIaipM/tVhn9FpAYAfRPelo/Lz5zBlv+uWNpeKu77J+K610dH7t///KHLhgPAqsVF3PNyIn0u1n59mZt60k2k=
-install:
-- npm install -g codecov
 before_script:
+- nvm install 8.16.2
+- nvm use 8.16.2
 - npm install
+- npm install -g codecov
 script:
 - npm run test
 - codecov --disable=gcov
