@@ -2,9 +2,13 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const { HELP_OPTIONS } = require("./_modules/constants");
-const commands         = require("./_modules/commands");
-const testUtils        = require("./tests/test-utils");
+const { HELP_DESCRIPTION } = require("./_modules/constants");
+const commands             = require("./_modules/commands");
+const testUtils            = require("./tests/test-utils");
+const {
+    shouldDisplayHelpMenu,
+    whenGivenOptions
+}                          = require("./tests/describes");
 
 // #endregion Imports
 
@@ -17,32 +21,24 @@ describe("cli", () => {
     // #region -h, --help
     // -----------------------------------------------------------------------------------------
 
-    describe(HELP_OPTIONS, () => {
-        test.each`
-            option
-            ${"-h"}
-            ${"--help"}
-        `("when passed '$option', it displays the help menu", async ({ option }) => {
-            // Arrange & Act
-            const result = await testUtils.executeCliCommand("", [option]);
-
-            // Assert
-            expect(result).toContain(HELP_OPTIONS);
-        });
-    });
+    shouldDisplayHelpMenu("");
 
     // #endregion -h, --help
 
     // -----------------------------------------------------------------------------------------
-    // #region options
+    // #region commands
     // -----------------------------------------------------------------------------------------
 
-    describe("options", () => {
-        test("when given no options, it lists each command and description in the commands module", async () => {
-            // Arrange
-            const flattenedCommands = Object.keys(commands).map((key) => commands[key]);
+    describe("commands", () => {
+        let flattenedCommands;
 
-            // Act
+        beforeEach(() => {
+            // Pull out the flattened list of commands from 'commands' module
+            flattenedCommands = Object.keys(commands).map((key) => commands[key]);
+        });
+
+        test("when given no commands, it lists each command and description in the commands module", async () => {
+            // Arrange & Act
             const result = await testUtils.executeCliCommand("");
 
             // Assert
@@ -57,7 +53,7 @@ describe("cli", () => {
             const result = await testUtils.executeCliCommand("apple peach pineapple");
 
             // Assert
-            expect(result).toContain(HELP_OPTIONS);
+            expect(result).toContain(HELP_DESCRIPTION);
         });
     });
 
