@@ -25,6 +25,9 @@ const dotnetBuild = {
             },
         };
     },
+    options() {
+        return ["-b", "--build"];
+    },
     description() {
         return `Builds the dotnet project (via ${this.cmd()})`;
     },

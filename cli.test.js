@@ -18,33 +18,29 @@ const {
 
 describe("cli", () => {
     // -----------------------------------------------------------------------------------------
-    // #region -h, --help
-    // -----------------------------------------------------------------------------------------
-
-    shouldDisplayHelpMenu("");
-
-    // #endregion -h, --help
-
-    // -----------------------------------------------------------------------------------------
     // #region commands
     // -----------------------------------------------------------------------------------------
 
     describe("commands", () => {
-        let flattenedCommands;
+        // Pull out the flattened list of command objects from 'commands' module
+        const commandObjects = Object.keys(commands).map((key) => commands[key]);
+        const commandStrings = commandObjects.map((obj) => obj.command);
 
-        beforeEach(() => {
-            // Pull out the flattened list of commands from 'commands' module
-            flattenedCommands = Object.keys(commands).map((key) => commands[key]);
-        });
+        whenGivenOptions(commandStrings, (command) =>
+            // Each registered sub-command should display its respective help menu. This will help
+            // ensure each new command is at least run during the build, even if the developer
+            // forgets to add a test file specifically for it.
+            shouldDisplayHelpMenu(command)
+        );
 
         test("when given no commands, it lists each command and description in the commands module", async () => {
             // Arrange & Act
             const result = await testUtils.executeCliCommand("");
 
             // Assert
-            flattenedCommands.forEach((flattenedCommand) => {
-                expect(result).toContain(flattenedCommand.command);
-                expect(result).toContain(flattenedCommand.description);
+            commandObjects.forEach((commandObject) => {
+                expect(result).toContain(commandObject.command);
+                expect(result).toContain(commandObject.description);
             });
         });
 
@@ -55,9 +51,19 @@ describe("cli", () => {
             // Assert
             expect(result).toContain(HELP_DESCRIPTION);
         });
+
+
     });
 
-    // #endregion options
+    // #endregion commands
+
+    // -----------------------------------------------------------------------------------------
+    // #region help
+    // -----------------------------------------------------------------------------------------
+
+    shouldDisplayHelpMenu("");
+
+    // #endregion help
 });
 
 // #endregion Tests

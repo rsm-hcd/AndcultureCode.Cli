@@ -2,12 +2,13 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
+const testUtils   = require("./tests/test-utils");
 const {
-    ERROR_OUTPUT_STRING,
-    HELP_OPTIONS
-} = require("./_modules/constants");
-const testUtils = require("./tests/test-utils");
-const child_process = require("child_process");
+    shouldDisplayHelpMenu,
+    shouldDisplayError,
+    whenGivenOptions
+}                 = require("./tests/describes");
+const dotnetBuild = require("./_modules/dotnet-build");
 
 // #endregion Imports
 
@@ -35,64 +36,45 @@ describe("cli-dotnet", () => {
     });
 
     // -----------------------------------------------------------------------------------------
-    // #region -b, --build
+    // #region build
     // -----------------------------------------------------------------------------------------
 
-    describe("-b, --build", () => {
-        test.each`
-            option
-            ${"-b"}
-            ${"--build"}
-        `("when passed '$option' and no solution can be found, it displays an error", async ({ option }) => {
-            // Arrange & Act
-            const result = await testUtils.executeCliCommand("dotnet", [option]);
+    whenGivenOptions(dotnetBuild.options(), (option) => {
+        describe("when no solution can be found", () =>
+            shouldDisplayError(async () =>
+                // Arrange & Act
+                await testUtils.executeCliCommand("dotnet", [option])
+            )
+        );
 
-            // Assert
-            expect(result).toContain(ERROR_OUTPUT_STRING);
-        });
+        describe("when solution exists", () => {
+            test("it performs a build", async () => {
+                // Arrange
+                // Note: We may want to consider pulling this out into test-utils for the other parent-level
+                // dotnet commands to leverage for integration testing cleans, restores, tests, etc.
+                // For now, we can leave it here.
+                testUtils.executeOrThrow("dotnet", ["new", "solution"]); // Create the solution file
+                testUtils.executeOrThrow("dotnet", ["new", "console"]);  // Create a console app project
+                testUtils.executeOrThrow("dotnet", ["sln", "add", "."]); // Add the console app project to the solution
 
-        test.each`
-            option
-            ${"-b"}
-            ${"--build"}
-        `("when passed '$option' and solution exists, it performs a build", async ({ option }) => {
-            // Arrange
-            // Note: We may want to consider pulling this out into test-utils for the other parent-level
-            // dotnet commands to leverage for integration testing cleans, restores, tests, etc.
-            // For now, we can leave it here.
-            testUtils.executeOrThrow("dotnet", ["new", "solution"]); // Create the solution file
-            testUtils.executeOrThrow("dotnet", ["new", "console"]);  // Create a console app project
-            testUtils.executeOrThrow("dotnet", ["sln", "add", "."]); // Add the console app project to the solution
+                // Act
+                const result = await testUtils.executeCliCommand("dotnet", [option]);
 
-            // Act
-            const result = await testUtils.executeCliCommand("dotnet", [option]);
-
-            // Assert
-            expect(result).toContain("Build succeeded.");
+                // Assert
+                expect(result).toContain("Build succeeded.");
+            });
         });
     });
 
-    // #endregion -b, --build
+    // #endregion build
 
     // -----------------------------------------------------------------------------------------
-    // #region -h, --help
+    // #region help
     // -----------------------------------------------------------------------------------------
 
-    describe(HELP_OPTIONS, () => {
-        test.each`
-            option
-            ${"-h"}
-            ${"--help"}
-        `("when passed '$option', it displays the help menu", async ({ option }) => {
-            // Arrange & Act
-            const result = await testUtils.executeCliCommand("dotnet", [option]);
+    shouldDisplayHelpMenu("dotnet");
 
-            // Assert
-            expect(result).toContain(HELP_OPTIONS);
-        });
-    });
-
-    // #endregion -h, --help
+    // #endregion help
 });
 
 // #endregion Tests
