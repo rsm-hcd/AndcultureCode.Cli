@@ -9,6 +9,7 @@ const {
     whenGivenOptions
 }                 = require("./tests/describes");
 const dotnetBuild = require("./_modules/dotnet-build");
+const dotnetPath  = require("./_modules/dotnet-path");
 
 // #endregion Imports
 
@@ -21,7 +22,7 @@ describe("cli-dotnet", () => {
     let _cleanupTmpDir = () => { };
     beforeEach(() => {
         // Verify that dotnet is installed before continuing.
-        testUtils.verifyDotnetPath();
+        dotnetPath.verifyOrExit();
 
         // Before each test, create a temporary directory for the test to work with. We can muck around
         // for lifetime of the test and it will be cleaned up in the 'afterEach' hook.

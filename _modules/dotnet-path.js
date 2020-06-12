@@ -2,9 +2,9 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const echo  = require("./echo");
-const file  = require("./file");
-const path  = require("path");
+const echo = require("./echo");
+const file = require("./file");
+const path = require("path");
 const shell = require("shelljs");
 const upath = require("upath");
 
@@ -189,6 +189,35 @@ const dotnetPath = {
         }
 
         echo.error("Unable to find dotnet solution file");
+        shell.exit(1);
+    },
+
+    /**
+     * Verifies that the `dotnet` executable is installed and returns its path. If `dotnet` cannot
+     * be found within the current `PATH`, it returns undefined.
+     *
+     */
+    verify() {
+        const dotnetExecutablePath = shell.which("dotnet");
+        if (dotnetExecutablePath == null) {
+            return undefined;
+        }
+
+        return dotnetExecutablePath;
+    },
+
+    /**
+     * Verifies that the `dotnet` executable is installed or exits if it cannot be found within
+     * the current `PATH`
+     *
+     */
+    verifyOrExit() {
+        const dotnetExecutablePath = this.verify();
+        if (dotnetExecutablePath != null) {
+            return dotnetExecutablePath;
+        }
+
+        echo.error("Unable to locate dotnet executable. Check your environment path.");
         shell.exit(1);
     },
 

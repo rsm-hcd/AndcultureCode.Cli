@@ -157,14 +157,6 @@ const testUtils = {
             _throwFatalError(`'${processPath} ${args.join(" ")}' failed with exit code: ${status}`);
         }
     },
-    verifyDotnetPath() {
-        const dotnetPath = shell.which("dotnet");
-        if (dotnetPath == null) {
-            _throwFatalError("Could not locate dotnet executable. Check your environment path.");
-        }
-
-        return dotnetPath;
-    }
 };
 
 // #endregion Public Functions
