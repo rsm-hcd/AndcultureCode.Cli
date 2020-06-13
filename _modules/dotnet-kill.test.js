@@ -64,7 +64,7 @@ describe("dotnetKill", () => {
 
         test("when dotnet process ids are found, it calls ps.kill", async () => {
             // Arrange
-            const mockPid       = faker.random.number();
+            const mockPid       = faker.random.number({ min: 1, max: 100 });
             const mockProcesses = [
                 { pid: mockPid },
                 { pid: mockPid + 1 },

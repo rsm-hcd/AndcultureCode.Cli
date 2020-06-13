@@ -81,7 +81,7 @@ describe("ps", () => {
 
         test("when psList succeeds, it returns an array of processes", async () => {
             // Arrange
-            const mockPid       = faker.random.number();
+            const mockPid       = faker.random.number({ min: 1, max: 100 });
             const mockProcesses = [
                 { pid: mockPid },
                 { pid: mockPid + 1 },
@@ -97,7 +97,7 @@ describe("ps", () => {
 
         test("when given a process name, it returns an array of processes that match", async () => {
             // Arrange
-            const mockPid           = faker.random.number();
+            const mockPid           = faker.random.number({ min: 1, max: 100 });
             const expectedProcess   = {
                 name: "dotnet",
                 pid:  mockPid
