@@ -33,7 +33,7 @@ describe("cli", () => {
             shouldDisplayHelpMenu(command)
         );
 
-        test("when given no commands, it lists each command and description in the commands module", async () => {
+        test("given no commands, it lists each command and description in the commands module", async () => {
             // Arrange & Act
             const result = await testUtils.executeCliCommand("");
 
@@ -44,7 +44,7 @@ describe("cli", () => {
             });
         });
 
-        test("when given all invalid commands or options, it displays the help menu", async () => {
+        test("given all invalid commands or options, it displays the help menu", async () => {
             // Arrange & Act
             const result = await testUtils.executeCliCommand("apple peach pineapple");
 
