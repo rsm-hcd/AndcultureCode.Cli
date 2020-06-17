@@ -23,12 +23,12 @@ const testUtils = require("./test-utils");
  * @param {(any) => void} fn Function to be run nested under the generated `describe` block. Can be
  * a test case or another `describe` block.
  */
-const _whenGivenOptions = (options, fn) => {
+const _givenOptions = (options, fn) => {
     // Intentionally looping over each passed in option and calling describe() vs. using
     // describe.each() - async functions (tests) being passed in were running at the same time and
     // failing. Calling each describe manually seems to force them to run synchronously.
     options.forEach((option) => {
-        describe(`when passed '${option}'`, () => {
+        describe(`given '${option}'`, () => {
             fn(option);
         });
     });
@@ -44,7 +44,7 @@ const _whenGivenOptions = (options, fn) => {
  * @returns
  */
 const _shouldDisplayHelpMenu = (command) =>
-    _whenGivenOptions(HELP_OPTIONS, (option) => {
+    _givenOptions(HELP_OPTIONS, (option) => {
         test("it displays the help menu", async () => {
             // Arrange & Act
             const result = await testUtils.executeCliCommand(command, [option]);
@@ -80,9 +80,9 @@ const _shouldDisplayError = (fn, error = ERROR_OUTPUT_STRING) => {
 // -----------------------------------------------------------------------------------------
 
 const describes = {
+    givenOptions: _givenOptions,
     shouldDisplayError: _shouldDisplayError,
     shouldDisplayHelpMenu: _shouldDisplayHelpMenu,
-    whenGivenOptions: _whenGivenOptions,
 };
 
 module.exports = describes;

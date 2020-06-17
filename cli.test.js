@@ -3,12 +3,12 @@
 // -----------------------------------------------------------------------------------------
 
 const { HELP_DESCRIPTION } = require("./_modules/constants");
-const commands             = require("./_modules/commands");
-const testUtils            = require("./tests/test-utils");
+const commands = require("./_modules/commands");
+const testUtils = require("./tests/test-utils");
 const {
+    givenOptions,
     shouldDisplayHelpMenu,
-    whenGivenOptions
-}                          = require("./tests/describes");
+} = require("./tests/describes");
 
 // #endregion Imports
 
@@ -26,7 +26,7 @@ describe("cli", () => {
         const commandObjects = Object.keys(commands).map((key) => commands[key]);
         const commandStrings = commandObjects.map((obj) => obj.command);
 
-        whenGivenOptions(commandStrings, (command) =>
+        givenOptions(commandStrings, (command) =>
             // Each registered sub-command should display its respective help menu. This will help
             // ensure each new command is at least run during the build, even if the developer
             // forgets to add a test file specifically for it.

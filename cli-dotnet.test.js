@@ -2,14 +2,14 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const testUtils   = require("./tests/test-utils");
+const testUtils = require("./tests/test-utils");
 const {
-    shouldDisplayHelpMenu,
+    givenOptions,
     shouldDisplayError,
-    whenGivenOptions
-}                 = require("./tests/describes");
+    shouldDisplayHelpMenu,
+} = require("./tests/describes");
 const dotnetBuild = require("./_modules/dotnet-build");
-const dotnetPath  = require("./_modules/dotnet-path");
+const dotnetPath = require("./_modules/dotnet-path");
 
 // #endregion Imports
 
@@ -40,15 +40,15 @@ describe("cli-dotnet", () => {
     // #region build
     // -----------------------------------------------------------------------------------------
 
-    whenGivenOptions(dotnetBuild.options(), (option) => {
-        describe("when no solution can be found", () =>
+    givenOptions(dotnetBuild.options(), (option) => {
+        describe("given no solution can be found", () =>
             shouldDisplayError(async () =>
                 // Arrange & Act
                 await testUtils.executeCliCommand("dotnet", [option])
             )
         );
 
-        describe("when solution exists", () => {
+        describe("given solution exists", () => {
             test("it performs a build", async () => {
                 // Arrange
                 // Note: We may want to consider pulling this out into test-utils for the other parent-level
