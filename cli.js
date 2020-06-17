@@ -4,8 +4,8 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const commands  = require("./_modules/commands");
-const program   = require("commander");
+const commands = require("./_modules/commands");
+const program  = require("commander");
 
 // #endregion Imports
 
@@ -21,7 +21,7 @@ const fixArgumentPosixPathConversion = () => {
     for (var i = 0; i <= process.argv.length; i++) {
         let arg = process.argv[i];
 
-        if (arg === undefined || arg === null || !arg.startsWith("//")) {
+        if (arg == null || !arg.startsWith("//")) {
             continue;
         }
 
@@ -71,6 +71,6 @@ if (allParsedArgsInvalid) {
     program.help();
 }
 
-// #endregion Command validation
+// #endregion Validation
 
 // #endregion Entrypoint

@@ -76,14 +76,14 @@ require("./command-runner").run(async () => {
             `${commands.dotnet.description} Certain options can be chained together for specific behavior ` +
             "(--clean and --restore can be used in conjunction with --build)."
         )
-        .option("-b, --build",   dotnetBuild.description())
-        .option("-c, --clean",   dotnetClean.description())
-        .option("-C, --cli",     dotnetCli.description())
-        .option("-k, --kill",    dotnetKill.description())
-        .option("-p, --publish", dotnetPublish.description())
-        .option("-R, --restore", dotnetRestore.description())
-        .option("-r, --run",     dotnet.description("run"))
-        .option("-w, --watch",   dotnet.description("watch run"))
+        .option(dotnetBuild.options().join(), dotnetBuild.description())
+        .option("-c, --clean",                dotnetClean.description())
+        .option("-C, --cli",                  dotnetCli.description())
+        .option("-k, --kill",                 dotnetKill.description())
+        .option("-p, --publish",              dotnetPublish.description())
+        .option("-R, --restore",              dotnetRestore.description())
+        .option("-r, --run",                  dotnet.description("run"))
+        .option("-w, --watch",                dotnet.description("watch run"))
         .parse(process.argv);
 
     // Only run dotnet clean on its own if we aren't building, running, or watching in the same command
