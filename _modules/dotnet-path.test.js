@@ -408,6 +408,81 @@ describe("dotnetPath", () => {
     // #endregion solutionPathOrExit
 
     // -----------------------------------------------------------------------------------------
+    // #region verify
+    // -----------------------------------------------------------------------------------------
+
+    describe("verify", () => {
+        test("when shell.which() returns a value, it returns that value", () => {
+            // Arrange
+            const mockDotnetPath = upath.toUnix(path.join(faker.random.word(), "dotnet"));
+            const shellWhichSpy = jest.spyOn(shell, "which").mockImplementation(() => mockDotnetPath);
+
+            // Act
+            const result = dotnetPath.verify();
+
+            // Assert
+            expect(shellWhichSpy).toHaveBeenCalledWith("dotnet");
+            expect(result).toBe(mockDotnetPath);
+        });
+
+        test.each([
+            undefined,
+            null
+        ])("when shell.which() returns %p, it returns undefined", (returnValue) => {
+            // Arrange
+            const shellWhichSpy = jest.spyOn(shell, "which").mockImplementation(() => returnValue);
+
+            // Act
+            const result = dotnetPath.verify();
+
+            // Assert
+            expect(shellWhichSpy).toHaveBeenCalled();
+            expect(result).toBeUndefined();
+        });
+    });
+
+    // #endregion verify
+
+    // -----------------------------------------------------------------------------------------
+    // #region verifyOrExit
+    // -----------------------------------------------------------------------------------------
+
+    describe("verifyOrExit", () => {
+        test("when shell.which returns a value, it returns that value", () => {
+            // Arrange
+            const mockDotnetPath = upath.toUnix(path.join(faker.random.word(), "dotnet"));
+            const shellWhichSpy = jest.spyOn(shell, "which").mockImplementation(() => mockDotnetPath);
+            const shellExitSpy = jest.spyOn(shell, "exit").mockImplementation();
+
+            // Act
+            const result = dotnetPath.verifyOrExit();
+
+            // Assert
+            expect(shellWhichSpy).toHaveBeenCalledWith("dotnet");
+            expect(shellExitSpy).not.toHaveBeenCalled();
+            expect(result).toBe(mockDotnetPath);
+        });
+
+        test.each([
+            undefined,
+            null
+        ])("when shell.which() returns %p, it calls shell.exit", (returnValue) => {
+            // Arrange
+            const shellWhichSpy = jest.spyOn(shell, "which").mockImplementation(() => returnValue);
+            const shellExitSpy = jest.spyOn(shell, "exit").mockImplementation();
+
+            // Act
+            dotnetPath.verifyOrExit();
+
+            // Assert
+            expect(shellWhichSpy).toHaveBeenCalled();
+            expect(shellExitSpy).toHaveBeenCalledWith(1);
+        });
+    });
+
+    // #endregion verifyOrExit
+
+    // -----------------------------------------------------------------------------------------
     // #region webProjectFileDir
     // -----------------------------------------------------------------------------------------
 
