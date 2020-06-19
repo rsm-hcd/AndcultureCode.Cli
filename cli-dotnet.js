@@ -10,6 +10,7 @@ require("./command-runner").run(async () => {
     const dotnetBuild   = require("./_modules/dotnet-build");
     const dotnetClean   = require("./_modules/dotnet-clean");
     const dotnetCli     = require("./_modules/dotnet-cli");
+    const dotnetKill    = require("./_modules/dotnet-kill");
     const dotnetPath    = require("./_modules/dotnet-path");
     const dotnetPublish = require("./_modules/dotnet-publish");
     const dotnetRestore = require("./_modules/dotnet-restore");
@@ -63,42 +64,6 @@ require("./command-runner").run(async () => {
         },
     };
 
-    const dotnetKill = {
-        cmds: {
-            kill: "kill --force",
-            shutdownBuildServer: "dotnet build-server shutdown",
-        },
-        description() {
-            return `Forcefully kills any running dotnet processes (see https://github.com/dotnet/cli/issues/1327)`;
-        },
-        run() {
-            echo.message(`Stopping dotnet build servers via (${this.cmds.shutdownBuildServer})...`)
-            shell.exec(this.cmds.shutdownBuildServer);
-            echo.success("Finished shutting down build servers.");
-            echo.message(`Force killing dotnet PIDs... via (${this.cmds.kill})`);
-            const dotnetPids = shell
-                .exec("ps aux", { silent: true })
-                .grep("dotnet")
-                .exec("awk '{print $1}'", { silent: true })
-                .split("\n")
-                .filter((e) => e.length > 0);
-
-            if (dotnetPids.length === 0) {
-                echo.message("No dotnet PIDs found!")
-            }
-
-            dotnetPids.map((pid) => {
-                const killReturn = shell.exec(`${this.cmds.kill} ${pid}`).code;
-                if (killReturn === 0) {
-                    echo.success(`Successfully force killed dotnet PID ${pid}`);
-                    return;
-                }
-                echo.error(`Could not kill dotnet PID ${pid}`)
-            });
-            echo.success("Finished force killing lingering dotnet processes.");
-        },
-    }
-
     // #endregion Functions
 
     // -----------------------------------------------------------------------------------------
@@ -135,7 +100,7 @@ require("./command-runner").run(async () => {
 
     if (program.build)   { dotnetBuild.run(program.clean, program.restore); }
     if (program.cli)     { dotnetCli.run(program.args.join(" "));           }
-    if (program.kill)    { dotnetKill.run();                                }
+    if (program.kill)    { await dotnetKill.run();                          }
     if (program.publish) { dotnetPublish.run();                             }
     if (program.run)     { dotnet.run("run");                               }
     if (program.watch)   { dotnet.run("watch run");                         }
