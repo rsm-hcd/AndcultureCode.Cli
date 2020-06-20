@@ -1,17 +1,25 @@
-/**************************************************************************************************
- * Imports
- **************************************************************************************************/
+// -----------------------------------------------------------------------------------------
+// #region Imports
+// -----------------------------------------------------------------------------------------
 
-const variables = require("./variables");
-const shell     = require("shelljs");
+const constants  = require("./constants");
+const formatters = require("./formatters");
+const shell      = require("shelljs");
 
-/**************************************************************************************************
- * Functions
- **************************************************************************************************/
+// #endregion Imports
 
-// #region Echo commands
+// -----------------------------------------------------------------------------------------
+// #region Variables
+// -----------------------------------------------------------------------------------------
 
-const columnLength = 65;
+const columnLength                   = 65;
+const { purple, green, red, yellow } = formatters;
+
+// #endregion Variables
+
+// -----------------------------------------------------------------------------------------
+// #region Functions
+// -----------------------------------------------------------------------------------------
 
 const echo = {
     center(message) {
@@ -26,7 +34,7 @@ const echo = {
         shell.echo(`${this.sdkString} ${"-".repeat(columnLength)}`);
     },
     error(message) {
-        shell.echo(`${this.sdkString} ${variables.colors.red}[ERROR]${variables.colors.clear} ${message}`)
+        shell.echo(`${this.sdkString} ${red(constants.ERROR_OUTPUT_STRING)} ${message}`);
     },
     errors(messages) {
         for (const message of messages) {
@@ -48,19 +56,21 @@ const echo = {
     newLine() {
         shell.echo();
     },
-    sdkString: `${variables.colors.purple}[and-cli]${variables.colors.clear}`,
+    sdkString: purple("[and-cli]"),
     success(message) {
-        shell.echo(`${this.sdkString} ${variables.colors.green}${message}${variables.colors.clear}`)
+        shell.echo(`${this.sdkString} ${green(message)}`)
     },
     warn(message) {
-        shell.echo(`${this.sdkString} ${variables.colors.yellow}[WARN]${variables.colors.clear} ${message}`)
+        shell.echo(`${this.sdkString} ${yellow(constants.WARN_OUTPUT_STRING)} ${message}`)
     },
 }
 
-// #endregion Echo commands
+// #endregion Functions
 
-/**************************************************************************************************
- * Exports
- **************************************************************************************************/
+// -----------------------------------------------------------------------------------------
+// #region Exports
+// -----------------------------------------------------------------------------------------
 
 module.exports = echo;
+
+// #endregion Exports

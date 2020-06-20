@@ -1,31 +1,27 @@
-/**************************************************************************************************
- * Imports
- **************************************************************************************************/
+// -----------------------------------------------------------------------------------------
+// #region Imports
+// -----------------------------------------------------------------------------------------
 
-const echo  = require("./echo");
-const file  = require("./file");
-const path  = require("path");
+const echo = require("./echo");
+const file = require("./file");
+const path = require("path");
 const shell = require("shelljs");
 const upath = require("upath");
 
-/**************************************************************************************************
- * Variables
- **************************************************************************************************/
+// #endregion Imports
 
-let cachedCliPath;
-let cachedDataProjectPath;
-let cachedSolutionPath;
-let cachedWebProjectFilePath;
+// -----------------------------------------------------------------------------------------
+// #region Constants
+// -----------------------------------------------------------------------------------------
 
-// Wild-card searches used when finding the solution file. Ordered by most to least performant
-const solutionFilePaths = [
-    "*.sln",
-    "dotnet/*.sln",
-    "dotnet/*/*.sln",
-    "**/*.sln"
-];
+/**
+ * Representse the directory where a Presentation.Cli dll would live after a `dotnet build`
+ */
+const cliFilePath = "Presentation/Cli/bin/Debug/**/*Cli.dll";
 
-// Wild-card searches used when finding the infrastructure/data dotnet core application project file. Ordered by most to least performant
+/**
+ * Wild-card searches used when finding the infrastructure/data dotnet core application project file. Ordered by most to least performant
+ */
 const dataProjectFilePaths = [
     "*.csproj",
     "dotnet/*/Infrastructure/Data.SqlServer/Data.SqlServer.csproj",
@@ -34,7 +30,24 @@ const dataProjectFilePaths = [
     "**/*.csproj"
 ];
 
-// Wild-card searches used when finding the web dotnet core application project file. Ordered by most to least performant
+/**
+ * Represents the 'release' directory for a `dotnet build`
+ */
+const releaseDirectory = "release";
+
+/**
+ * Wild-card searches used when finding the solution file. Ordered by most to least performant
+ */
+const solutionFilePaths = [
+    "*.sln",
+    "dotnet/*.sln",
+    "dotnet/*/*.sln",
+    "**/*.sln"
+];
+
+/**
+ * Wild-card searches used when finding the web dotnet core application project file. Ordered by most to least performant
+ */
 const webProjectFilePaths = [
     "*.csproj",
     "dotnet/*/Presentation/Web/Web.csproj",
@@ -42,36 +55,53 @@ const webProjectFilePaths = [
     "**/*.csproj"
 ];
 
-/**************************************************************************************************
- * Functions
- **************************************************************************************************/
+// #endregion Constants
 
+// -----------------------------------------------------------------------------------------
+// #region Variables
+// -----------------------------------------------------------------------------------------
+
+let cachedCliPath;
+let cachedDataProjectPath;
+let cachedSolutionPath;
+let cachedWebProjectFilePath;
+
+// #endregion Variables
+
+// -----------------------------------------------------------------------------------------
 // #region Functions
+// -----------------------------------------------------------------------------------------
 
 const dotnetPath = {
-
+    CLI_FILE_PATH: cliFilePath,
+    RELEASE_DIRECTORY: releaseDirectory,
     /**
      * Retrieves the dotnet cli's assembly directory path
      */
     cliDir() {
-        if (this.cliPath() === undefined) {
+        const cliPath = this.cliPath();
+        if (cliPath == null) {
             return undefined;
         }
 
-        return path.dirname(this.cliPath());
+        return path.dirname(cliPath);
     },
 
     /**
      * Retrieves the dotnet cli's assembly path
      */
     cliPath() {
-        if (cachedCliPath) {
+        if (cachedCliPath != null) {
             return cachedCliPath;
         }
-        const solutionPath    = this.solutionDir();
-        const cliDebugDirPath = upath.toUnix(path.join(solutionPath, "Presentation/Cli/bin/Debug"))
 
-        cachedCliPath = file.first(`${cliDebugDirPath}/**/*Cli.dll`);
+        const solutionDir = this.solutionDir();
+        if (solutionDir == null) {
+            return undefined;
+        }
+
+        const cliFilePath = upath.toUnix(path.join(solutionDir, this.CLI_FILE_PATH))
+        cachedCliPath = file.first(cliFilePath);
 
         return cachedCliPath;
     },
@@ -80,13 +110,13 @@ const dotnetPath = {
      * Retrieves the dotnet data project file path (memoized)
      */
     dataProjectFilePath() {
-        if (cachedDataProjectPath !== undefined) {
+        if (cachedDataProjectPath != null) {
             return cachedDataProjectPath;
         }
 
         for (var filePath of dataProjectFilePaths) {
             cachedDataProjectPath = file.first(filePath);
-            if (cachedDataProjectPath !== undefined) {
+            if (cachedDataProjectPath != null) {
                 return cachedDataProjectPath;
             }
         }
@@ -99,7 +129,7 @@ const dotnetPath = {
      */
     dataProjectFilePathOrExit() {
         const dataProjectPath = this.dataProjectFilePath();
-        if (dataProjectPath !== undefined) {
+        if (dataProjectPath != null) {
             return dataProjectPath;
         }
 
@@ -111,27 +141,37 @@ const dotnetPath = {
      * Retrieves the dotnet solution's release directory path
      */
     releaseDir() {
-        return upath.toUnix(path.join(shell.pwd().toString(), this.solutionDir(), "release"));
+        const solutionDir = this.solutionDir();
+        if (solutionDir == null) {
+            return undefined;
+        }
+
+        return upath.toUnix(path.join(shell.pwd().toString(), solutionDir, this.RELEASE_DIRECTORY));
     },
 
     /**
      * Retrieves the dotnet solution's folder path
      */
     solutionDir() {
-        return path.dirname(this.solutionPath());
+        const solutionPath = this.solutionPath();
+        if (solutionPath == null) {
+            return undefined;
+        }
+
+        return path.dirname(solutionPath);
     },
 
     /**
      * Retrieves the dotnet solution file path (memoized)
      */
     solutionPath() {
-        if (cachedSolutionPath !== undefined) {
+        if (cachedSolutionPath != null) {
             return cachedSolutionPath;
         }
 
         for (var filePath of solutionFilePaths) {
             cachedSolutionPath = file.first(filePath);
-            if (cachedSolutionPath !== undefined) {
+            if (cachedSolutionPath != null) {
                 return cachedSolutionPath;
             }
         }
@@ -144,7 +184,7 @@ const dotnetPath = {
      */
     solutionPathOrExit() {
         const solutionPath = this.solutionPath();
-        if (solutionPath !== undefined) {
+        if (solutionPath != null) {
             return solutionPath;
         }
 
@@ -153,23 +193,57 @@ const dotnetPath = {
     },
 
     /**
+     * Verifies that the `dotnet` executable is installed and returns its path. If `dotnet` cannot
+     * be found within the current `PATH`, it returns undefined.
+     *
+     */
+    verify() {
+        const dotnetExecutablePath = shell.which("dotnet");
+        if (dotnetExecutablePath == null) {
+            return undefined;
+        }
+
+        return dotnetExecutablePath;
+    },
+
+    /**
+     * Verifies that the `dotnet` executable is installed or exits if it cannot be found within
+     * the current `PATH`
+     *
+     */
+    verifyOrExit() {
+        const dotnetExecutablePath = this.verify();
+        if (dotnetExecutablePath != null) {
+            return dotnetExecutablePath;
+        }
+
+        echo.error("Unable to locate dotnet executable. Check your environment path.");
+        shell.exit(1);
+    },
+
+    /**
      * Retrieves the dotnet web project's folder path
      */
     webProjectFileDir() {
-        return path.dirname(this.webProjectFilePath());
+        const webProjectFilePath = this.webProjectFilePath();
+        if (webProjectFilePath == null) {
+            return undefined;
+        }
+
+        return path.dirname(webProjectFilePath);
     },
 
     /**
      * Retrieves the dotnet web project file path (memoized)
      */
     webProjectFilePath() {
-        if (cachedWebProjectFilePath !== undefined) {
+        if (cachedWebProjectFilePath != null) {
             return cachedWebProjectFilePath;
         }
 
         for (var filePath of webProjectFilePaths) {
             cachedWebProjectFilePath = file.first(filePath);
-            if (cachedWebProjectFilePath !== undefined) {
+            if (cachedWebProjectFilePath != null) {
                 return cachedWebProjectFilePath;
             }
         }
@@ -182,7 +256,7 @@ const dotnetPath = {
      */
     webProjectFilePathOrExit() {
         const webProjectFilePath = this.webProjectFilePath();
-        if (webProjectFilePath !== undefined) {
+        if (webProjectFilePath != null) {
             return webProjectFilePath;
         }
 
@@ -193,8 +267,10 @@ const dotnetPath = {
 
 // #endregion Functions
 
-/**************************************************************************************************
- * Exports
- **************************************************************************************************/
+// -----------------------------------------------------------------------------------------
+// #region Exports
+// -----------------------------------------------------------------------------------------
 
 module.exports = dotnetPath;
+
+// #endregion Exports

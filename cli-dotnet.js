@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 require("./command-runner").run(async () => {
-    /**************************************************************************************************
-     * Imports
-     **************************************************************************************************/
+    // -----------------------------------------------------------------------------------------
+    // #region Imports
+    // -----------------------------------------------------------------------------------------
 
     const { spawnSync } = require("child_process");
     const commands      = require("./_modules/commands");
@@ -10,6 +10,7 @@ require("./command-runner").run(async () => {
     const dotnetBuild   = require("./_modules/dotnet-build");
     const dotnetClean   = require("./_modules/dotnet-clean");
     const dotnetCli     = require("./_modules/dotnet-cli");
+    const dotnetKill    = require("./_modules/dotnet-kill");
     const dotnetPath    = require("./_modules/dotnet-path");
     const dotnetPublish = require("./_modules/dotnet-publish");
     const dotnetRestore = require("./_modules/dotnet-restore");
@@ -17,11 +18,11 @@ require("./command-runner").run(async () => {
     const program       = require("commander");
     const shell         = require("shelljs");
 
-    /**************************************************************************************************
-     * Commands
-     **************************************************************************************************/
+    // #endregion Imports
 
-    // #region Dotnet commands
+    // -----------------------------------------------------------------------------------------
+    // #region Functions
+    // -----------------------------------------------------------------------------------------
 
     const dotnet = {
         cmd(mode) {
@@ -34,7 +35,7 @@ require("./command-runner").run(async () => {
             };
         },
         description(mode) {
-            return `Runs the dotnet project (via ${this.cmd(mode).toString()}) for ${dotnetPath.webProjectFilePath()}`;
+            return `Runs the dotnet project (via ${this.cmd(mode)}) for ${dotnetPath.webProjectFilePath()}`;
         },
         run(mode) {
             if (program.clean) {
@@ -51,7 +52,7 @@ require("./command-runner").run(async () => {
             // leverage the base dotnet command string here. We'll build out the arg list in an array.
             const { cmd, args } = this.cmd(mode);
 
-            echo.message(`Running dotnet (via ${cmd} ${args.join(" ")})...`);
+            echo.message(`Running dotnet (via ${this.cmd(mode)})...`);
             const result = spawnSync(cmd, args, { stdio: "inherit", shell: true });
 
             if (result.status !== 0) {
@@ -63,49 +64,11 @@ require("./command-runner").run(async () => {
         },
     };
 
-    const dotnetKill = {
-        cmds: {
-            kill: "kill --force",
-            shutdownBuildServer: "dotnet build-server shutdown",
-        },
-        description() {
-            return `Forcefully kills any running dotnet processes (see https://github.com/dotnet/cli/issues/1327)`;
-        },
-        run() {
-            echo.message(`Stopping dotnet build servers via (${this.cmds.shutdownBuildServer})...`)
-            shell.exec(this.cmds.shutdownBuildServer);
-            echo.success("Finished shutting down build servers.");
-            echo.message(`Force killing dotnet PIDs... via (${this.cmds.kill})`);
-            const dotnetPids = shell
-                .exec("ps aux", { silent: true })
-                .grep("dotnet")
-                .exec("awk '{print $1}'", { silent: true })
-                .split("\n")
-                .filter((e) => e.length > 0);
+    // #endregion Functions
 
-            if (dotnetPids.length === 0) {
-                echo.message("No dotnet PIDs found!")
-            }
-
-            dotnetPids.map((pid) => {
-                const killReturn = shell.exec(`${this.cmds.kill} ${pid}`).code;
-                if (killReturn === 0) {
-                    echo.success(`Successfully force killed dotnet PID ${pid}`);
-                    return;
-                }
-                echo.error(`Could not kill dotnet PID ${pid}`)
-            });
-            echo.success("Finished force killing lingering dotnet processes.");
-        },
-    }
-
-    // #endregion Dotnet commands
-
-    /**************************************************************************************************
-     * Entrypoint / Command router
-     **************************************************************************************************/
-
-    // #region Entrypoint / Command router
+    // -----------------------------------------------------------------------------------------
+    // #region Entrypoint
+    // -----------------------------------------------------------------------------------------
 
     program
         .usage("option(s)")
@@ -113,14 +76,14 @@ require("./command-runner").run(async () => {
             `${commands.dotnet.description} Certain options can be chained together for specific behavior ` +
             "(--clean and --restore can be used in conjunction with --build)."
         )
-        .option("-b, --build",   dotnetBuild.description())
-        .option("-c, --clean",   dotnetClean.description())
-        .option("-C, --cli",     dotnetCli.description())
-        .option("-k, --kill",    dotnetKill.description())
-        .option("-p, --publish", dotnetPublish.description())
-        .option("-R, --restore", dotnetRestore.description())
-        .option("-r, --run",     dotnet.description("run"))
-        .option("-w, --watch",   dotnet.description("watch run"))
+        .option(dotnetBuild.options().join(), dotnetBuild.description())
+        .option("-c, --clean",                dotnetClean.description())
+        .option("-C, --cli",                  dotnetCli.description())
+        .option("-k, --kill",                 dotnetKill.description())
+        .option("-p, --publish",              dotnetPublish.description())
+        .option("-R, --restore",              dotnetRestore.description())
+        .option("-r, --run",                  dotnet.description("run"))
+        .option("-w, --watch",                dotnet.description("watch run"))
         .parse(process.argv);
 
     // Only run dotnet clean on its own if we aren't building, running, or watching in the same command
@@ -137,7 +100,7 @@ require("./command-runner").run(async () => {
 
     if (program.build)   { dotnetBuild.run(program.clean, program.restore); }
     if (program.cli)     { dotnetCli.run(program.args.join(" "));           }
-    if (program.kill)    { dotnetKill.run();                                }
+    if (program.kill)    { await dotnetKill.run();                          }
     if (program.publish) { dotnetPublish.run();                             }
     if (program.run)     { dotnet.run("run");                               }
     if (program.watch)   { dotnet.run("watch run");                         }
@@ -145,5 +108,5 @@ require("./command-runner").run(async () => {
     // If no options are passed in, performs a build
     if (process.argv.slice(2).length === 0) { dotnet.run("run"); }
 
-    // #endregion Entrypoint / Command router
+    // #endregion Entrypoint
 });

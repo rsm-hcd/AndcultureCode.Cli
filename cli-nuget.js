@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 require("./command-runner").run(async () => {
-    /**************************************************************************************************
-     * Imports
-     **************************************************************************************************/
+    // -----------------------------------------------------------------------------------------
+    // #region Imports
+    // -----------------------------------------------------------------------------------------
 
     const commands     = require("./_modules/commands");
     const constants    = require("./_modules/constants");
@@ -12,17 +12,19 @@ require("./command-runner").run(async () => {
     const program      = require("commander");
     const shell        = require("shelljs");
 
-    /**************************************************************************************************
-     * Variables
-     **************************************************************************************************/
+    // #endregion Imports
+
+    // -----------------------------------------------------------------------------------------
+    // #region Variables
+    // -----------------------------------------------------------------------------------------
 
     const nugetUrl = "https://api.nuget.org/v3/index.json";
 
-    /**************************************************************************************************
-     * Commands
-     **************************************************************************************************/
+    // #endregion Variables
 
-    // #region NuGet commands
+    // -----------------------------------------------------------------------------------------
+    // #region Functions
+    // -----------------------------------------------------------------------------------------
 
     const nugetPublish = {
         cmds: {
@@ -59,7 +61,7 @@ require("./command-runner").run(async () => {
             // Push nupkg to nuget servers
             const errored    = [];
             const successful = [];
-            shell.ls(`**/*.${publishVersion}.nupkg`).forEach(function(file) {
+            shell.ls(`**/*.${publishVersion}.nupkg`).forEach(function (file) {
 
                 if (shell.exec(`dotnet nuget push ${file} -s ${nugetUrl}`).code !== 0) {
                     errored.push(file);
@@ -81,13 +83,11 @@ require("./command-runner").run(async () => {
         },
     }
 
-    // #endregion NuGet commands
+    // #endregion Functions
 
-    /**************************************************************************************************
-     * Entrypoint / Command router
-     **************************************************************************************************/
-
-    // #region Entrypoint / Command router
+    // -----------------------------------------------------------------------------------------
+    // #region Entrypoint
+    // -----------------------------------------------------------------------------------------
 
     program
         .usage("option(s)")
@@ -102,5 +102,5 @@ require("./command-runner").run(async () => {
     // If no options are passed in, output help
     if (process.argv.slice(2).length === 0) { program.help(); }
 
-    // #endregion Entrypoint / Command router
+    // #endregion Entrypoint
 });

@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
-/**************************************************************************************************
- * Imports
- **************************************************************************************************/
+// -----------------------------------------------------------------------------------------
+// #region Imports
+// -----------------------------------------------------------------------------------------
 
-const commands  = require("./_modules/commands");
-const program   = require("commander");
-const version   = require("./package.json").version;
+const commands = require("./_modules/commands");
+const program  = require("commander");
+const version  = require("./package.json").version;
 
-/**************************************************************************************************
- * Functions
- **************************************************************************************************/
+// #endregion Imports
 
+// -----------------------------------------------------------------------------------------
 // #region Functions
+// -----------------------------------------------------------------------------------------
 
 /**
  * Argument POSIX path conversion fix
@@ -22,7 +22,7 @@ const fixArgumentPosixPathConversion = () => {
     for (var i = 0; i <= process.argv.length; i++) {
         let arg = process.argv[i];
 
-        if (arg === undefined || arg === null || !arg.startsWith("//")) {
+        if (arg == null || !arg.startsWith("//")) {
             continue;
         }
 
@@ -32,11 +32,9 @@ const fixArgumentPosixPathConversion = () => {
 
 // #endregion Functions
 
-/**************************************************************************************************
- * Entrypoint / Command router
- **************************************************************************************************/
-
-// #region Entrypoint / Command router
+// -----------------------------------------------------------------------------------------
+// #region Entrypoint
+// -----------------------------------------------------------------------------------------
 
 program.description("andculture cli");
 program.version(version);
@@ -57,13 +55,9 @@ fixArgumentPosixPathConversion();
 
 program.parse(process.argv);
 
-// #endregion Entrypoint / Command router
-
-/**************************************************************************************************
- * Command validation
- **************************************************************************************************/
-
-// #region Command validation
+// -----------------------------------------------------------------------------------------
+// #region Validation
+// -----------------------------------------------------------------------------------------
 
 // Map out the individual 'command' strings for comparison with parsed args
 // to see if invalid commands were passed in to the base program
@@ -83,4 +77,6 @@ if (allParsedArgsInvalid) {
     program.help();
 }
 
-// #endregion Command validation
+// #endregion Validation
+
+// #endregion Entrypoint

@@ -1,17 +1,17 @@
-/**************************************************************************************************
- * Imports
- **************************************************************************************************/
+// -----------------------------------------------------------------------------------------
+// #region Imports
+// -----------------------------------------------------------------------------------------
+
 const faker        = require("faker");
 const nugetUpgrade = require("./nuget-upgrade");
 const path         = require("path");
 const shell        = require("shelljs");
 
-/**************************************************************************************************
- * Mocks
- **************************************************************************************************/
+// #endregion Imports
 
-// Mocking the echo module explicitly to suppress extra output from the module.
-jest.mock("./echo");
+// -----------------------------------------------------------------------------------------
+// #region Tests
+// -----------------------------------------------------------------------------------------
 
 describe("nugetUpgrade", () => {
     const mockShellFn = (code = 0, stdout = "") => jest.fn().mockImplementation(() => {
@@ -21,14 +21,14 @@ describe("nugetUpgrade", () => {
     let shellExitSpy;
 
     beforeEach(() => {
-        shellExitSpy = jest.spyOn(shell, "exit").mockImplementation(() => {});
+        shellExitSpy = jest.spyOn(shell, "exit").mockImplementation(() => { });
     });
 
-    /**************************************************************************************************
-     * findCsprojFiles()
-     **************************************************************************************************/
+    // -----------------------------------------------------------------------------------------
+    // #region findCsprojFiles
+    // -----------------------------------------------------------------------------------------
 
-    describe("findCsprojFiles()", () => {
+    describe("findCsprojFiles", () => {
         test("when shell.find returns non-zero exit code, it calls shell.exit with that code", () => {
             // Arrange
             const mockReturnCode = faker.random.number({ min: 1 });
@@ -44,11 +44,13 @@ describe("nugetUpgrade", () => {
         });
     });
 
-    /**************************************************************************************************
-     * getCsprojFilesContainingPackage()
-     **************************************************************************************************/
+    // #endregion findCsprojFiles
 
-    describe("getCsprojFilesContainingPackage()", () => {
+    // -----------------------------------------------------------------------------------------
+    // #region getCsprojFilesContainingPackage
+    // -----------------------------------------------------------------------------------------
+
+    describe("getCsprojFilesContainingPackage", () => {
         test("when shell.grep returns non-zero exit code, it calls shell.exit with that code", () => {
             // Arrange
             const mockReturnCode = faker.random.number({ min: 1 });
@@ -73,11 +75,13 @@ describe("nugetUpgrade", () => {
         });
     });
 
-    /**************************************************************************************************
-     * replacePackageVersion()
-     **************************************************************************************************/
+    // #endregion getCsprojFilesContainingPackage
 
-    describe("replacePackageVersion()", () => {
+    // -----------------------------------------------------------------------------------------
+    // #region replacePackageVersion
+    // -----------------------------------------------------------------------------------------
+
+    describe("replacePackageVersion", () => {
         test("when shell.sed returns non-zero exit code, it calls shell.exit with that code", () => {
             // Arrange
             const mockReturnCode = faker.random.number({ min: 1 });
@@ -102,11 +106,13 @@ describe("nugetUpgrade", () => {
         });
     });
 
-    /**************************************************************************************************
-     * validatePackageName()
-     **************************************************************************************************/
+    // #endregion replacePackageVersion
 
-    describe("validatePackageName()", () => {
+    // -----------------------------------------------------------------------------------------
+    // #region validatePackageName
+    // -----------------------------------------------------------------------------------------
+
+    describe("validatePackageName", () => {
         test.each`
             packageName
             ${""}
@@ -128,7 +134,13 @@ describe("nugetUpgrade", () => {
         });
     });
 
-    describe("validatePackageVersion()", () => {
+    // #endregion validatePackageName
+
+    // -----------------------------------------------------------------------------------------
+    // #region validatePackageVersion
+    // -----------------------------------------------------------------------------------------
+
+    describe("validatePackageVersion", () => {
         test.each`
             packageVersion
             ${""}
@@ -159,4 +171,8 @@ describe("nugetUpgrade", () => {
             expect(shellExitSpy).not.toHaveBeenCalled();
         });
     });
+
+    // #endregion validatePackageVersion
 });
+
+// #endregion Tests

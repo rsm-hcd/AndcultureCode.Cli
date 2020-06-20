@@ -1,30 +1,38 @@
-/**************************************************************************************************
- * Imports
- **************************************************************************************************/
+// -----------------------------------------------------------------------------------------
+// #region Imports
+// -----------------------------------------------------------------------------------------
+
 const dotnetBuild = require("./dotnet-build");
 const dotnetTest  = require("./dotnet-test");
 const shell       = require("shelljs");
 
-/**************************************************************************************************
- * Mocks
- **************************************************************************************************/
+// #endregion Imports
+
+// -----------------------------------------------------------------------------------------
+// #region Mocks
+// -----------------------------------------------------------------------------------------
+
 jest.mock("./dir");
-// Mocking the echo module explicitly to suppress extra output from the module.
-jest.mock("./echo");
 jest.mock("path");
+
+// #endregion Mocks
+
+// -----------------------------------------------------------------------------------------
+// #region Tests
+// -----------------------------------------------------------------------------------------
 
 describe("dotnetTest", () => {
 
-    /**************************************************************************************************
-     * runBySolution()
-     **************************************************************************************************/
+    // -----------------------------------------------------------------------------------------
+    // #region runBySolution
+    // -----------------------------------------------------------------------------------------
 
-    describe("runBySolution()", () => {
+    describe("runBySolution", () => {
         let dotnetBuildSpy;
 
         beforeEach(() => {
-            dotnetBuildSpy = jest.spyOn(dotnetBuild, "run").mockImplementation(() => {});
-            jest.spyOn(shell, "exit").mockImplementation(() => {});
+            dotnetBuildSpy = jest.spyOn(dotnetBuild, "run").mockImplementation(() => { });
+            jest.spyOn(shell, "exit").mockImplementation(() => { });
         });
 
         test("it calls dotnetBuild.run() by default", () => {
@@ -51,4 +59,8 @@ describe("dotnetTest", () => {
             expect(dotnetBuildSpy).not.toHaveBeenCalled();
         });
     });
+
+    // #endregion runBySolution
 });
+
+// #endregion Tests
