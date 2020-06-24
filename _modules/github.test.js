@@ -5,6 +5,7 @@
 const faker = require("faker");
 const github = require("./github");
 const nock = require("nock");
+const testUtils = require("../tests/test-utils");
 
 // #endregion Imports
 
@@ -60,7 +61,7 @@ describe("github", () => {
             // Arrange
             const username = "wintondeshong";
             const expected = github.andcultureOrg;
-            const unexpected = faker.random.word();
+            const unexpected = testUtils.randomWord();
 
             nock(github.apiRootUrl)
                 .get(new RegExp(username + "/" + github.apiRepositoriesRouteParam)) // make sure github is properly passed username
@@ -109,7 +110,7 @@ describe("github", () => {
             // Arrange
             const username = "wintondeshong";
             const expected = github.andcultureOrg;
-            const unexpected = faker.random.word();
+            const unexpected = testUtils.randomWord();
 
             nock(github.apiRootUrl)
                 .get(new RegExp(username + "/" + github.apiRepositoriesRouteParam)) // make sure github is properly passed username
@@ -154,7 +155,7 @@ describe("github", () => {
 
         test(`given organization, returns list of master ${github.andcultureOrg} repositories`, async () => {
             // Arrange
-            const expected = faker.random.word();
+            const expected = testUtils.randomWord();
 
             nock(github.apiRootUrl)
                 .get(new RegExp(expected + "/" + github.apiRepositoriesRouteParam)) // make sure github is properly passed username
@@ -173,7 +174,7 @@ describe("github", () => {
         test(`given filter, returns list of master ${github.andcultureOrg} repositories matched by filter`, async () => {
             // Arrange
             const expected = github.andcultureOrg;
-            const unexpected = faker.random.word();
+            const unexpected = testUtils.randomWord();
 
             nock(github.apiRootUrl)
                 .get(new RegExp(expected + "/" + github.apiRepositoriesRouteParam)) // make sure github is properly passed username
