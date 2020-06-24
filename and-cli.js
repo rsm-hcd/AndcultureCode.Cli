@@ -51,28 +51,10 @@ fixArgumentPosixPathConversion();
 
 program.parse(process.argv);
 
-// -----------------------------------------------------------------------------------------
-// #region Validation
-// -----------------------------------------------------------------------------------------
-
-// Map out the individual 'command' strings for comparison with parsed args
-// to see if invalid commands were passed in to the base program
-const commandStrings = commandObjects.map((commandObj) => commandObj.command);
-
-// Test to see if ALL args passed in are invalid. At least one of them should match a command here,
-// with the assumption that any additional mismatching args are intentionally being passed to a sub-command.
-let allParsedArgsInvalid = true;
-
-program.args.forEach((arg) => {
-    if (commandStrings.includes(arg)) {
-        allParsedArgsInvalid = false;
-    }
-});
-
-if (allParsedArgsInvalid) {
-    program.help();
+// If no commands were passed in, display the help menu.
+if (process.argv.slice(2).length === 0) {
+    program.outputHelp();
 }
 
-// #endregion Validation
 
 // #endregion Entrypoint

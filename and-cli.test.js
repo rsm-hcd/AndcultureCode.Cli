@@ -2,13 +2,14 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const { HELP_DESCRIPTION } = require("./_modules/constants");
-const commands = require("./_modules/commands");
-const testUtils = require("./tests/test-utils");
 const {
     givenOptions,
     shouldDisplayHelpMenu,
-} = require("./tests/describes");
+}                         = require("./tests/describes");
+const { UNKNOWN_COMMAND } = require("./_modules/constants");
+const commands            = require("./_modules/commands");
+const testUtils           = require("./tests/test-utils");
+
 
 // #endregion Imports
 
@@ -35,21 +36,34 @@ describe("cli", () => {
 
         test("given no commands, it lists each command and description in the commands module", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("");
+            const result = await testUtils.executeCliCommand();
 
             // Assert
             commandObjects.forEach((commandObject) => {
                 expect(result).toContain(commandObject.command);
-                expect(result).toContain(commandObject.description);
+
+                // Normally, we'd be able to get away with just comparing the entire description string
+                // against the result output. In the newer versions of Commander, it seems to wrap
+                // longer descriptions onto new lines. We'll just verify that every 'word' of
+                // the description exists in the result string.
+                const descriptionWords = commandObject.description.split(" ");
+                descriptionWords.forEach((word) => {
+                    expect(result).toContain(word);
+                });
             });
         });
 
-        test("given all invalid commands or options, it displays the help menu", async () => {
+        test("given all invalid commands or options, it displays an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("apple peach pineapple");
+            try {
+                await testUtils.executeCliCommand("apple peach pineapple");
+            } catch (error) {
+                // Assert
+                expect(error).toContain(UNKNOWN_COMMAND);
+            }
 
-            // Assert
-            expect(result).toContain(HELP_DESCRIPTION);
+            // If the above function did not throw, this should fail the test.
+            expect.assertions(1);
         });
 
 
