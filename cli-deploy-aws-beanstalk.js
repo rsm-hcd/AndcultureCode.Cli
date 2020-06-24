@@ -137,8 +137,8 @@ require("./command-runner").run(async () => {
         .usage("option")
         .description(deployAwsBeanstalk.description())
         .option("--dotnet",            "Deploy dotnet core application via beanstalk")
-        .option("--verbose",           "Stream events from AWS")
         .option("--timeout <timeout>", `Optional elastic beanstalk deploy timeout. Default is ${timeout} minutes. When exceeded, exits with error`)
+        .option("--verbose",           "Stream events from AWS")
         .parse(process.argv);
 
     await deployAwsBeanstalk.run();
