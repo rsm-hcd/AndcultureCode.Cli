@@ -22,48 +22,52 @@ jest.mock("path");
 // #region Tests
 // -----------------------------------------------------------------------------------------
 
-if (testUtils.isNotCI()) {
-    describe("dotnetTest", () => {
 
-        // -----------------------------------------------------------------------------------------
-        // #region runBySolution
-        // -----------------------------------------------------------------------------------------
+describe("dotnetTest", () => {
 
-        describe("runBySolution", () => {
-            let dotnetBuildSpy;
+    if (testUtils.isCI()) {
+        test.skip("Test suite skipped in CI until we resolve https://travis-ci.community/t/not-able-to-install-net-core-3/5562/5", () => {});
+        return;
+    }
 
-            beforeEach(() => {
-                dotnetBuildSpy = jest.spyOn(dotnetBuild, "run").mockImplementation(() => { });
-                jest.spyOn(shell, "exit").mockImplementation(() => { });
-            });
+    // -----------------------------------------------------------------------------------------
+    // #region runBySolution
+    // -----------------------------------------------------------------------------------------
 
-            test("it calls dotnetBuild.run() by default", () => {
-                // Arrange & Act
-                dotnetTest.runBySolution();
+    describe("runBySolution", () => {
+        let dotnetBuildSpy;
 
-                // Assert
-                expect(dotnetBuildSpy).toHaveBeenCalledWith(true, true);
-            });
-
-            test("when skipClean is set to false, it calls dotnetBuild.run()", () => {
-                // Arrange & Act
-                dotnetTest.skipClean(false).runBySolution();
-
-                // Assert
-                expect(dotnetBuildSpy).toHaveBeenCalledWith(true, true);
-            });
-
-            test("when skipClean is set to true, it does not call dotnetBuild.run()", () => {
-                // Arrange & Act
-                dotnetTest.skipClean(true).runBySolution();
-
-                // Assert
-                expect(dotnetBuildSpy).not.toHaveBeenCalled();
-            });
+        beforeEach(() => {
+            dotnetBuildSpy = jest.spyOn(dotnetBuild, "run").mockImplementation(() => { });
+            jest.spyOn(shell, "exit").mockImplementation(() => { });
         });
 
-        // #endregion runBySolution
+        test("it calls dotnetBuild.run() by default", () => {
+            // Arrange & Act
+            dotnetTest.runBySolution();
+
+            // Assert
+            expect(dotnetBuildSpy).toHaveBeenCalledWith(true, true);
+        });
+
+        test("when skipClean is set to false, it calls dotnetBuild.run()", () => {
+            // Arrange & Act
+            dotnetTest.skipClean(false).runBySolution();
+
+            // Assert
+            expect(dotnetBuildSpy).toHaveBeenCalledWith(true, true);
+        });
+
+        test("when skipClean is set to true, it does not call dotnetBuild.run()", () => {
+            // Arrange & Act
+            dotnetTest.skipClean(true).runBySolution();
+
+            // Assert
+            expect(dotnetBuildSpy).not.toHaveBeenCalled();
+        });
     });
-}
+
+    // #endregion runBySolution
+});
 
 // #endregion Tests
