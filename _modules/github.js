@@ -3,6 +3,7 @@
 // -----------------------------------------------------------------------------------------
 
 const { Octokit } = require("@octokit/rest");
+const { echo } = require("shelljs");
 
 // #endregion Imports
 
@@ -29,7 +30,12 @@ const github = {
             return null;
         }
 
-        return await _list(_client().repos.listForUser, { username }, filter);
+        try {
+            return await _list(_client().repos.listForUser, { username }, filter);
+        } catch (error) {
+            echo.error(`There was an error listing repositories by user ${username}: ${error}`);
+            return null;
+        }
     },
 
     /**
@@ -57,7 +63,12 @@ const github = {
             type: "public"
         };
 
-        return await _list(_client().repos.listForOrg, options, filter);
+        try {
+            return await _list(_client().repos.listForOrg, options, filter);
+        } catch (error) {
+            echo.error(`There was an error listing repositories by organization ${org}: ${error}`);
+            return null;
+        }
     },
 };
 
