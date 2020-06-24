@@ -157,6 +157,30 @@ const testUtils = {
             _throwFatalError(`'${processPath} ${args.join(" ")}' failed with exit code: ${status}`);
         }
     },
+
+    /**
+     * Helper to easily check if tests run in continuous integration environment
+     */
+    isCI() {
+        return process.env["CI"] == "true";
+    },
+
+    /**
+     * Helper to easily check if tests run outside of continuous integration environment
+     */
+    isNotCI() {
+        return !this.isCI();
+    },
+
+    /**
+     * Wrapper of faker.random.word.
+     *
+     * Unfortunately there is an unresolved bug https://github.com/Marak/faker.js/issues/661
+     * and it will occassionally return multiple which can cause test flake
+     */
+    randomWord() {
+        return faker.random.word().split(" ")[0];
+    }
 };
 
 // #endregion Public Functions
