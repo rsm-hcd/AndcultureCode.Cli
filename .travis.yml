@@ -1,6 +1,7 @@
 version: "~> 1.0"
 env:
   global:
+  - CI: true
   - DOTNET_CLI_TELEMETRY_OPTOUT: 1
 language: node_js
 node_js:

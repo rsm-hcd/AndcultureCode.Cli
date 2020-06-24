@@ -5,6 +5,7 @@
 const dotnetBuild = require("./dotnet-build");
 const dotnetTest  = require("./dotnet-test");
 const shell       = require("shelljs");
+const testUtils = require("../tests/test-utils");
 
 // #endregion Imports
 
@@ -21,7 +22,12 @@ jest.mock("path");
 // #region Tests
 // -----------------------------------------------------------------------------------------
 
+
 describe("dotnetTest", () => {
+
+    if (testUtils.isCI()) {
+        return;
+    }
 
     // -----------------------------------------------------------------------------------------
     // #region runBySolution
@@ -35,7 +41,7 @@ describe("dotnetTest", () => {
             jest.spyOn(shell, "exit").mockImplementation(() => { });
         });
 
-        test.skip("it calls dotnetBuild.run() by default", () => {
+        test("it calls dotnetBuild.run() by default", () => {
             // Arrange & Act
             dotnetTest.runBySolution();
 
@@ -43,7 +49,7 @@ describe("dotnetTest", () => {
             expect(dotnetBuildSpy).toHaveBeenCalledWith(true, true);
         });
 
-        test.skip("when skipClean is set to false, it calls dotnetBuild.run()", () => {
+        test("when skipClean is set to false, it calls dotnetBuild.run()", () => {
             // Arrange & Act
             dotnetTest.skipClean(false).runBySolution();
 
@@ -51,7 +57,7 @@ describe("dotnetTest", () => {
             expect(dotnetBuildSpy).toHaveBeenCalledWith(true, true);
         });
 
-        test.skip("when skipClean is set to true, it does not call dotnetBuild.run()", () => {
+        test("when skipClean is set to true, it does not call dotnetBuild.run()", () => {
             // Arrange & Act
             dotnetTest.skipClean(true).runBySolution();
 
