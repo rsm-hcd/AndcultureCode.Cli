@@ -162,7 +162,7 @@ const testUtils = {
      * Helper to easily check if tests run in continuous integration environment
      */
     isCI() {
-        return process.env["CI"] === true;
+        return process.env["CI"] == "true";
     },
 
     /**
