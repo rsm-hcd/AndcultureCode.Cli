@@ -12,7 +12,7 @@ module.exports.ERROR_INVALID_VERSION_STRING = "Invalid package version string (s
 module.exports.ERROR_READING_CSPROJ_FILES = "There was an error reading csproj files.";
 
 /** Constant to hold the standard 'help' flag description */
-module.exports.HELP_DESCRIPTION = "output usage information";
+module.exports.HELP_DESCRIPTION = "display help for command";
 
 /** Constant to hold the standard help flags for commands */
 module.exports.HELP_OPTIONS = ["-h", "--help"];

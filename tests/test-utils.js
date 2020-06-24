@@ -139,7 +139,7 @@ const testUtils = {
     executeCliCommand(command, args = [], opts = {}) {
         // Generate the absolute path of the main executable file (cli.js) based on the current
         // file's directory.
-        const cliEntrypointPath = upath.toUnix(path.join(__dirname, "..", "cli.js"));
+        const cliEntrypointPath = upath.toUnix(path.join(__dirname, "..", "and-cli.js"));
         return _executeNode(cliEntrypointPath, [command, ...args], opts);
     },
     /**

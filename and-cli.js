@@ -44,11 +44,7 @@ program.version(version);
 const commandObjects = Object.keys(commands).map((key) => commands[key]);
 
 commandObjects.forEach((commandObject) => {
-    program.command(
-        commandObject.command,
-        commandObject.description,
-        { executableFile: `cli-${commandObject.command}` }
-    );
+    program.command(commandObject.command, commandObject.description);
 });
 
 fixArgumentPosixPathConversion();
