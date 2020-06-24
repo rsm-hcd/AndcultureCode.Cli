@@ -22,51 +22,48 @@ jest.mock("path");
 // #region Tests
 // -----------------------------------------------------------------------------------------
 
+if (testUtils.isNotCI()) {
+    describe("dotnetTest", () => {
 
-describe("dotnetTest", () => {
+        // -----------------------------------------------------------------------------------------
+        // #region runBySolution
+        // -----------------------------------------------------------------------------------------
 
-    if (testUtils.isCI()) {
-        return;
-    }
+        describe("runBySolution", () => {
+            let dotnetBuildSpy;
 
-    // -----------------------------------------------------------------------------------------
-    // #region runBySolution
-    // -----------------------------------------------------------------------------------------
+            beforeEach(() => {
+                dotnetBuildSpy = jest.spyOn(dotnetBuild, "run").mockImplementation(() => { });
+                jest.spyOn(shell, "exit").mockImplementation(() => { });
+            });
 
-    describe("runBySolution", () => {
-        let dotnetBuildSpy;
+            test("it calls dotnetBuild.run() by default", () => {
+                // Arrange & Act
+                dotnetTest.runBySolution();
 
-        beforeEach(() => {
-            dotnetBuildSpy = jest.spyOn(dotnetBuild, "run").mockImplementation(() => { });
-            jest.spyOn(shell, "exit").mockImplementation(() => { });
+                // Assert
+                expect(dotnetBuildSpy).toHaveBeenCalledWith(true, true);
+            });
+
+            test("when skipClean is set to false, it calls dotnetBuild.run()", () => {
+                // Arrange & Act
+                dotnetTest.skipClean(false).runBySolution();
+
+                // Assert
+                expect(dotnetBuildSpy).toHaveBeenCalledWith(true, true);
+            });
+
+            test("when skipClean is set to true, it does not call dotnetBuild.run()", () => {
+                // Arrange & Act
+                dotnetTest.skipClean(true).runBySolution();
+
+                // Assert
+                expect(dotnetBuildSpy).not.toHaveBeenCalled();
+            });
         });
 
-        test("it calls dotnetBuild.run() by default", () => {
-            // Arrange & Act
-            dotnetTest.runBySolution();
-
-            // Assert
-            expect(dotnetBuildSpy).toHaveBeenCalledWith(true, true);
-        });
-
-        test("when skipClean is set to false, it calls dotnetBuild.run()", () => {
-            // Arrange & Act
-            dotnetTest.skipClean(false).runBySolution();
-
-            // Assert
-            expect(dotnetBuildSpy).toHaveBeenCalledWith(true, true);
-        });
-
-        test("when skipClean is set to true, it does not call dotnetBuild.run()", () => {
-            // Arrange & Act
-            dotnetTest.skipClean(true).runBySolution();
-
-            // Assert
-            expect(dotnetBuildSpy).not.toHaveBeenCalled();
-        });
+        // #endregion runBySolution
     });
-
-    // #endregion runBySolution
-});
+}
 
 // #endregion Tests
