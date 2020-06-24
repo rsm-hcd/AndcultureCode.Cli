@@ -13,7 +13,8 @@
     "cli"
   ],
   "scripts": {
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "watch:test": "jest ./src --watch"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,7 @@
   "license": "Apache-2.0",
   "homepage": "https://github.com/AndcultureCode/AndcultureCode.Cli#readme",
   "dependencies": {
+    "@octokit/rest": "^18.0.0",
     "archiver": "3.1.1",
     "commander": "2.20.3",
     "fkill": "6.2.0",
@@ -37,6 +39,7 @@
     "cross-env": "6.0.3",
     "faker": "4.1.0",
     "jest": "25.3.0",
+    "nock": "12.0.3",
     "pryjs": "1.0.3"
   }
 }

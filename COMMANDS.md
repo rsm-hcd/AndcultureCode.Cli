@@ -145,6 +145,15 @@ This command wraps the functionality provided by the dotnet ef tool for common E
 * `and-cli migration --run <migration name>` - Applies (or reverts) an entity framework migration based on the current database.
 * `and-cli migration --delete` - Removes files for the most recent migration, which cannot be applied to the database. If already applied, you need to revert to a previous migration first.
 
+## github
+
+Various commands to interact with github andculture related resources.
+
+### Commands
+
+* `and-cli github` - Lists master AndcultureCode repositories
+* `and-cli github -u|--username <username>` - Lists master AndcultureCode repositories as well as those for the supplied github username
+
 ## nuget
 
 While the dotnet core cli provides some nuget commands, the process start to finish is less than ideal. These commands aim to make that simple.

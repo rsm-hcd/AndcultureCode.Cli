@@ -48,6 +48,11 @@ describe("cli-dotnet", () => {
             )
         );
 
+        if (testUtils.isCI()) {
+            test.skip("Tests below are skipped in CI until we resolve https://travis-ci.community/t/not-able-to-install-net-core-3/5562/5", () => {});
+            return;
+        }
+
         describe("given solution exists", () => {
             test("it performs a build", async () => {
                 // Arrange

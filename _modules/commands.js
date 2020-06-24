@@ -19,6 +19,10 @@ module.exports = {
         command:     "dotnet",
         description: "Run various dotnet commands for the project",
     },
+    github: {
+        command:     "github",
+        description: "Commands for interacting with AndcultureCode github resources",
+    },
     install: {
         command:     "install",
         description: "Collection of commands related to installation and configuration of the and-cli",
