@@ -42,16 +42,16 @@ const echo = {
     center(message) {
         const halfLength = (columnLength - message.length) / 2;
         if (halfLength < 0) {
-            shell.echo(`${echo.sdkString} ${message}`);
+            shell.echo(`${this.sdkString} ${message}`);
             return;
         }
-        shell.echo(`${echo.sdkString} ${" ".repeat(halfLength)}${message}`)
+        shell.echo(`${this.sdkString} ${" ".repeat(halfLength)}${message}`)
     },
     divider() {
-        shell.echo(`${echo.sdkString} ${"-".repeat(columnLength)}`);
+        shell.echo(`${this.sdkString} ${"-".repeat(columnLength)}`);
     },
     error(message) {
-        shell.echo(`${echo.sdkString} ${red(constants.ERROR_OUTPUT_STRING)} ${message}`);
+        shell.echo(`${this.sdkString} ${red(constants.ERROR_OUTPUT_STRING)} ${message}`);
     },
     errors(messages) {
         for (const message of messages) {
@@ -68,7 +68,7 @@ const echo = {
         this.newLine();
     },
     message(message) {
-        shell.echo(`${echo.sdkString} ${message}`);
+        shell.echo(`${this.sdkString} ${message}`);
     },
     newLine() {
         shell.echo();
@@ -82,7 +82,7 @@ const echo = {
         return message;
     },
     warn(message) {
-        shell.echo(`${echo.sdkString} ${yellow(constants.WARN_OUTPUT_STRING)} ${message}`)
+        shell.echo(`${this.sdkString} ${yellow(constants.WARN_OUTPUT_STRING)} ${message}`)
     },
 }
 
