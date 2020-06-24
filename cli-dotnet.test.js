@@ -49,7 +49,7 @@ describe("cli-dotnet", () => {
         );
 
         describe("given solution exists", () => {
-            test("it performs a build", async () => {
+            test.skip("it performs a build", async () => {
                 // Arrange
                 // Note: We may want to consider pulling this out into test-utils for the other parent-level
                 // dotnet commands to leverage for integration testing cleans, restores, tests, etc.
