@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-require("./command-runner").run(async () => {
+
     // -----------------------------------------------------------------------------------------
     // #region Imports
     // -----------------------------------------------------------------------------------------
@@ -32,4 +32,4 @@ require("./command-runner").run(async () => {
     program.parse(process.argv);
 
     // #endregion Entrypoint
-});
+

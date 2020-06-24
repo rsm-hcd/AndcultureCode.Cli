@@ -20,7 +20,8 @@ require("./command-runner").run(async () => {
     // -----------------------------------------------------------------------------------------
 
     const pythonInstallerUrl = "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
-    let timeout              = 20; // Default AWSEBCLI command timeout in minutes
+    let timeout              = `--timeout 20`; // Default AWSEBCLI command timeout in minutes
+    let verbose              = "";
 
     // #endregion Variables
 
@@ -41,7 +42,10 @@ require("./command-runner").run(async () => {
 
             // Handling incoming arguments
             if (program.timeout) {
-                timeout = program.timeout;
+                timeout = `--timeout ${program.timeout}`;
+            }
+            if (program.verbose) {
+                verbose = "--verbose";
             }
 
             let projectDir = "";
@@ -81,7 +85,7 @@ require("./command-runner").run(async () => {
 
             // Call EB deploy
             echo.message("Deploying to AWS beanstalk. Check AWS console for realtime output. This could take a few minutes...");
-            if (shell.exec(this.cmds.deploy + ` --timeout ${timeout}`).code !== 0) {
+            if (shell.exec(this.cmds.deploy + ` ${timeout} ${verbose}`).code !== 0) {
                 echo.error(" - Failed to deploy to AWS beanstalk");
                 shell.exit(1);
             }
@@ -133,10 +137,11 @@ require("./command-runner").run(async () => {
         .usage("option")
         .description(deployAwsBeanstalk.description())
         .option("--dotnet",            "Deploy dotnet core application via beanstalk")
+        .option("--verbose",           "Stream events from AWS")
         .option("--timeout <timeout>", `Optional elastic beanstalk deploy timeout. Default is ${timeout} minutes. When exceeded, exits with error`)
         .parse(process.argv);
 
-    deployAwsBeanstalk.run();
+    await deployAwsBeanstalk.run();
 
     // #endregion Entrypoint
 });
