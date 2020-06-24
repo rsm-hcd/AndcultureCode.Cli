@@ -87,6 +87,8 @@ Project requirements:
 
 ##### Commands
 * `and-cli deploy aws-beanstalk --dotnet` - Deploy dotnet core application to AWS beanstalk
+    * Optionally pass `--timeout <number>` to set the timeout in minutes, defaults to 20.
+    * Optionally pass `--verbose` to stream events from the Elastic Beanstalk log.
 
 
 ### AWS S3 Usage
@@ -144,6 +146,15 @@ This command wraps the functionality provided by the dotnet ef tool for common E
 * `and-cli migration --add <migration name>` - Creates a new entity framework migration based on changes from the last context snapshot.
 * `and-cli migration --run <migration name>` - Applies (or reverts) an entity framework migration based on the current database.
 * `and-cli migration --delete` - Removes files for the most recent migration, which cannot be applied to the database. If already applied, you need to revert to a previous migration first.
+
+## github
+
+Various commands to interact with github andculture related resources.
+
+### Commands
+
+* `and-cli github` - Lists master AndcultureCode repositories
+* `and-cli github -u|--username <username>` - Lists master AndcultureCode repositories as well as those for the supplied github username
 
 ## nuget
 
