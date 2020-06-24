@@ -3,6 +3,8 @@ env:
   global:
   - DOTNET_CLI_TELEMETRY_OPTOUT: 1
 language: node_js
+node_js:
+- 8.16.2
 notifications:
   slack:
     on_failure: always
