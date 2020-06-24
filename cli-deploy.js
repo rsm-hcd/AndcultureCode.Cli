@@ -1,35 +1,35 @@
 #!/usr/bin/env node
-require("./command-runner").run(async () => {
-    // -----------------------------------------------------------------------------------------
-    // #region Imports
-    // -----------------------------------------------------------------------------------------
 
-    const program = require("commander");
-    const shell   = require("shelljs");
+// -----------------------------------------------------------------------------------------
+// #region Imports
+// -----------------------------------------------------------------------------------------
 
-    // #endregion Imports
+const program = require("commander");
+const shell   = require("shelljs");
 
-    // -----------------------------------------------------------------------------------------
-    // #region Variables
-    // -----------------------------------------------------------------------------------------
+// #endregion Imports
 
-    const deployTypes = shell.ls(__dirname)
-        .filter((file) => file.startsWith("cli-deploy-"))
-        .map((file) => file.match(/cli-deploy-(.*)\.js/)[1]);
+// -----------------------------------------------------------------------------------------
+// #region Variables
+// -----------------------------------------------------------------------------------------
 
-    // #endregion Variables
+const deployTypes = shell
+	.ls(__dirname)
+	.filter((file) => file.startsWith("cli-deploy-"))
+	.map((file) => file.match(/cli-deploy-(.*)\.js/)[1]);
 
-    // -----------------------------------------------------------------------------------------
-    // #region Entrypoint
-    // -----------------------------------------------------------------------------------------
+// #endregion Variables
 
-    program.description("Runs deployments for various application types");
+// -----------------------------------------------------------------------------------------
+// #region Entrypoint
+// -----------------------------------------------------------------------------------------
 
-    deployTypes.forEach((deployType) => {
-        program.command(deployType, `Run deployments for ${deployType}`); // Note: Description is required
-    });
+program.description("Runs deployments for various application types");
 
-    program.parse(process.argv);
-
-    // #endregion Entrypoint
+deployTypes.forEach((deployType) => {
+	program.command(deployType, `Run deployments for ${deployType}`); // Note: Description is required
 });
+
+program.parse(process.argv);
+
+// #endregion Entrypoint

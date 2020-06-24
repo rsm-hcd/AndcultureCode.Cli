@@ -87,6 +87,8 @@ Project requirements:
 
 ##### Commands
 * `and-cli deploy aws-beanstalk --dotnet` - Deploy dotnet core application to AWS beanstalk
+    * Optionally pass `--timeout <number>` to set the timeout in minutes, defaults to 20.
+    * Optionally pass `--verbose` to stream events from the Elastic Beanstalk log.
 
 
 ### AWS S3 Usage

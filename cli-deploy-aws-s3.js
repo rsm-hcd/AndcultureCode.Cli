@@ -155,7 +155,7 @@ require("./command-runner").run(async () => {
         .option("--webpack",                   "Deploy webpack built frontend application")
         .parse(process.argv);
 
-    deployAwsS3.run();
+    await deployAwsS3.run();
 
     // #endregion Entrypoint
 });
