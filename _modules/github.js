@@ -79,7 +79,7 @@ const _filterReposByAndcultureOrg = (repos) =>
  * Retrieves all records for a given list command, accounting for pagination
  * @param {object} command
  * @param {object} options
- * @param {function} filter optional filter function to perform on result set
+ * @param {(results: object[]) => object[]} filter optional filter function to perform on result set
  */
 const _list = async (command, options, filter) => {
     options.per_page = 100; // github api max
