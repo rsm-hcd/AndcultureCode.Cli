@@ -3,6 +3,7 @@ require("./command-runner").run(async () => {
     // -----------------------------------------------------------------------------------------
     // #region Imports
     // -----------------------------------------------------------------------------------------
+    const echo    = require("./_modules/echo");
     const github  = require("./_modules/github");
     const program = require("commander");
 
@@ -18,8 +19,11 @@ require("./command-runner").run(async () => {
         .parse(process.argv);
 
     // Configure github module based on passed in args/options
-    await github
-        .listRepositories();
+    echo.success("AndcultureCode Repositories");
+    echo.byProperty(await github.repositoriesByAndculture(), "url");
+
+    echo.success("Your Repositories");
+    echo.byProperty(await github.repositoriesByAndculture("wintondeshong"), "url");
 
     // #endregion Entrypoint
 });

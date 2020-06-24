@@ -22,19 +22,36 @@ const { purple, green, red, yellow } = formatters;
 // -----------------------------------------------------------------------------------------
 
 const echo = {
+    /**
+     * Echos specific property value for each item in a list
+     * @param {array} list array of objects for which to print a property
+     * @param {string} property property name to print on each line
+     * @param {function} fn optional function to call on each iteration; if null, defaults to 'echo.message'
+     */
+    byProperty(list, property, fn) {
+        if (list == null) {
+            return;
+        }
+
+        if (fn == null) {
+            fn = this.message;
+        }
+
+        list.forEach((item) => fn(item[property]));
+    },
     center(message) {
         const halfLength = (columnLength - message.length) / 2;
         if (halfLength < 0) {
-            shell.echo(`${this.sdkString} ${message}`);
+            shell.echo(`${echo.sdkString} ${message}`);
             return;
         }
-        shell.echo(`${this.sdkString} ${" ".repeat(halfLength)}${message}`)
+        shell.echo(`${echo.sdkString} ${" ".repeat(halfLength)}${message}`)
     },
     divider() {
-        shell.echo(`${this.sdkString} ${"-".repeat(columnLength)}`);
+        shell.echo(`${echo.sdkString} ${"-".repeat(columnLength)}`);
     },
     error(message) {
-        shell.echo(`${this.sdkString} ${red(constants.ERROR_OUTPUT_STRING)} ${message}`);
+        shell.echo(`${echo.sdkString} ${red(constants.ERROR_OUTPUT_STRING)} ${message}`);
     },
     errors(messages) {
         for (const message of messages) {
@@ -51,17 +68,21 @@ const echo = {
         this.newLine();
     },
     message(message) {
-        shell.echo(`${this.sdkString} ${message}`);
+        shell.echo(`${echo.sdkString} ${message}`);
     },
     newLine() {
         shell.echo();
     },
     sdkString: purple("[and-cli]"),
     success(message) {
-        shell.echo(`${this.sdkString} ${green(message)}`)
+        message = `${this.sdkString} ${green(message)}`;
+
+        shell.echo(message);
+
+        return message;
     },
     warn(message) {
-        shell.echo(`${this.sdkString} ${yellow(constants.WARN_OUTPUT_STRING)} ${message}`)
+        shell.echo(`${echo.sdkString} ${yellow(constants.WARN_OUTPUT_STRING)} ${message}`)
     },
 }
 
