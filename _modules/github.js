@@ -2,8 +2,8 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
+const { echo }    = require("./echo");
 const { Octokit } = require("@octokit/rest");
-const { echo } = require("shelljs");
 
 // #endregion Imports
 
