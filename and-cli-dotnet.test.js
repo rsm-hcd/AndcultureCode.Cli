@@ -2,14 +2,14 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const testUtils = require("./tests/test-utils");
 const {
     givenOptions,
     shouldDisplayError,
     shouldDisplayHelpMenu,
-} = require("./tests/describes");
+}                 = require("./tests/describes");
 const dotnetBuild = require("./_modules/dotnet-build");
-const dotnetPath = require("./_modules/dotnet-path");
+const dotnetPath  = require("./_modules/dotnet-path");
+const testUtils   = require("./tests/test-utils");
 
 // #endregion Imports
 
@@ -17,7 +17,7 @@ const dotnetPath = require("./_modules/dotnet-path");
 // #region Tests
 // -----------------------------------------------------------------------------------------
 
-describe("cli-dotnet", () => {
+describe("and-cli-dotnet", () => {
     let _tmpDir;
     let _cleanupTmpDir = () => { };
     beforeEach(() => {
@@ -26,7 +26,9 @@ describe("cli-dotnet", () => {
 
         // Before each test, create a temporary directory for the test to work with. We can muck around
         // for lifetime of the test and it will be cleaned up in the 'afterEach' hook.
-        const { tmpDir, cleanupTmpDir } = testUtils.createAndUseTmpDir("cli-dotnet");
+        const { tmpDir, cleanupTmpDir } = testUtils.createAndUseTmpDir(
+            "and-cli-dotnet"
+        );
         _tmpDir = tmpDir;
         _cleanupTmpDir = cleanupTmpDir;
     });
@@ -49,7 +51,7 @@ describe("cli-dotnet", () => {
         );
 
         if (testUtils.isCI()) {
-            test.skip("Tests below are skipped in CI until we resolve https://travis-ci.community/t/not-able-to-install-net-core-3/5562/5", () => {});
+            test.skip("Tests below are skipped in CI until we resolve https://travis-ci.community/t/not-able-to-install-net-core-3/5562/5", () => { });
             return;
         }
 
@@ -60,7 +62,7 @@ describe("cli-dotnet", () => {
                 // dotnet commands to leverage for integration testing cleans, restores, tests, etc.
                 // For now, we can leave it here.
                 testUtils.executeOrThrow("dotnet", ["new", "solution"]); // Create the solution file
-                testUtils.executeOrThrow("dotnet", ["new", "console"]);  // Create a console app project
+                testUtils.executeOrThrow("dotnet", ["new", "console"]); // Create a console app project
                 testUtils.executeOrThrow("dotnet", ["sln", "add", "."]); // Add the console app project to the solution
 
                 // Act
