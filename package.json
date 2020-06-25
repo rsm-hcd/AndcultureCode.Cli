@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "and-cli command-line tool to manage the development of software applications",
   "bin": {
-    "and-cli": "cli.js"
+    "and-cli": "and-cli.js"
   },
-  "main": "cli.js",
+  "main": "and-cli.js",
   "engines": {
     "node": ">=8.0.0"
   },
