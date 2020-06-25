@@ -51,10 +51,4 @@ fixArgumentPosixPathConversion();
 
 program.parse(process.argv);
 
-// If no commands were passed in, display the help menu.
-if (process.argv.slice(2).length === 0) {
-    program.outputHelp();
-}
-
-
 // #endregion Entrypoint
