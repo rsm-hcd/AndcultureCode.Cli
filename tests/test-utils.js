@@ -112,9 +112,10 @@ const testUtils = {
      *
      * @param {string} [prefix="tmp"] (Optional) Prefix for the directory name to be generated.
      */
-    createAndUseTmpDir(prefix = "tmp") {
+    createAndUseTmpDir(prefix = "") {
+        const defaultPrefix = "tmp";
         const oldPwd = shell.pwd().toString();
-        const tmpDir = upath.toUnix(path.join(oldPwd, `${prefix}-${faker.random.uuid()}`));
+        const tmpDir = upath.toUnix(path.join(oldPwd, `${defaultPrefix}-${prefix}-${faker.random.uuid()}`));
 
         shell.mkdir("-p", tmpDir);
         shell.cd(tmpDir);
