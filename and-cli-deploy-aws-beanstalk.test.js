@@ -15,7 +15,7 @@ describe("and-cli-deploy-aws-beanstalk", () => {
     // #region help
     // -----------------------------------------------------------------------------------------
 
-    shouldDisplayHelpMenu("deploy-aws-beanstalk");
+    shouldDisplayHelpMenu("deploy", ["aws-beanstalk"]);
 
     // #endregion help
 });
