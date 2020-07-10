@@ -10,12 +10,12 @@ const { shouldDisplayHelpMenu } = require("./tests/describes");
 // #region Tests
 // -----------------------------------------------------------------------------------------
 
-describe("cli-migration", () => {
+describe("and-cli-deploy", () => {
     // -----------------------------------------------------------------------------------------
     // #region help
     // -----------------------------------------------------------------------------------------
 
-    shouldDisplayHelpMenu("migration");
+    shouldDisplayHelpMenu("deploy");
 
     // #endregion help
 });

@@ -6,6 +6,7 @@
 
 const commands = require("./_modules/commands");
 const program  = require("commander");
+const version  = require("./package.json").version;
 
 // #endregion Imports
 
@@ -36,6 +37,7 @@ const fixArgumentPosixPathConversion = () => {
 // -----------------------------------------------------------------------------------------
 
 program.description("andculture cli");
+program.version(version);
 
 // Programatically loop over the 'commands' module, parsing the command + description out and
 // registering them with commander
@@ -48,29 +50,5 @@ commandObjects.forEach((commandObject) => {
 fixArgumentPosixPathConversion();
 
 program.parse(process.argv);
-
-// -----------------------------------------------------------------------------------------
-// #region Validation
-// -----------------------------------------------------------------------------------------
-
-// Map out the individual 'command' strings for comparison with parsed args
-// to see if invalid commands were passed in to the base program
-const commandStrings = commandObjects.map((commandObj) => commandObj.command);
-
-// Test to see if ALL args passed in are invalid. At least one of them should match a command here,
-// with the assumption that any additional mismatching args are intentionally being passed to a sub-command.
-let allParsedArgsInvalid = true;
-
-program.args.forEach((arg) => {
-    if (commandStrings.includes(arg)) {
-        allParsedArgsInvalid = false;
-    }
-});
-
-if (allParsedArgsInvalid) {
-    program.help();
-}
-
-// #endregion Validation
 
 // #endregion Entrypoint

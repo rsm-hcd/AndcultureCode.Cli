@@ -10,12 +10,12 @@ const { shouldDisplayHelpMenu } = require("./tests/describes");
 // #region Tests
 // -----------------------------------------------------------------------------------------
 
-describe("cli-github", () => {
+describe("and-cli-webpack", () => {
     // -----------------------------------------------------------------------------------------
     // #region help
     // -----------------------------------------------------------------------------------------
 
-    shouldDisplayHelpMenu("github");
+    shouldDisplayHelpMenu("webpack");
 
     // #endregion help
 });

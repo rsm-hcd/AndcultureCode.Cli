@@ -10,12 +10,12 @@ const { shouldDisplayHelpMenu } = require("./tests/describes");
 // #region Tests
 // -----------------------------------------------------------------------------------------
 
-describe("cli-copy", () => {
+describe("and-cli-install", () => {
     // -----------------------------------------------------------------------------------------
     // #region help
     // -----------------------------------------------------------------------------------------
 
-    shouldDisplayHelpMenu("copy");
+    shouldDisplayHelpMenu("install");
 
     // #endregion help
 });

@@ -12,10 +12,13 @@ module.exports.ERROR_INVALID_VERSION_STRING = "Invalid package version string (s
 module.exports.ERROR_READING_CSPROJ_FILES = "There was an error reading csproj files.";
 
 /** Constant to hold the standard 'help' flag description */
-module.exports.HELP_DESCRIPTION = "output usage information";
+module.exports.HELP_DESCRIPTION = "display help for command";
 
 /** Constant to hold the standard help flags for commands */
 module.exports.HELP_OPTIONS = ["-h", "--help"];
+
+/** Constant to hold the standard 'unknown command' output from Commander when parsing arguments */
+module.exports.UNKNOWN_COMMAND = "unknown command";
 
 /** Semver regex pattern for validating version number (see https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string) */
 module.exports.VERSION_REGEX_PATTERN = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;

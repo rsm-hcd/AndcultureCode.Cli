@@ -31,6 +31,8 @@ require("./command-runner").run(async () => {
     // #region Functions
     // -----------------------------------------------------------------------------------------
 
+    // Developer note: This could/should likely be extracted into its own module so that it can be
+    // unit tested and export constants for option flags.
     const deployAwsS3 = {
 
         cmd(src, dest) {

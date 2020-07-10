@@ -15,8 +15,9 @@ const shell   = require("shelljs");
 
 const deployTypes = shell
 	.ls(__dirname)
-	.filter((file) => file.startsWith("cli-deploy-"))
-	.map((file) => file.match(/cli-deploy-(.*)\.js/)[1]);
+	.filter((file) => !file.includes("test"))
+	.filter((file) => file.startsWith("and-cli-deploy-"))
+	.map((file) => file.match(/and-cli-deploy-(.*)\.js/)[1]);
 
 // #endregion Variables
 

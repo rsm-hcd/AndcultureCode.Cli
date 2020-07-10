@@ -2,12 +2,14 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
+const { EOL }    = require("os");
 const {
     ERROR_OUTPUT_STRING,
     HELP_DESCRIPTION,
     HELP_OPTIONS,
-} = require("../_modules/constants");
-const testUtils = require("./test-utils");
+}                = require("../_modules/constants");
+const { yellow } = require("../_modules/formatters");
+const testUtils  = require("./test-utils");
 
 // #endregion Imports
 
@@ -41,15 +43,21 @@ const _givenOptions = (options, fn) => {
  * runtime errors.
  *
  * @param {string} command The cli command to be run, such as `dotnet` or `webpack`
+ * @param {string[]} args Additional args to pass to the command being run, such as `["aws-s3"]`
+ * for the `deploy` command
+ * @param {boolean=false} debug Optional flag to print the output from the command to the console.
  * @returns
  */
-const _shouldDisplayHelpMenu = (command) =>
+const _shouldDisplayHelpMenu = (command, args = [], debug = false) =>
     _givenOptions(HELP_OPTIONS, (option) => {
         test("it displays the help menu", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand(command, [option]);
+            const result = await testUtils.executeCliCommand(command, [...args, option]);
 
             // Assert
+            if (debug) {
+                console.debug(`${yellow(`testUtils.shouldDisplayHelpMenu ${command} ${args}`)}${EOL}${EOL}${result}`);
+            }
             expect(result).toContain(HELP_DESCRIPTION);
         });
     });

@@ -10,12 +10,12 @@ const { shouldDisplayHelpMenu } = require("./tests/describes");
 // #region Tests
 // -----------------------------------------------------------------------------------------
 
-describe("cli-deploy-aws-s3", () => {
+describe("and-cli-webpack-test", () => {
     // -----------------------------------------------------------------------------------------
     // #region help
     // -----------------------------------------------------------------------------------------
 
-    shouldDisplayHelpMenu("deploy-aws-s3");
+    shouldDisplayHelpMenu("webpack-test");
 
     // #endregion help
 });

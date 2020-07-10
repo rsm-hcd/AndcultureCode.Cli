@@ -137,11 +137,14 @@ const testUtils = {
      * @param {string[]} args
      * @param {object} opts
      */
-    executeCliCommand(command, args = [], opts = {}) {
+    executeCliCommand(command = null, args = [], opts = {}) {
         // Generate the absolute path of the main executable file (cli.js) based on the current
         // file's directory.
-        const cliEntrypointPath = upath.toUnix(path.join(__dirname, "..", "cli.js"));
-        return _executeNode(cliEntrypointPath, [command, ...args], opts);
+        const cliEntrypointPath = upath.toUnix(path.join(__dirname, "..", "and-cli.js"));
+        if (command != null) {
+            args = [command, ...args];
+        }
+        return _executeNode(cliEntrypointPath, args, opts);
     },
     /**
      * Calls `child_process.spawnSync()` with the given args or options. If the process fails,
