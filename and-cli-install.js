@@ -48,8 +48,8 @@ require("./command-runner").run(async () => {
 
             // Developer alias
             echo.message("Configuring cli development `and-cli-dev` bash alias...");
-            const pathToCli      = upath.toUnix(path.join(shell.pwd().toString(), "cli.js"));
-            const developerAlias = `alias and-cli-dev = '${pathToCli}'`;
+            const pathToCli      = upath.toUnix(path.join(shell.pwd().toString(), "and-cli.js"));
+            const developerAlias = `alias and-cli-dev='${pathToCli}'`;
 
             if (shell.cat(file.bashFile()).grep(developerAlias).stdout.length > 1) {
                 echo.success("and-cli-dev bash alias already installed");
