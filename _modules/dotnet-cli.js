@@ -47,7 +47,11 @@ const dotnetCli = {
         // Dynamically find the latest dotnet core bin so that upgrades won't break this command
         const fullCommand = `${this.cmd()} ${args}`;
         echo.success(`Full command:` + fullCommand);
-        shell.exec(fullCommand);
+        const {code} = shell.exec(fullCommand);
+        if (code !== 0) {
+            echo.error("Command failed, see output for details.");
+            shell.exit(code);
+        }
 
         dir.popd();
     },
