@@ -101,6 +101,38 @@ Project requirements:
     * Optionally pass `--publish` flag to perform webpack build as a part of the call
     * `--profile` argument specifies IAM profile with permissions to S3.
 
+### Azure Commands
+
+Azure has a number of CLI commands for managing resources on their service. In order to utilize these commands, you can either use a service principal with a secret to deploy to your Azure resources (recommended), or you can user the credentials for an Azure account directly.
+
+It is recommended that Azure Active Directory is utilized to deploy resources, as this allows fine-grained access to only the resources related to your project. However, this is not required, and you are able to deploy resources using credentials for an Azure account with appropriate access (with some exceptions).
+
+Setting up Azure AD:
+- Configure Azure AD Service Principal
+    - Log into Azure Portal
+    - Navigate to your Azure Active Directory
+    - Navigate to the App Registrations section
+    - Click New Registration
+        - Add name `{project}-{environment}` (ie. andculture-working)
+        - Click Register
+        - You should get re-directed to the dashboard for the new app registration. If not, navigate to the App Registrations section and click on the newly created App Registration.
+        - Take note of the `Application (client) ID` and `Directory (tenant) ID` as you will need these later.
+    - Navigate to the Certificates & Secrets section
+    - Click New client secret.
+        - Select an expiration date, if applicable.
+        - Take note of the `Value` of the newcly created secret, as you will need this later.
+
+Project requirements (if using Azure AD):
+- For each resource in your application, do the following:
+    - Navigate to the dashboard of the resource
+    - Navigate to Access control (IAM)
+    - Click Add in the Add a role assignment section
+        - Select the appropriate role
+        - Search for the app registration you have created for this project
+        - Click Save
+
+#### Commands
+
 ## dotnet
 
 ### Usage
