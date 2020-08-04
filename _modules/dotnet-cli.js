@@ -27,7 +27,7 @@ const { red, tabbedNewLine } = formatters;
 const dotnetCli = {
     cmd(cliArgs) {
         return {
-            args: [path.basename(dotnetPath.cliPath())].concat(cliArgs.split(" ")),
+            args: [path.basename(dotnetPath.cliPath() || "")].concat(cliArgs.split(" ")),
             cmd: "dotnet",
             toString() {
                 return `${this.cmd} ${this.args.join(" ")}`;
@@ -52,9 +52,8 @@ const dotnetCli = {
         // Dynamically find the latest dotnet core bin so that upgrades won't break this command
 
         const { cmd, args } = this.cmd(cliArgs);
-        
+
         echo.success(`Full command:` + this.cmd(cliArgs).toString());
-        //const {code} = shell.exec(fullCommand);
         const { status } = child_process.spawnSync(cmd, args, { stdio: "inherit", shell: true });
 
         if (status !== 0) {
