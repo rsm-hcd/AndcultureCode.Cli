@@ -20,15 +20,15 @@ require("./command-runner").run(async () => {
     // #region Variables
     // -----------------------------------------------------------------------------------------
 
-    const environmentFileName = ".env.local";
     let   clientId            = null;
     let   destination         = null;
+    const environmentFileName = ".env.local";
+    const pythonInstallerUrl  = "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
+    let   recursive           = false;
+    let   secret              = null;
+    let   sourcePath          = frontendPath.publishDir() + "/*";
     let   tenantId            = null;
     let   username            = null;
-    let   secret              = null;
-    let   recursive           = false;
-    const pythonInstallerUrl  = "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
-    let   sourcePath          = frontendPath.publishDir() + "/*";
 
     // #endregion Variables
 

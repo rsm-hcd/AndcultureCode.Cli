@@ -120,7 +120,7 @@ Setting up Azure AD:
     - Navigate to the Certificates & Secrets section
     - Click New client secret.
         - Select an expiration date, if applicable.
-        - Take note of the `Value` of the newcly created secret, as you will need this later.
+        - Take note of the `Value` of the newly created secret, as you will need this later.
 
 Project requirements (if using Azure AD):
 - For each resource in your application, do the following:
@@ -131,7 +131,30 @@ Project requirements (if using Azure AD):
         - Search for the app registration you have created for this project
         - Click Save
 
+### Azure Storage Usage
+- Ensure general Azure system/project requirements are met.
+- Get the Service Principal credentials, or the Azure account credentials.
+
 #### Commands
+* `and-cli deploy azure-storage --webpack --destination https://azure-blob-storage-url/container/folder --client-id CLIENT_ID_HERE --tenant-id TENANT_ID_HERE --secret SECRET_HERE`
+    * Copies webpack build artifacts from `frontend/build` and deploys them to `--destination`
+    * Optionally pass `--publish` flag to perform webpack build as a part of the call
+    * Optionally pass `--public-url` flag to setup local.env with PUBLIC_URL environment variable.
+    * Optionally pass `--recursive` flag to recursive upload directory to Azure.
+    * If not using a Service Principal, pass the account username in the  `--username` argument instead of `--client-id` and `--tenant-id`, and pass the account password in the `--secret` argument.
+
+### Azure Web App Usage
+- Ensure general Azure system/project requirements are met.
+- Get the Service Principal credentials, or the Azure account credentials.
+- Setup the Web App for local git deployment.
+
+This command allows you to deploy to Azure Web Apps through local git deployment. This works by adding a remote to your Azure Web App git address and pushing a specified branch to that remote. Kudu will then build your project on Azure and deploy the application. 
+
+#### Commands
+* `and-cli deploy azure-web-app --app-name APP_NAME_HERE --resource-group RESOURCE_GROUP_NAME_HERE --client-id CLIENT_ID_HERE --tenant-id TENANT_ID_HERE --secret SECRET_HERE --branch BRANCH_NAME_TO_DEPLOY_HERE --remote REMOTE_NAME_HERE`
+    * Checks to see if the remote exists in your git repository, if not, grabs the URL from Azure for your Web App and creates the remote. Then, pushes the indicated branch to `master` in the newly created remote for your Web App.
+    * Optionally pass `--force` to use the `-f` flag in the git push to the remote.
+    * If not using a Service Principal, pass the account username in the  `--username` argument instead of `--client-id` and `--tenant-id`, and pass the account password in the `--secret` argument.
 
 ## dotnet
 
