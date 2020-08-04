@@ -62,7 +62,7 @@ require("./command-runner").run(async () => {
             }
         },
         description() {
-            return `Runs dotnet publish on ${dotnetPath.solutionPath()} solution and deploys to configured AWS Elastic Beanstalk environment`;
+            return `Pushes indicated branch from the current git repo to indicated Azure Web App git repo, which then deploys to configured Azure Web App environment`;
         },
         async run() {
             // Check system/command requirements
