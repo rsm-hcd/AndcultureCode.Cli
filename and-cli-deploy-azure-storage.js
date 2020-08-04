@@ -36,10 +36,7 @@ require("./command-runner").run(async () => {
     // #region Functions
     // -----------------------------------------------------------------------------------------
 
-    // Developer note: This could/should likely be extracted into its own module so that it can be
-    // unit tested and export constants for option flags.
-    const deployAzure = {
-
+    const deployAzureStorage = {
         cmd() {
             let command = `az storage copy -s ${sourcePath} -d ${destination}`;
 
@@ -177,7 +174,7 @@ require("./command-runner").run(async () => {
 
     program
         .usage("option")
-        .description(deployAzure.description())
+        .description(deployAzureStorage.description())
         .option("--client-id <clientID>",      "Required Client ID (if deploying using Service Principal)")
         .option("--destination <destination>", "Required absolute container URL path (ie. https://workingenv.blob.core.windows.net/folder/subfolder)")
         .option("--public-url <url>",          "Optional URL replaced in release files (ie. absolute Azure CDN or container URL)")
@@ -190,7 +187,7 @@ require("./command-runner").run(async () => {
         .option("--webpack",                   "Deploy webpack built frontend application")
         .parse(process.argv);
 
-    await deployAzure.run();
+    await deployAzureStorage.run();
 
     // #endregion Entrypoint
 });

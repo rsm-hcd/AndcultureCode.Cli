@@ -35,6 +35,9 @@ const azure = {
             shell.exit(1);
         }
     },
+    /**
+     * Executes `az logout` to logout of az cli.
+     */
     logout() {
         const logoutCmd = "az logout";
         if (shell.exec(logoutCmd).code !== 0) {

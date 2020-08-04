@@ -33,8 +33,6 @@ require("./command-runner").run(async () => {
     // #region Functions
     // -----------------------------------------------------------------------------------------
 
-    // Developer note: This could/should likely be extracted into its own module so that it can be
-    // unit tested and export constants for option flags.
     const deployAzureWebApp = {
         createRemoteIfMissing() {
             if (shell.exec(`git remote get-url ${remote}`).code !== 0) {
