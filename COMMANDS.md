@@ -101,6 +101,61 @@ Project requirements:
     * Optionally pass `--publish` flag to perform webpack build as a part of the call
     * `--profile` argument specifies IAM profile with permissions to S3.
 
+### Azure Commands
+
+Azure has a number of CLI commands for managing resources on their service. In order to utilize these commands, you can either use a service principal with a secret to deploy to your Azure resources (recommended), or you can use the credentials for an Azure account directly.
+
+It is recommended that Azure Active Directory is utilized to deploy resources, as this allows fine-grained access to only the resources related to your project. However, this is not required, and you are able to deploy resources using credentials for an Azure account with appropriate access (with some exceptions).
+
+Setting up Azure AD:
+- Configure Azure AD Service Principal
+    - Log into Azure Portal
+    - Navigate to your Azure Active Directory
+    - Navigate to the App Registrations section
+    - Click New Registration
+        - Add name `{project}-{environment}` (ie. andculture-working)
+        - Click Register
+        - You should get re-directed to the dashboard for the new app registration. If not, navigate to the App Registrations section and click on the newly created App Registration.
+        - Take note of the `Application (client) ID` and `Directory (tenant) ID` as you will need these later.
+    - Navigate to the Certificates & Secrets section
+    - Click New client secret.
+        - Select an expiration date, if applicable.
+        - Take note of the `Value` of the newly created secret, as you will need this later.
+
+Project requirements (if using Azure AD):
+- For each resource in your application, do the following:
+    - Navigate to the dashboard of the resource
+    - Navigate to Access control (IAM)
+    - Click Add in the Add a role assignment section
+        - Select the appropriate role
+        - Search for the app registration you have created for this project
+        - Click Save
+
+### Azure Storage Usage
+- Ensure general Azure system/project requirements are met.
+- Get the Service Principal credentials, or the Azure account credentials.
+
+#### Commands
+* `and-cli deploy azure-storage --webpack --destination https://azure-blob-storage-url/container/folder --client-id CLIENT_ID_HERE --tenant-id TENANT_ID_HERE --secret SECRET_HERE`
+    * Copies webpack build artifacts from `frontend/build` and deploys them to `--destination`
+    * Optionally pass `--publish` flag to perform webpack build as a part of the call
+    * Optionally pass `--public-url` flag to setup local.env with PUBLIC_URL environment variable.
+    * Optionally pass `--recursive` flag to recursive upload directory to Azure.
+    * If not using a Service Principal, pass the account username in the  `--username` argument instead of `--client-id` and `--tenant-id`, and pass the account password in the `--secret` argument.
+
+### Azure Web App Usage
+- Ensure general Azure system/project requirements are met.
+- Get the Service Principal credentials, or the Azure account credentials.
+- Setup the Web App for local git deployment.
+
+This command allows you to deploy to Azure Web Apps through local git deployment. This works by adding a remote to your Azure Web App git address and pushing a specified branch to that remote. Kudu will then build your project on Azure and deploy the application.
+
+#### Commands
+* `and-cli deploy azure-web-app --app-name APP_NAME_HERE --resource-group RESOURCE_GROUP_NAME_HERE --client-id CLIENT_ID_HERE --tenant-id TENANT_ID_HERE --secret SECRET_HERE --branch BRANCH_NAME_TO_DEPLOY_HERE --remote REMOTE_NAME_HERE`
+    * Checks to see if the remote exists in your git repository, if not, grabs the URL from Azure for your Web App and creates the remote. Then, pushes the indicated branch to `master` in the newly created remote for your Web App.
+    * Optionally pass `--force` to use the `-f` flag in the git push to the remote.
+    * If not using a Service Principal, pass the account username in the  `--username` argument instead of `--client-id` and `--tenant-id`, and pass the account password in the `--secret` argument.
+
 ## dotnet
 
 ### Usage
