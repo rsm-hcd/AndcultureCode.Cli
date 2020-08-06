@@ -5,7 +5,6 @@ require("./command-runner").run(async () => {
     // -----------------------------------------------------------------------------------------
 
     const azure         = require("./_modules/azure");
-    const dotnetPath    = require("./_modules/dotnet-path");
     const echo          = require("./_modules/echo");
     const program       = require("commander");
     const shell         = require("shelljs");
@@ -20,7 +19,6 @@ require("./command-runner").run(async () => {
     let   branch              = null;
     let   clientId            = null;
     let   force               = false;
-    const pythonInstallerUrl  = "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
     let   remote              = null;
     let   resourceGroup       = null;
     let   secret              = null;
@@ -33,18 +31,26 @@ require("./command-runner").run(async () => {
     // #region Functions
     // -----------------------------------------------------------------------------------------
 
+    // At some point, these git commands should be put into a shared module, see https://github.com/AndcultureCode/AndcultureCode.Cli/issues/91
     const deployAzureWebApp = {
         createRemoteIfMissing() {
-            if (shell.exec(`git remote get-url ${remote}`).code !== 0) {
-                const url = shell.exec(`az webapp deployment list-publishing-credentials --name ${appName} --resource-group ${resourceGroup} --query scmUri --output tsv`);
+            const checkRemoteExistsCode = shell.exec(`git remote get-url ${remote}`).code;
 
-                if (shell.exec(`git remote add ${remote} ${url}`).code !== 0)
-                {
-                    echo.error("Error trying to add remote!");
-                    azure.logout();
-                    shell.exit(1);
-                }
+            if (checkRemoteExistsCode === 0) {
+                return;
             }
+
+            const url = shell.exec(`az webapp deployment list-publishing-credentials --name ${appName} --resource-group ${resourceGroup} --query scmUri --output tsv`);
+
+            if (shell.exec(`git remote add ${remote} ${url}`).code !== 0)
+            {
+                echo.error("Error trying to add remote!");
+                azure.logout();
+                shell.exit(1);
+            }
+        },
+        description() {
+            return `Pushes indicated branch from the current git repo to indicated Azure Web App git repo, which then deploys to configured Azure Web App environment`;
         },
         pushToRemote() {
             let pushCmd = `git push ${remote} ${branch}:master`;
@@ -58,9 +64,6 @@ require("./command-runner").run(async () => {
                 azure.logout();
                 shell.exit(1);
             }
-        },
-        description() {
-            return `Pushes indicated branch from the current git repo to indicated Azure Web App git repo, which then deploys to configured Azure Web App environment`;
         },
         async run() {
             // Check system/command requirements
@@ -122,37 +125,17 @@ require("./command-runner").run(async () => {
                 errors.push("--remote is required");
             }
 
-            if (program.force != null) {
-                force = true;
-            }
-
             // Bail if up-front arguments are errored
             if (errors.length > 0) {
                 echo.errors(errors);
                 shell.exit(1);
             }
 
-            if (!shell.which("az")) {
-                echo.message("Azure CLI not found. Attempting install via PIP...");
-
-                if (!shell.which("pip")) {
-                    echo.error(`PIP is required - ${pythonInstallerUrl}`);
-                    shell.exit(1);
-                }
-
-                if (shell.exec("pip install azure-cli").code !== 0) {
-                    echo.error("Failed to install azure cli via pip");
-                    shell.exit(1);
-                }
-
-                echo.success(" - Successfully installed Azure CLI");
+            if (program.force != null) {
+                force = true;
             }
 
-            // Handle errors
-            if (errors.length > 0) {
-                echo.errors(errors);
-                shell.exit(1);
-            }
+            azure.validateAzCli();
 
             return true;
         },

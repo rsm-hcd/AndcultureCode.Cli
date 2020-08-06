@@ -14,84 +14,6 @@ const testUtils                 = require("./tests/test-utils");
 
 describe("and-cli-deploy-azure-web-app", () => {
     // -----------------------------------------------------------------------------------------
-    // #region username
-    // -----------------------------------------------------------------------------------------
-
-    describe("username", () => {
-        test("given no '--username' and no '--client-id' flag, it displays an error", async () => {
-            // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"], "--tenant-id=test");
-
-            // Assert
-            expect(result).toContain(ERROR_OUTPUT_STRING);
-            expect(result).toContain("--username is required");
-        });
-    });
-
-    describe("username", () => {
-        test("given no '--username' and no '--tenant-id' flag, it displays an error", async () => {
-            // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"], "--client-id=test");
-
-            // Assert
-            expect(result).toContain(ERROR_OUTPUT_STRING);
-            expect(result).toContain("--username is required");
-        });
-    });
-
-    describe("username", () => {
-        test("given '--username' and no '--tenant-id' or '--client-id' flag, it doesn't display an error", async () => {
-            // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"], "--username=test");
-
-            // Assert
-            expect(result).toContain(ERROR_OUTPUT_STRING);
-            expect(result).toContain("--username is required");
-        });
-    });
-
-    // #endregion username
-
-    // -----------------------------------------------------------------------------------------
-    // #region clientId and tenantId
-    // -----------------------------------------------------------------------------------------
-
-    describe("clientId and tenantId", () => {
-        test("given no '--client-id' or '--tenant-id' flag, it displays an error", async () => {
-            // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"]);
-
-            // Assert
-            expect(result).toContain(ERROR_OUTPUT_STRING);
-            expect(result).toContain("--client-id or --tenant-id not provided");
-        });
-    });
-
-    describe("clientId and tenantId", () => {
-        test("given only '--tenant-id' flag, it displays an error", async () => {
-            // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"], "--tenant-id=test");
-
-            // Assert
-            expect(result).toContain(ERROR_OUTPUT_STRING);
-            expect(result).toContain("--client-id or --tenant-id not provided");
-        });
-    });
-
-    describe("clientId and tenantId", () => {
-        test("given only '--client-id' flag, it displays an error", async () => {
-            // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"], "--client-id=test");
-
-            // Assert
-            expect(result).toContain(ERROR_OUTPUT_STRING);
-            expect(result).toContain("--client-id or --tenant-id not provided");
-        });
-    });
-
-    // #endregion clientId and tenantId
-
-    // -----------------------------------------------------------------------------------------
     // #region appName
     // -----------------------------------------------------------------------------------------
 
@@ -107,23 +29,6 @@ describe("and-cli-deploy-azure-web-app", () => {
     });
 
     // #endregion appName
-
-    // -----------------------------------------------------------------------------------------
-    // #region resourceGroup
-    // -----------------------------------------------------------------------------------------
-
-    describe("resourceGroup", () => {
-        test("given no '--resource-group' flag, it displays an error", async () => {
-            // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"]);
-
-            // Assert
-            expect(result).toContain(ERROR_OUTPUT_STRING);
-            expect(result).toContain("--resource-group is required");
-        });
-    });
-
-    // #endregion resourceGroup
 
     // -----------------------------------------------------------------------------------------
     // #region branch
@@ -143,6 +48,49 @@ describe("and-cli-deploy-azure-web-app", () => {
     // #endregion branch
 
     // -----------------------------------------------------------------------------------------
+    // #region clientId and tenantId
+    // -----------------------------------------------------------------------------------------
+
+    describe("clientId and tenantId", () => {
+        test("given no '--client-id' or '--tenant-id' flag, it displays an error", async () => {
+            // Arrange & Act
+            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"]);
+
+            // Assert
+            expect(result).toContain(ERROR_OUTPUT_STRING);
+            expect(result).toContain("--client-id or --tenant-id not provided");
+        });
+
+        test("given only '--tenant-id' flag, it displays an error", async () => {
+            // Arrange & Act
+            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"], "--tenant-id=test");
+
+            // Assert
+            expect(result).toContain(ERROR_OUTPUT_STRING);
+            expect(result).toContain("--client-id or --tenant-id not provided");
+        });
+
+        test("given only '--client-id' flag, it displays an error", async () => {
+            // Arrange & Act
+            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"], "--client-id=test");
+
+            // Assert
+            expect(result).toContain(ERROR_OUTPUT_STRING);
+            expect(result).toContain("--client-id or --tenant-id not provided");
+        });
+    });
+
+    // #endregion clientId and tenantId
+
+    // -----------------------------------------------------------------------------------------
+    // #region help
+    // -----------------------------------------------------------------------------------------
+
+    shouldDisplayHelpMenu("deploy", ["azure-web-app"]);
+
+    // #endregion help
+
+    // -----------------------------------------------------------------------------------------
     // #region remote
     // -----------------------------------------------------------------------------------------
 
@@ -158,6 +106,23 @@ describe("and-cli-deploy-azure-web-app", () => {
     });
 
     // #endregion remote
+
+    // -----------------------------------------------------------------------------------------
+    // #region resourceGroup
+    // -----------------------------------------------------------------------------------------
+
+    describe("resourceGroup", () => {
+        test("given no '--resource-group' flag, it displays an error", async () => {
+            // Arrange & Act
+            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"]);
+
+            // Assert
+            expect(result).toContain(ERROR_OUTPUT_STRING);
+            expect(result).toContain("--resource-group is required");
+        });
+    });
+
+    // #endregion resourceGroup
 
     // -----------------------------------------------------------------------------------------
     // #region secret
@@ -177,12 +142,39 @@ describe("and-cli-deploy-azure-web-app", () => {
     // #endregion secret
 
     // -----------------------------------------------------------------------------------------
-    // #region help
+    // #region username
     // -----------------------------------------------------------------------------------------
 
-    shouldDisplayHelpMenu("deploy", ["azure-web-app"]);
+    describe("username", () => {
+        test("given no '--username' and no '--client-id' flag, it displays an error", async () => {
+            // Arrange & Act
+            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"], "--tenant-id=test");
 
-    // #endregion help
+            // Assert
+            expect(result).toContain(ERROR_OUTPUT_STRING);
+            expect(result).toContain("--username is required");
+        });
+
+        test("given no '--username' and no '--tenant-id' flag, it displays an error", async () => {
+            // Arrange & Act
+            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"], "--client-id=test");
+
+            // Assert
+            expect(result).toContain(ERROR_OUTPUT_STRING);
+            expect(result).toContain("--username is required");
+        });
+
+        test("given '--username' and no '--tenant-id' or '--client-id' flag, it doesn't display an error", async () => {
+            // Arrange & Act
+            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"], "--username=test");
+
+            // Assert
+            expect(result).toContain(ERROR_OUTPUT_STRING);
+            expect(result).toContain("--username is required");
+        });
+    });
+
+    // #endregion username
 });
 
 // #endregion Tests

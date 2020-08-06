@@ -14,45 +14,6 @@ const testUtils                 = require("./tests/test-utils");
 
 describe("and-cli-deploy-azure-storage", () => {
     // -----------------------------------------------------------------------------------------
-    // #region username
-    // -----------------------------------------------------------------------------------------
-
-    describe("username", () => {
-        test("given no '--username' and no '--client-id' flag, it displays an error", async () => {
-            // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-storage"], "--tenant-id=test");
-
-            // Assert
-            expect(result).toContain(ERROR_OUTPUT_STRING);
-            expect(result).toContain("--username is required");
-        });
-    });
-
-    describe("username", () => {
-        test("given no '--username' and no '--tenant-id' flag, it displays an error", async () => {
-            // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-storage"], "--client-id=test");
-
-            // Assert
-            expect(result).toContain(ERROR_OUTPUT_STRING);
-            expect(result).toContain("--username is required");
-        });
-    });
-
-    describe("username", () => {
-        test("given '--username' and no '--tenant-id' or '--client-id' flag, it doesn't display an error", async () => {
-            // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-storage"], "--username=test");
-
-            // Assert
-            expect(result).toContain(ERROR_OUTPUT_STRING);
-            expect(result).toContain("--username is required");
-        });
-    });
-
-    // #endregion username
-
-    // -----------------------------------------------------------------------------------------
     // #region clientId and tenantId
     // -----------------------------------------------------------------------------------------
 
@@ -65,9 +26,7 @@ describe("and-cli-deploy-azure-storage", () => {
             expect(result).toContain(ERROR_OUTPUT_STRING);
             expect(result).toContain("--client-id or --tenant-id not provided");
         });
-    });
 
-    describe("clientId and tenantId", () => {
         test("given only '--tenant-id' flag, it displays an error", async () => {
             // Arrange & Act
             const result = await testUtils.executeCliCommand("deploy", ["azure-storage"], "--tenant-id=test");
@@ -76,9 +35,7 @@ describe("and-cli-deploy-azure-storage", () => {
             expect(result).toContain(ERROR_OUTPUT_STRING);
             expect(result).toContain("--client-id or --tenant-id not provided");
         });
-    });
 
-    describe("clientId and tenantId", () => {
         test("given only '--client-id' flag, it displays an error", async () => {
             // Arrange & Act
             const result = await testUtils.executeCliCommand("deploy", ["azure-storage"], "--client-id=test");
@@ -132,6 +89,41 @@ describe("and-cli-deploy-azure-storage", () => {
     });
 
     // #endregion secret
+
+    // -----------------------------------------------------------------------------------------
+    // #region username
+    // -----------------------------------------------------------------------------------------
+
+    describe("username", () => {
+        test("given no '--username' and no '--client-id' flag, it displays an error", async () => {
+            // Arrange & Act
+            const result = await testUtils.executeCliCommand("deploy", ["azure-storage"], "--tenant-id=test");
+
+            // Assert
+            expect(result).toContain(ERROR_OUTPUT_STRING);
+            expect(result).toContain("--username is required");
+        });
+
+        test("given no '--username' and no '--tenant-id' flag, it displays an error", async () => {
+            // Arrange & Act
+            const result = await testUtils.executeCliCommand("deploy", ["azure-storage"], "--client-id=test");
+
+            // Assert
+            expect(result).toContain(ERROR_OUTPUT_STRING);
+            expect(result).toContain("--username is required");
+        });
+
+        test("given '--username' and no '--tenant-id' or '--client-id' flag, it doesn't display an error", async () => {
+            // Arrange & Act
+            const result = await testUtils.executeCliCommand("deploy", ["azure-storage"], "--username=test");
+
+            // Assert
+            expect(result).toContain(ERROR_OUTPUT_STRING);
+            expect(result).toContain("--username is required");
+        });
+    });
+
+    // #endregion username
 });
 
 // #endregion Tests

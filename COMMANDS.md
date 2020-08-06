@@ -103,7 +103,7 @@ Project requirements:
 
 ### Azure Commands
 
-Azure has a number of CLI commands for managing resources on their service. In order to utilize these commands, you can either use a service principal with a secret to deploy to your Azure resources (recommended), or you can user the credentials for an Azure account directly.
+Azure has a number of CLI commands for managing resources on their service. In order to utilize these commands, you can either use a service principal with a secret to deploy to your Azure resources (recommended), or you can use the credentials for an Azure account directly.
 
 It is recommended that Azure Active Directory is utilized to deploy resources, as this allows fine-grained access to only the resources related to your project. However, this is not required, and you are able to deploy resources using credentials for an Azure account with appropriate access (with some exceptions).
 
@@ -148,7 +148,7 @@ Project requirements (if using Azure AD):
 - Get the Service Principal credentials, or the Azure account credentials.
 - Setup the Web App for local git deployment.
 
-This command allows you to deploy to Azure Web Apps through local git deployment. This works by adding a remote to your Azure Web App git address and pushing a specified branch to that remote. Kudu will then build your project on Azure and deploy the application. 
+This command allows you to deploy to Azure Web Apps through local git deployment. This works by adding a remote to your Azure Web App git address and pushing a specified branch to that remote. Kudu will then build your project on Azure and deploy the application.
 
 #### Commands
 * `and-cli deploy azure-web-app --app-name APP_NAME_HERE --resource-group RESOURCE_GROUP_NAME_HERE --client-id CLIENT_ID_HERE --tenant-id TENANT_ID_HERE --secret SECRET_HERE --branch BRANCH_NAME_TO_DEPLOY_HERE --remote REMOTE_NAME_HERE`
