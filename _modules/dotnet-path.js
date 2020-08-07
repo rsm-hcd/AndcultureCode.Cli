@@ -27,7 +27,7 @@ const dataProjectFilePaths = [
     "dotnet/*/Infrastructure/Data.SqlServer/Data.SqlServer.csproj",
     "dotnet/*/Infrastructure/Data.*/Data.*.csproj",
     "**/Data*.csproj",
-    "**/*.csproj"
+    "**/*.csproj",
 ];
 
 /**
@@ -42,7 +42,7 @@ const solutionFilePaths = [
     "*.sln",
     "dotnet/*.sln",
     "dotnet/*/*.sln",
-    "**/*.sln"
+    "**/*.sln",
 ];
 
 /**
@@ -52,7 +52,7 @@ const webProjectFilePaths = [
     "*.csproj",
     "dotnet/*/Presentation/Web/Web.csproj",
     "**/*Web.csproj",
-    "**/*.csproj"
+    "**/*.csproj",
 ];
 
 // #endregion Constants
@@ -100,7 +100,9 @@ const dotnetPath = {
             return undefined;
         }
 
-        const cliFilePath = upath.toUnix(path.join(solutionDir, this.CLI_FILE_PATH))
+        const cliFilePath = upath.toUnix(
+            path.join(solutionDir, this.CLI_FILE_PATH)
+        );
         cachedCliPath = file.first(cliFilePath);
 
         return cachedCliPath;
@@ -146,7 +148,13 @@ const dotnetPath = {
             return undefined;
         }
 
-        return upath.toUnix(path.join(shell.pwd().toString(), solutionDir, this.RELEASE_DIRECTORY));
+        return upath.toUnix(
+            path.join(
+                shell.pwd().toString(),
+                solutionDir,
+                this.RELEASE_DIRECTORY
+            )
+        );
     },
 
     /**
@@ -217,7 +225,9 @@ const dotnetPath = {
             return dotnetExecutablePath;
         }
 
-        echo.error("Unable to locate dotnet executable. Check your environment path.");
+        echo.error(
+            "Unable to locate dotnet executable. Check your environment path."
+        );
         shell.exit(1);
     },
 
