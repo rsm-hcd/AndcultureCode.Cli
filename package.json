@@ -1,46 +1,46 @@
 {
-  "name": "and-cli",
-  "version": "1.1.0",
-  "description": "and-cli command-line tool to manage the development of software applications",
-  "bin": {
-    "and-cli": "and-cli.js"
-  },
-  "main": "and-cli.js",
-  "engines": {
-    "node": ">=8.0.0"
-  },
-  "keywords": [
-    "cli"
-  ],
-  "scripts": {
-    "test": "jest --coverage",
-    "watch:test": "jest ./src --watch"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:AndcultureCode/AndcultureCode.Cli.git"
-  },
-  "author": "andculture <developer+code@andculture.com> (http://andculture.com)",
-  "license": "Apache-2.0",
-  "homepage": "https://github.com/AndcultureCode/AndcultureCode.Cli#readme",
-  "dependencies": {
-    "@octokit/rest": "^18.0.0",
-    "archiver": "3.1.1",
-    "commander": "5.1.0",
-    "fkill": "6.2.0",
-    "ps-list": "6.2.0",
-    "readline-promise": "1.0.4",
-    "require-all": "3.0.0",
-    "shelljs": "0.8.3",
-    "upath": "1.2.0"
-  },
-  "devDependencies": {
-    "concat-stream": "2.0.0",
-    "cross-env": "6.0.3",
-    "faker": "4.1.0",
-    "jest": "25.3.0",
-    "nock": "12.0.3",
-    "prettier": "^1.19.1",
-    "pryjs": "1.0.3"
-  }
+    "name": "and-cli",
+    "version": "1.1.0",
+    "description": "and-cli command-line tool to manage the development of software applications",
+    "bin": {
+        "and-cli": "and-cli.js"
+    },
+    "main": "and-cli.js",
+    "engines": {
+        "node": ">=8.0.0"
+    },
+    "keywords": [
+        "cli"
+    ],
+    "scripts": {
+        "test": "jest --coverage",
+        "watch:test": "jest ./src --watch"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:AndcultureCode/AndcultureCode.Cli.git"
+    },
+    "author": "andculture <developer+code@andculture.com> (http://andculture.com)",
+    "license": "Apache-2.0",
+    "homepage": "https://github.com/AndcultureCode/AndcultureCode.Cli#readme",
+    "dependencies": {
+        "@octokit/rest": "18.0.0",
+        "archiver": "3.1.1",
+        "commander": "5.1.0",
+        "fkill": "6.2.0",
+        "ps-list": "6.2.0",
+        "readline-promise": "1.0.4",
+        "require-all": "3.0.0",
+        "shelljs": "0.8.3",
+        "upath": "1.2.0"
+    },
+    "devDependencies": {
+        "concat-stream": "2.0.0",
+        "cross-env": "6.0.3",
+        "faker": "4.1.0",
+        "jest": "25.3.0",
+        "nock": "12.0.3",
+        "prettier": "1.19.1",
+        "pryjs": "1.0.3"
+    }
 }
