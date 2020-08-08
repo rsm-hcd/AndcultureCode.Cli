@@ -3,12 +3,12 @@
 // -----------------------------------------------------------------------------------------
 
 const child_process = require("child_process");
-const dotnetBuild   = require("./dotnet-build");
-const dotnetClean   = require("./dotnet-clean");
-const dotnetPath    = require("./dotnet-path");
+const dotnetBuild = require("./dotnet-build");
+const dotnetClean = require("./dotnet-clean");
+const dotnetPath = require("./dotnet-path");
 const dotnetRestore = require("./dotnet-restore");
-const faker         = require("faker");
-const shell         = require("shelljs");
+const faker = require("faker");
+const shell = require("shelljs");
 
 // #endregion Imports
 
@@ -23,10 +23,14 @@ describe("dotnetBuild", () => {
     let shellExitSpy;
 
     beforeEach(() => {
-        dotnetCleanSpy   = jest.spyOn(dotnetClean, "run").mockImplementation();
-        dotnetPathSpy    = jest.spyOn(dotnetPath, "solutionPathOrExit").mockImplementation();
-        dotnetRestoreSpy = jest.spyOn(dotnetRestore, "run").mockImplementation();
-        shellExitSpy     = jest.spyOn(shell, "exit").mockImplementation();
+        dotnetCleanSpy = jest.spyOn(dotnetClean, "run").mockImplementation();
+        dotnetPathSpy = jest
+            .spyOn(dotnetPath, "solutionPathOrExit")
+            .mockImplementation();
+        dotnetRestoreSpy = jest
+            .spyOn(dotnetRestore, "run")
+            .mockImplementation();
+        shellExitSpy = jest.spyOn(shell, "exit").mockImplementation();
     });
 
     // -----------------------------------------------------------------------------------------
@@ -60,10 +64,12 @@ describe("dotnetBuild", () => {
 
         test("when dotnet command returns non-zero exit code, it calls shell.exit with that code", () => {
             // Arrange
-            const exitCode     = faker.random.number({ min: 1 });
-            const spawnSyncSpy = jest.spyOn(child_process, "spawnSync").mockImplementation(() => {
-                return { status: exitCode };
-            });
+            const exitCode = faker.random.number({ min: 1 });
+            const spawnSyncSpy = jest
+                .spyOn(child_process, "spawnSync")
+                .mockImplementation(() => {
+                    return { status: exitCode };
+                });
 
             // Act
             dotnetBuild.run(faker.random.boolean(), faker.random.boolean());

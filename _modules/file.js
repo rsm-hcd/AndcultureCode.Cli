@@ -2,8 +2,8 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const echo  = require("./echo");
-const fs    = require("fs");
+const echo = require("./echo");
+const fs = require("fs");
 const shell = require("shelljs");
 
 // #endregion Imports
@@ -61,8 +61,8 @@ const file = {
         const result = shell.ls(fileExpression)[0];
         shell.config.reset();
         return result;
-    }
-}
+    },
+};
 
 // #endregion Functions
 

@@ -3,10 +3,10 @@
 // -----------------------------------------------------------------------------------------
 
 const child_process = require("child_process");
-const dir           = require("./dir");
-const dotnetPath    = require("./dotnet-path");
-const echo          = require("./echo");
-const shell         = require("shelljs");
+const dir = require("./dir");
+const dotnetPath = require("./dotnet-path");
+const echo = require("./echo");
+const shell = require("shelljs");
 
 // #endregion Imports
 
@@ -36,8 +36,12 @@ const dotnetClean = {
         // We clean 'bin' and 'obj' directories first incase they are preventing the SLN from building
         echo.message("Recursively deleting 'bin' directories...");
         const binDirs = shell.find(".").filter((e) => {
-            if (e.startsWith(".git"))       { return false; } // If sln is on the root of repo, we must avoid cleaning .git
-            if (e.includes("node_modules")) { return false; } // Disregard any in node_modules directories
+            if (e.startsWith(".git")) {
+                return false;
+            } // If sln is on the root of repo, we must avoid cleaning .git
+            if (e.includes("node_modules")) {
+                return false;
+            } // Disregard any in node_modules directories
             return e.match("bin");
         });
 
@@ -53,8 +57,12 @@ const dotnetClean = {
 
         echo.message("Recursively deleting 'obj' directories...");
         const objDirs = shell.find(".").filter((e) => {
-            if (e.startsWith(".git"))       { return false; } // If sln is on the root of repo, we must avoid cleaning .git
-            if (e.includes("node_modules")) { return false; } // Disregard any in node_modules directories
+            if (e.startsWith(".git")) {
+                return false;
+            } // If sln is on the root of repo, we must avoid cleaning .git
+            if (e.includes("node_modules")) {
+                return false;
+            } // Disregard any in node_modules directories
             return e.match("obj");
         });
 
@@ -73,9 +81,14 @@ const dotnetClean = {
         const { cmd, args } = this.cmd();
 
         // Now we let the dotnet cli clean
-        echo.message(`Running dotnet clean (via ${this.cmd()}) on the solution...`);
+        echo.message(
+            `Running dotnet clean (via ${this.cmd()}) on the solution...`
+        );
 
-        const { status } = child_process.spawnSync(cmd, args, { stdio: "inherit", shell: true });
+        const { status } = child_process.spawnSync(cmd, args, {
+            stdio: "inherit",
+            shell: true,
+        });
 
         if (status !== 0) {
             echo.error("Solution failed to clean. See output for details.");
@@ -84,7 +97,7 @@ const dotnetClean = {
 
         echo.success("Dotnet solution cleaned");
     },
-}
+};
 
 // #endregion Functions
 

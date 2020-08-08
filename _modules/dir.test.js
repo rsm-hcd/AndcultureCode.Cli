@@ -2,9 +2,9 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const dir   = require("./dir");
+const dir = require("./dir");
 const faker = require("faker");
-const fs    = require("fs");
+const fs = require("fs");
 const shell = require("shelljs");
 
 // #endregion Imports
@@ -77,7 +77,9 @@ describe("dir", () => {
     describe("pushd", () => {
         test("it calls shell.pushd with '-q' flag", () => {
             // Arrange
-            const shellPushdSpy = jest.spyOn(shell, "pushd").mockImplementation();
+            const shellPushdSpy = jest
+                .spyOn(shell, "pushd")
+                .mockImplementation();
 
             // Act
             dir.pushd(mockDir);

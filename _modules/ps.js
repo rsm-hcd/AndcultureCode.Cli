@@ -2,10 +2,10 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const echo   = require("./echo");
-const fkill  = require("fkill");
+const echo = require("./echo");
+const fkill = require("fkill");
 const psList = require("ps-list");
-const shell  = require("shelljs");
+const shell = require("shelljs");
 
 // #endregion Imports
 
@@ -47,9 +47,11 @@ const ps = {
     DEFAULT_KILL_OPTIONS: _defaultKillOptions,
     async kill(input, options = _defaultKillOptions) {
         try {
-            await fkill(input, options)
+            await fkill(input, options);
         } catch (error) {
-            echo.error(`There was an error killing processes ${input}: ${error}`);
+            echo.error(
+                `There was an error killing processes ${input}: ${error}`
+            );
             shell.exit(1);
         }
 
@@ -60,7 +62,9 @@ const ps = {
         try {
             processes = await psList();
         } catch (error) {
-            echo.error(`There was an error retrieving the process list: ${error}`);
+            echo.error(
+                `There was an error retrieving the process list: ${error}`
+            );
             shell.exit(1);
         }
 
@@ -69,7 +73,7 @@ const ps = {
         }
 
         return processes;
-    }
+    },
 };
 
 // #endregion Functions

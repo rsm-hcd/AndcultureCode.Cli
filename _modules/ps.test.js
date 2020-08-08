@@ -15,11 +15,11 @@ jest.mock("ps-list");
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const faker  = require("faker");
-const fkill  = require("fkill");
-const ps     = require("./ps");
+const faker = require("faker");
+const fkill = require("fkill");
+const ps = require("./ps");
 const psList = require("ps-list");
-const shell  = require("shelljs");
+const shell = require("shelljs");
 
 // #endregion Imports
 
@@ -40,7 +40,9 @@ describe("ps", () => {
     describe("kill", () => {
         test("when fkill throws an error, it calls shell.exit", async () => {
             // Arrange
-            fkill.mockImplementation(() => { throw new Error(); });
+            fkill.mockImplementation(() => {
+                throw new Error();
+            });
 
             // Act
             await ps.kill(faker.random.number());
@@ -70,7 +72,9 @@ describe("ps", () => {
     describe("list", () => {
         test("when psList throws an error, it calls shell.exit", async () => {
             // Arrange
-            psList.mockImplementation(() => { throw new Error(); });
+            psList.mockImplementation(() => {
+                throw new Error();
+            });
 
             // Act
             await ps.list();
@@ -81,11 +85,8 @@ describe("ps", () => {
 
         test("when psList succeeds, it returns an array of processes", async () => {
             // Arrange
-            const mockPid       = faker.random.number({ min: 1, max: 100 });
-            const mockProcesses = [
-                { pid: mockPid },
-                { pid: mockPid + 1 },
-            ];
+            const mockPid = faker.random.number({ min: 1, max: 100 });
+            const mockProcesses = [{ pid: mockPid }, { pid: mockPid + 1 }];
             psList.mockImplementation(() => mockProcesses);
 
             // Act
@@ -97,19 +98,16 @@ describe("ps", () => {
 
         test("when given a process name, it returns an array of processes that match", async () => {
             // Arrange
-            const mockPid           = faker.random.number({ min: 1, max: 100 });
-            const expectedProcess   = {
+            const mockPid = faker.random.number({ min: 1, max: 100 });
+            const expectedProcess = {
                 name: "dotnet",
-                pid:  mockPid
+                pid: mockPid,
             };
             const unexpectedProcess = {
                 name: "paint",
-                pid:  mockPid + 1
+                pid: mockPid + 1,
             };
-            const mockProcesses     = [
-                expectedProcess,
-                unexpectedProcess,
-            ];
+            const mockProcesses = [expectedProcess, unexpectedProcess];
             psList.mockImplementation(() => mockProcesses);
 
             // Act

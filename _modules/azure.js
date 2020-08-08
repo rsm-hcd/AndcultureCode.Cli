@@ -2,7 +2,7 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const echo  = require("./echo");
+const echo = require("./echo");
 const shell = require("shelljs");
 
 // #endregion Imports
@@ -11,7 +11,8 @@ const shell = require("shelljs");
 // #region Variables
 // -----------------------------------------------------------------------------------------
 
-const pythonInstallerUrl  = "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
+const pythonInstallerUrl =
+    "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
 
 // #endregion Variables
 
@@ -74,11 +75,13 @@ const azure = {
 
         const cmdResult = shell.exec(logoutCmd);
         if (cmdResult.code !== 0) {
-            echo.error(" - Failed to logout from Azure, it is recommended `az logout` is run manually");
+            echo.error(
+                " - Failed to logout from Azure, it is recommended `az logout` is run manually"
+            );
             shell.exit(cmdResult.code);
         }
     },
-}
+};
 
 // #endregion Functions
 

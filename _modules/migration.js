@@ -2,12 +2,12 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const dir        = require("./dir");
+const dir = require("./dir");
 const dotnetPath = require("./dotnet-path");
-const echo       = require("./echo");
-const path       = require("path");
-const shell      = require("shelljs");
-const upath      = require("upath");
+const echo = require("./echo");
+const path = require("path");
+const shell = require("shelljs");
+const upath = require("upath");
 
 // #endregion Imports
 
@@ -18,15 +18,15 @@ const upath      = require("upath");
 // #endregion Constants
 
 const MIGRATION_MODE = {
-    ADD:    "ADD",
+    ADD: "ADD",
     DELETE: "DELETE",
-    RUN:    "RUN",
+    RUN: "RUN",
 };
 
 const MIGRATION_COMMAND = {
-    [MIGRATION_MODE.ADD]:    "migrations add",
+    [MIGRATION_MODE.ADD]: "migrations add",
     [MIGRATION_MODE.DELETE]: "migrations remove",
-    [MIGRATION_MODE.RUN]:    "database update",
+    [MIGRATION_MODE.RUN]: "database update",
 };
 
 const STARTUP_PROJECT_DIR = dotnetPath.webProjectFilePath();
@@ -37,8 +37,8 @@ const STARTUP_PROJECT_DIR = dotnetPath.webProjectFilePath();
 // #region Variables
 // -----------------------------------------------------------------------------------------
 
-let   _migrationName     = null;
-let   _mode              = null;
+let _migrationName = null;
+let _mode = null;
 
 // #endregion Variables
 
@@ -49,29 +49,49 @@ let   _mode              = null;
 const migration = {
     cmd(mode, migrationName, startupProjectDir) {
         let baseCmd = "dotnet ef";
-        switch(mode) {
+        switch (mode) {
             case MIGRATION_MODE.ADD:
             case MIGRATION_MODE.DELETE:
             case MIGRATION_MODE.RUN:
                 baseCmd = `${baseCmd} ${MIGRATION_COMMAND[mode]}`;
                 break;
             default:
-                echo.error(`Invalid mode specified. Available options are: ${Object.keys(MIGRATION_MODE)}`);
+                echo.error(
+                    `Invalid mode specified. Available options are: ${Object.keys(
+                        MIGRATION_MODE
+                    )}`
+                );
                 shell.exit(1);
                 break;
         }
-        return  `${baseCmd} ${migrationName} --startup-project ${startupProjectDir} --verbose`;
+        return `${baseCmd} ${migrationName} --startup-project ${startupProjectDir} --verbose`;
     },
     description(mode) {
-        switch(mode) {
+        switch (mode) {
             case MIGRATION_MODE.ADD:
-                return `Create new entity framework migration (via ${this.cmd(mode, "<migration name>", STARTUP_PROJECT_DIR)})`;
+                return `Create new entity framework migration (via ${this.cmd(
+                    mode,
+                    "<migration name>",
+                    STARTUP_PROJECT_DIR
+                )})`;
             case MIGRATION_MODE.DELETE:
-                return `Delete most recent entity framework migration (via ${this.cmd(mode, "", STARTUP_PROJECT_DIR)})`
+                return `Delete most recent entity framework migration (via ${this.cmd(
+                    mode,
+                    "",
+                    STARTUP_PROJECT_DIR
+                )})`;
             case MIGRATION_MODE.RUN:
-                return `Run (or revert) entity framework migration (via ${this.cmd(mode, "<migration name>", STARTUP_PROJECT_DIR)})`
+                return `Run (or revert) entity framework migration (via ${this.cmd(
+                    mode,
+                    "<migration name>",
+                    STARTUP_PROJECT_DIR
+                )})`;
             default:
-                echo.error(`Invalid mode specified. Available options are: ${Object.keys(MIGRATION_MODE)}`);
+                echo.error(
+                    `Invalid mode specified. Available options are: ${Object.keys(
+                        MIGRATION_MODE
+                    )}`
+                );
                 shell.exit(1);
                 break;
         }
@@ -92,17 +112,22 @@ const migration = {
         return MIGRATION_MODE;
     },
     run() {
-        if ((_mode === MIGRATION_MODE.ADD || _mode === MIGRATION_MODE.RUN) &&
-            (_migrationName === null || _migrationName.length !== 1)) {
+        if (
+            (_mode === MIGRATION_MODE.ADD || _mode === MIGRATION_MODE.RUN) &&
+            (_migrationName === null || _migrationName.length !== 1)
+        ) {
             echo.error("Migration name is required, and can only be one word.");
             shell.exit(1);
         }
 
         dotnetPath.webProjectFilePathOrExit();
-        const webProjectFileDir = upath.join(shell.pwd(), dotnetPath.webProjectFileDir());
+        const webProjectFileDir = upath.join(
+            shell.pwd(),
+            dotnetPath.webProjectFileDir()
+        );
 
         const dataProjectFilePath = dotnetPath.dataProjectFilePathOrExit();
-        const dataProjectDir      = path.dirname(dataProjectFilePath);
+        const dataProjectDir = path.dirname(dataProjectFilePath);
 
         const migrationCmd = this.cmd(_mode, _migrationName, webProjectFileDir);
 
@@ -119,9 +144,11 @@ const migration = {
 
         dir.popd();
 
-        echo.success("Finished running migration command. Remember to double check that the migration looks right before committing.");
+        echo.success(
+            "Finished running migration command. Remember to double check that the migration looks right before committing."
+        );
     },
-}
+};
 
 // #endregion Functions
 

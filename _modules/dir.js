@@ -2,8 +2,8 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const echo  = require("./echo");
-const fs    = require("fs");
+const echo = require("./echo");
+const fs = require("fs");
 const shell = require("shelljs");
 
 // #endregion Imports
@@ -19,7 +19,9 @@ const dir = {
      */
     deleteIfExists(dir) {
         if (!fs.existsSync(dir)) {
-            echo.message(`Directory '${dir}' does not exist. Nothing to delete.`);
+            echo.message(
+                `Directory '${dir}' does not exist. Nothing to delete.`
+            );
             return;
         }
 
@@ -31,8 +33,8 @@ const dir = {
     },
     pushd(dir) {
         shell.pushd("-q", dir);
-    }
-}
+    },
+};
 
 // #endregion Functions
 

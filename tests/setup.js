@@ -10,4 +10,3 @@ jest.mock("ps-list");
 jest.mock("shelljs");
 
 // #endregion Full module mocks
-

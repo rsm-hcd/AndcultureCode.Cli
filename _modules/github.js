@@ -2,7 +2,7 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const { echo }    = require("./echo");
+const { echo } = require("./echo");
 const { Octokit } = require("@octokit/rest");
 
 // #endregion Imports
@@ -31,9 +31,15 @@ const github = {
         }
 
         try {
-            return await _list(_client().repos.listForUser, { username }, filter);
+            return await _list(
+                _client().repos.listForUser,
+                { username },
+                filter
+            );
         } catch (error) {
-            echo.error(`There was an error listing repositories by user ${username}: ${error}`);
+            echo.error(
+                `There was an error listing repositories by user ${username}: ${error}`
+            );
             return null;
         }
     },
@@ -43,7 +49,10 @@ const github = {
      * @param {string} username optional username of user account. if null, returns master andculture organization repositories
      */
     async repositoriesByAndculture(username) {
-        const fn = username == null ? this.repositoriesByOrganization : this.repositories;
+        const fn =
+            username == null
+                ? this.repositoriesByOrganization
+                : this.repositories;
         const name = username == null ? this.andcultureOrg : username;
         return await fn(name, _filterReposByAndcultureOrg);
     },
@@ -60,13 +69,15 @@ const github = {
 
         const options = {
             org,
-            type: "public"
+            type: "public",
         };
 
         try {
             return await _list(_client().repos.listForOrg, options, filter);
         } catch (error) {
-            echo.error(`There was an error listing repositories by organization ${org}: ${error}`);
+            echo.error(
+                `There was an error listing repositories by organization ${org}: ${error}`
+            );
             return null;
         }
     },
@@ -97,18 +108,19 @@ const _list = async (command, options, filter) => {
 
     let results = [];
 
-    await _client().paginate(command, options).then((response) => {
-        results = results.concat(response);
-        return response;
-    });
+    await _client()
+        .paginate(command, options)
+        .then((response) => {
+            results = results.concat(response);
+            return response;
+        });
 
     if (filter != null) {
         results = filter(results);
     }
 
     return results;
-}
-
+};
 
 //#endregion Private Functions
 
