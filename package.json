@@ -13,6 +13,8 @@
         "cli"
     ],
     "scripts": {
+        "configure": "git config core.hooksPath .githooks",
+        "preinstall": "npm run configure",
         "test": "jest --coverage",
         "watch:test": "jest ./src --watch"
     },

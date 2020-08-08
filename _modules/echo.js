@@ -2,9 +2,9 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const constants  = require("./constants");
+const constants = require("./constants");
 const formatters = require("./formatters");
-const shell      = require("shelljs");
+const shell = require("shelljs");
 
 // #endregion Imports
 
@@ -12,7 +12,7 @@ const shell      = require("shelljs");
 // #region Variables
 // -----------------------------------------------------------------------------------------
 
-const columnLength                   = 65;
+const columnLength = 65;
 const { purple, green, red, yellow } = formatters;
 
 // #endregion Variables
@@ -45,13 +45,15 @@ const echo = {
             shell.echo(`${this.sdkString} ${message}`);
             return;
         }
-        shell.echo(`${this.sdkString} ${" ".repeat(halfLength)}${message}`)
+        shell.echo(`${this.sdkString} ${" ".repeat(halfLength)}${message}`);
     },
     divider() {
         shell.echo(`${this.sdkString} ${"-".repeat(columnLength)}`);
     },
     error(message) {
-        shell.echo(`${this.sdkString} ${red(constants.ERROR_OUTPUT_STRING)} ${message}`);
+        shell.echo(
+            `${this.sdkString} ${red(constants.ERROR_OUTPUT_STRING)} ${message}`
+        );
     },
     errors(messages) {
         for (const message of messages) {
@@ -82,9 +84,13 @@ const echo = {
         return message;
     },
     warn(message) {
-        shell.echo(`${this.sdkString} ${yellow(constants.WARN_OUTPUT_STRING)} ${message}`)
+        shell.echo(
+            `${this.sdkString} ${yellow(
+                constants.WARN_OUTPUT_STRING
+            )} ${message}`
+        );
     },
-}
+};
 
 // #endregion Functions
 

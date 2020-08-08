@@ -3,10 +3,10 @@
 // -----------------------------------------------------------------------------------------
 
 const child_process = require("child_process");
-const dotnetKill    = require("./dotnet-kill");
-const faker         = require("faker");
-const ps            = require("./ps");
-const shell         = require("shelljs");
+const dotnetKill = require("./dotnet-kill");
+const faker = require("faker");
+const ps = require("./ps");
+const shell = require("shelljs");
 
 // #endregion Imports
 
@@ -24,7 +24,6 @@ jest.mock("./echo");
 // -----------------------------------------------------------------------------------------
 
 describe("dotnetKill", () => {
-
     // -----------------------------------------------------------------------------------------
     // #region run
     // -----------------------------------------------------------------------------------------
@@ -37,10 +36,12 @@ describe("dotnetKill", () => {
 
         test(`when '${dotnetKill.cmd()}' fails, it calls shell.exit`, () => {
             // Arrange
-            const exitCode     = faker.random.number({ min: 1 });
-            const spawnSyncSpy = jest.spyOn(child_process, "spawnSync").mockImplementationOnce(() => {
-                return { status: exitCode };
-            });
+            const exitCode = faker.random.number({ min: 1 });
+            const spawnSyncSpy = jest
+                .spyOn(child_process, "spawnSync")
+                .mockImplementationOnce(() => {
+                    return { status: exitCode };
+                });
 
             // Act
             dotnetKill.run();
@@ -52,7 +53,9 @@ describe("dotnetKill", () => {
 
         test("when no dotnet process ids are found, it returns 0", async () => {
             // Arrange
-            const psListSpy = jest.spyOn(ps, "list").mockImplementation(() => []);
+            const psListSpy = jest
+                .spyOn(ps, "list")
+                .mockImplementation(() => []);
 
             // Act
             const result = await dotnetKill.run();
@@ -64,19 +67,20 @@ describe("dotnetKill", () => {
 
         test("when dotnet process ids are found, it calls ps.kill", async () => {
             // Arrange
-            const mockPid       = faker.random.number({ min: 1, max: 100 });
-            const mockProcesses = [
-                { pid: mockPid },
-                { pid: mockPid + 1 },
-            ];
-            const psKillSpy     = jest.spyOn(ps, "kill").mockImplementation(() => 0);
+            const mockPid = faker.random.number({ min: 1, max: 100 });
+            const mockProcesses = [{ pid: mockPid }, { pid: mockPid + 1 }];
+            const psKillSpy = jest
+                .spyOn(ps, "kill")
+                .mockImplementation(() => 0);
             jest.spyOn(ps, "list").mockImplementation(() => mockProcesses);
 
             // Act
             await dotnetKill.run();
 
             // Assert
-            expect(psKillSpy).toHaveBeenCalledWith(mockProcesses.map((e) => e.pid));
+            expect(psKillSpy).toHaveBeenCalledWith(
+                mockProcesses.map((e) => e.pid)
+            );
         });
     });
 

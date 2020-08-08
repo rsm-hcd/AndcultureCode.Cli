@@ -39,24 +39,28 @@ describe("dotnetPath", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("cliDir", () => {
-        test.each([
-            undefined,
-            null
-        ])("when cliPath() returns %p, it returns undefined", (returnValue) => {
-            // Arrange
-            const cliPathSpy = jest.spyOn(dotnetPath, "cliPath").mockImplementation(() => returnValue);
+        test.each([undefined, null])(
+            "when cliPath() returns %p, it returns undefined",
+            (returnValue) => {
+                // Arrange
+                const cliPathSpy = jest
+                    .spyOn(dotnetPath, "cliPath")
+                    .mockImplementation(() => returnValue);
 
-            // Act
-            const result = dotnetPath.cliDir();
+                // Act
+                const result = dotnetPath.cliDir();
 
-            // Assert
-            expect(cliPathSpy).toHaveBeenCalledTimes(1);
-            expect(result).toBeUndefined();
-        });
+                // Assert
+                expect(cliPathSpy).toHaveBeenCalledTimes(1);
+                expect(result).toBeUndefined();
+            }
+        );
 
         test("when cliPath() returns a value, it calls path.dirname", () => {
             // Arrange
-            const cliPathSpy = jest.spyOn(dotnetPath, "cliPath").mockImplementation(() => mockFilePath);
+            const cliPathSpy = jest
+                .spyOn(dotnetPath, "cliPath")
+                .mockImplementation(() => mockFilePath);
 
             // Act
             const result = dotnetPath.cliDir();
@@ -74,26 +78,32 @@ describe("dotnetPath", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("cliPath", () => {
-        test.each([
-            undefined,
-            null
-        ])("when solutionDir() returns %p, it returns undefined", (returnValue) => {
-            // Arrange
-            const solutionDirSpy = jest.spyOn(dotnetPath, "solutionDir").mockImplementation(() => returnValue);
+        test.each([undefined, null])(
+            "when solutionDir() returns %p, it returns undefined",
+            (returnValue) => {
+                // Arrange
+                const solutionDirSpy = jest
+                    .spyOn(dotnetPath, "solutionDir")
+                    .mockImplementation(() => returnValue);
 
-            // Act
-            const result = dotnetPath.cliPath();
+                // Act
+                const result = dotnetPath.cliPath();
 
-            // Assert
-            expect(solutionDirSpy).toHaveBeenCalledTimes(1);
-            expect(result).toBeUndefined();
-        });
+                // Assert
+                expect(solutionDirSpy).toHaveBeenCalledTimes(1);
+                expect(result).toBeUndefined();
+            }
+        );
 
         test(`when solutionDir has a value, it calls file.first with <solutionDir>/${cliFilePath}`, () => {
             // Arrange
-            jest.spyOn(dotnetPath, "solutionDir").mockImplementation(() => mockFilePath);
+            jest.spyOn(dotnetPath, "solutionDir").mockImplementation(
+                () => mockFilePath
+            );
             const fileFirstSpy = jest.spyOn(file, "first").mockImplementation();
-            const expectedPath = upath.toUnix(path.join(mockFilePath, dotnetPath.CLI_FILE_PATH));
+            const expectedPath = upath.toUnix(
+                path.join(mockFilePath, dotnetPath.CLI_FILE_PATH)
+            );
 
             // Act
             dotnetPath.cliPath();
@@ -104,8 +114,12 @@ describe("dotnetPath", () => {
 
         test("when called consecutively, it returns the cached value", () => {
             // Arrange
-            jest.spyOn(dotnetPath, "solutionDir").mockImplementation(() => mockFilePath);
-            const fileFirstSpy = jest.spyOn(file, "first").mockImplementation(() => mockFilePath);
+            jest.spyOn(dotnetPath, "solutionDir").mockImplementation(
+                () => mockFilePath
+            );
+            const fileFirstSpy = jest
+                .spyOn(file, "first")
+                .mockImplementation(() => mockFilePath);
 
             // Act
             const result1 = dotnetPath.cliPath();
@@ -129,7 +143,9 @@ describe("dotnetPath", () => {
     describe("dataProjectFilePath", () => {
         test("when file.first returns a non-null value, it returns that value", () => {
             // Arrange
-            const fileFirstSpy = jest.spyOn(file, "first").mockImplementation(() => mockFilePath);
+            const fileFirstSpy = jest
+                .spyOn(file, "first")
+                .mockImplementation(() => mockFilePath);
 
             // Act
             const result = dotnetPath.dataProjectFilePath();
@@ -139,28 +155,31 @@ describe("dotnetPath", () => {
             expect(result).toBe(mockFilePath);
         });
 
-        test.each([
-            undefined,
-            null
-        ])("when file.first returns %p, it returns undefined", (returnValue) => {
-            // Arrange
-            // If file.first only ever returns null/undefined, it means the current directory has
-            // no matching files/subdirectories.
-            const fileFirstSpy = jest.spyOn(file, "first").mockImplementation(() => returnValue);
+        test.each([undefined, null])(
+            "when file.first returns %p, it returns undefined",
+            (returnValue) => {
+                // Arrange
+                // If file.first only ever returns null/undefined, it means the current directory has
+                // no matching files/subdirectories.
+                const fileFirstSpy = jest
+                    .spyOn(file, "first")
+                    .mockImplementation(() => returnValue);
 
-            // Act
-            const result = dotnetPath.dataProjectFilePath();
+                // Act
+                const result = dotnetPath.dataProjectFilePath();
 
-            // Assert
-            expect(fileFirstSpy).toHaveBeenCalled();
-            expect(result).toBeUndefined();
-        });
+                // Assert
+                expect(fileFirstSpy).toHaveBeenCalled();
+                expect(result).toBeUndefined();
+            }
+        );
 
         test("when file.first is called multiple times, it returns the first non-null value", () => {
             // Arrange
             const expectedFile = mockFilePath;
             const unexpectedFile = `unexpected-${mockFilePath}`;
-            const fileFirstSpy = jest.spyOn(file, "first")
+            const fileFirstSpy = jest
+                .spyOn(file, "first")
                 .mockImplementationOnce(() => undefined)
                 .mockImplementationOnce(() => null)
                 .mockImplementationOnce(() => expectedFile)
@@ -176,7 +195,9 @@ describe("dotnetPath", () => {
 
         test("when called consecutively, it returns the cached value", () => {
             // Arrange
-            const fileFirstSpy = jest.spyOn(file, "first").mockImplementation(() => mockFilePath);
+            const fileFirstSpy = jest
+                .spyOn(file, "first")
+                .mockImplementation(() => mockFilePath);
 
             // Act
             const result1 = dotnetPath.dataProjectFilePath();
@@ -200,7 +221,9 @@ describe("dotnetPath", () => {
     describe("dataProjectFilePathOrExit", () => {
         test("when dataProjectFilePath() returns a value, it returns that value", () => {
             // Arrange
-            const dataProjectFilePathSpy = jest.spyOn(dotnetPath, "dataProjectFilePath").mockImplementation(() => mockFilePath);
+            const dataProjectFilePathSpy = jest
+                .spyOn(dotnetPath, "dataProjectFilePath")
+                .mockImplementation(() => mockFilePath);
 
             // Act
             const result = dotnetPath.dataProjectFilePathOrExit();
@@ -210,21 +233,25 @@ describe("dotnetPath", () => {
             expect(result).toBe(mockFilePath);
         });
 
-        test.each([
-            undefined,
-            null
-        ])("when dataProjectFilePath() returns %p, it calls shell.exit", (returnValue) => {
-            // Arrange
-            const dataProjectFilePathSpy = jest.spyOn(dotnetPath, "dataProjectFilePath").mockImplementation(() => returnValue);
-            const shellExitSpy = jest.spyOn(shell, "exit").mockImplementation();
+        test.each([undefined, null])(
+            "when dataProjectFilePath() returns %p, it calls shell.exit",
+            (returnValue) => {
+                // Arrange
+                const dataProjectFilePathSpy = jest
+                    .spyOn(dotnetPath, "dataProjectFilePath")
+                    .mockImplementation(() => returnValue);
+                const shellExitSpy = jest
+                    .spyOn(shell, "exit")
+                    .mockImplementation();
 
-            // Act
-            dotnetPath.dataProjectFilePathOrExit();
+                // Act
+                dotnetPath.dataProjectFilePathOrExit();
 
-            // Assert
-            expect(dataProjectFilePathSpy).toHaveBeenCalledTimes(1);
-            expect(shellExitSpy).toHaveBeenCalledWith(1);
-        });
+                // Assert
+                expect(dataProjectFilePathSpy).toHaveBeenCalledTimes(1);
+                expect(shellExitSpy).toHaveBeenCalledWith(1);
+            }
+        );
     });
 
     // #endregion dataProjectFilePathOrExit
@@ -234,25 +261,35 @@ describe("dotnetPath", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("releaseDir", () => {
-        test.each([
-            undefined,
-            null
-        ])("when solutionDir() returns %p, it returns undefined", (returnValue) => {
-            // Arrange
-            const solutionDirSpy = jest.spyOn(dotnetPath, "solutionDir").mockImplementation(() => returnValue);
+        test.each([undefined, null])(
+            "when solutionDir() returns %p, it returns undefined",
+            (returnValue) => {
+                // Arrange
+                const solutionDirSpy = jest
+                    .spyOn(dotnetPath, "solutionDir")
+                    .mockImplementation(() => returnValue);
 
-            // Act
-            const result = dotnetPath.releaseDir();
+                // Act
+                const result = dotnetPath.releaseDir();
 
-            // Assert
-            expect(solutionDirSpy).toHaveBeenCalledTimes(1);
-            expect(result).toBeUndefined();
-        });
+                // Assert
+                expect(solutionDirSpy).toHaveBeenCalledTimes(1);
+                expect(result).toBeUndefined();
+            }
+        );
 
         test(`when solutionDir() returns a value, it returns an absolute path to <solutionDir>/${releaseDir}`, () => {
             // Arrange
-            const solutionDirSpy = jest.spyOn(dotnetPath, "solutionDir").mockImplementation(() => mockFilePath);
-            const expectedPath = upath.toUnix(path.join(shell.pwd().toString(), mockFilePath, dotnetPath.RELEASE_DIRECTORY));
+            const solutionDirSpy = jest
+                .spyOn(dotnetPath, "solutionDir")
+                .mockImplementation(() => mockFilePath);
+            const expectedPath = upath.toUnix(
+                path.join(
+                    shell.pwd().toString(),
+                    mockFilePath,
+                    dotnetPath.RELEASE_DIRECTORY
+                )
+            );
 
             // Act
             const result = dotnetPath.releaseDir();
@@ -270,24 +307,28 @@ describe("dotnetPath", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("solutionDir", () => {
-        test.each([
-            undefined,
-            null
-        ])("when solutionPath() returns %p, it returns undefined", (returnValue) => {
-            // Arrange
-            const solutionPathSpy = jest.spyOn(dotnetPath, "solutionPath").mockImplementation(() => returnValue);
+        test.each([undefined, null])(
+            "when solutionPath() returns %p, it returns undefined",
+            (returnValue) => {
+                // Arrange
+                const solutionPathSpy = jest
+                    .spyOn(dotnetPath, "solutionPath")
+                    .mockImplementation(() => returnValue);
 
-            // Act
-            const result = dotnetPath.solutionDir();
+                // Act
+                const result = dotnetPath.solutionDir();
 
-            // Assert
-            expect(solutionPathSpy).toHaveBeenCalledTimes(1);
-            expect(result).toBeUndefined();
-        });
+                // Assert
+                expect(solutionPathSpy).toHaveBeenCalledTimes(1);
+                expect(result).toBeUndefined();
+            }
+        );
 
         test("when solutionPath() returns a value, it calls path.dirname", () => {
             // Arrange
-            const solutionPathSpy = jest.spyOn(dotnetPath, "solutionPath").mockImplementation(() => mockFilePath);
+            const solutionPathSpy = jest
+                .spyOn(dotnetPath, "solutionPath")
+                .mockImplementation(() => mockFilePath);
 
             // Act
             const result = dotnetPath.solutionDir();
@@ -307,7 +348,9 @@ describe("dotnetPath", () => {
     describe("solutionPath", () => {
         test("when file.first returns a non-null value, it returns that value", () => {
             // Arrange
-            const fileFirstSpy = jest.spyOn(file, "first").mockImplementation(() => mockFilePath);
+            const fileFirstSpy = jest
+                .spyOn(file, "first")
+                .mockImplementation(() => mockFilePath);
 
             // Act
             const result = dotnetPath.solutionPath();
@@ -317,28 +360,31 @@ describe("dotnetPath", () => {
             expect(result).toBe(mockFilePath);
         });
 
-        test.each([
-            undefined,
-            null
-        ])("when file.first returns %p, it returns undefined", (returnValue) => {
-            // Arrange
-            // If file.first only ever returns null/undefined, it means the current directory has
-            // no matching files/subdirectories.
-            const fileFirstSpy = jest.spyOn(file, "first").mockImplementation(() => returnValue);
+        test.each([undefined, null])(
+            "when file.first returns %p, it returns undefined",
+            (returnValue) => {
+                // Arrange
+                // If file.first only ever returns null/undefined, it means the current directory has
+                // no matching files/subdirectories.
+                const fileFirstSpy = jest
+                    .spyOn(file, "first")
+                    .mockImplementation(() => returnValue);
 
-            // Act
-            const result = dotnetPath.solutionPath();
+                // Act
+                const result = dotnetPath.solutionPath();
 
-            // Assert
-            expect(fileFirstSpy).toHaveBeenCalled();
-            expect(result).toBeUndefined();
-        });
+                // Assert
+                expect(fileFirstSpy).toHaveBeenCalled();
+                expect(result).toBeUndefined();
+            }
+        );
 
         test("when file.first is called multiple times, it returns the first non-null value", () => {
             // Arrange
             const expectedFile = mockFilePath;
             const unexpectedFile = `unexpected-${mockFilePath}`;
-            const fileFirstSpy = jest.spyOn(file, "first")
+            const fileFirstSpy = jest
+                .spyOn(file, "first")
                 .mockImplementationOnce(() => undefined)
                 .mockImplementationOnce(() => null)
                 .mockImplementationOnce(() => expectedFile)
@@ -354,7 +400,9 @@ describe("dotnetPath", () => {
 
         test("when called consecutively, it returns the cached value", () => {
             // Arrange
-            const fileFirstSpy = jest.spyOn(file, "first").mockImplementation(() => mockFilePath);
+            const fileFirstSpy = jest
+                .spyOn(file, "first")
+                .mockImplementation(() => mockFilePath);
 
             // Act
             const result1 = dotnetPath.solutionPath();
@@ -378,7 +426,9 @@ describe("dotnetPath", () => {
     describe("solutionPathOrExit", () => {
         test("when solutionPath() returns a value, it returns that value", () => {
             // Arrange
-            const solutionPathSpy = jest.spyOn(dotnetPath, "solutionPath").mockImplementation(() => mockFilePath);
+            const solutionPathSpy = jest
+                .spyOn(dotnetPath, "solutionPath")
+                .mockImplementation(() => mockFilePath);
 
             // Act
             const result = dotnetPath.solutionPathOrExit();
@@ -388,21 +438,25 @@ describe("dotnetPath", () => {
             expect(result).toBe(mockFilePath);
         });
 
-        test.each([
-            undefined,
-            null
-        ])("when solutionPath() returns %p, it calls shell.exit", (returnValue) => {
-            // Arrange
-            const solutionPathSpy = jest.spyOn(dotnetPath, "solutionPath").mockImplementation(() => returnValue);
-            const shellExitSpy = jest.spyOn(shell, "exit").mockImplementation();
+        test.each([undefined, null])(
+            "when solutionPath() returns %p, it calls shell.exit",
+            (returnValue) => {
+                // Arrange
+                const solutionPathSpy = jest
+                    .spyOn(dotnetPath, "solutionPath")
+                    .mockImplementation(() => returnValue);
+                const shellExitSpy = jest
+                    .spyOn(shell, "exit")
+                    .mockImplementation();
 
-            // Act
-            dotnetPath.solutionPathOrExit();
+                // Act
+                dotnetPath.solutionPathOrExit();
 
-            // Assert
-            expect(solutionPathSpy).toHaveBeenCalledTimes(1);
-            expect(shellExitSpy).toHaveBeenCalledWith(1);
-        });
+                // Assert
+                expect(solutionPathSpy).toHaveBeenCalledTimes(1);
+                expect(shellExitSpy).toHaveBeenCalledWith(1);
+            }
+        );
     });
 
     // #endregion solutionPathOrExit
@@ -414,8 +468,12 @@ describe("dotnetPath", () => {
     describe("verify", () => {
         test("when shell.which() returns a value, it returns that value", () => {
             // Arrange
-            const mockDotnetPath = upath.toUnix(path.join(faker.random.word(), "dotnet"));
-            const shellWhichSpy = jest.spyOn(shell, "which").mockImplementation(() => mockDotnetPath);
+            const mockDotnetPath = upath.toUnix(
+                path.join(faker.random.word(), "dotnet")
+            );
+            const shellWhichSpy = jest
+                .spyOn(shell, "which")
+                .mockImplementation(() => mockDotnetPath);
 
             // Act
             const result = dotnetPath.verify();
@@ -425,20 +483,22 @@ describe("dotnetPath", () => {
             expect(result).toBe(mockDotnetPath);
         });
 
-        test.each([
-            undefined,
-            null
-        ])("when shell.which() returns %p, it returns undefined", (returnValue) => {
-            // Arrange
-            const shellWhichSpy = jest.spyOn(shell, "which").mockImplementation(() => returnValue);
+        test.each([undefined, null])(
+            "when shell.which() returns %p, it returns undefined",
+            (returnValue) => {
+                // Arrange
+                const shellWhichSpy = jest
+                    .spyOn(shell, "which")
+                    .mockImplementation(() => returnValue);
 
-            // Act
-            const result = dotnetPath.verify();
+                // Act
+                const result = dotnetPath.verify();
 
-            // Assert
-            expect(shellWhichSpy).toHaveBeenCalled();
-            expect(result).toBeUndefined();
-        });
+                // Assert
+                expect(shellWhichSpy).toHaveBeenCalled();
+                expect(result).toBeUndefined();
+            }
+        );
     });
 
     // #endregion verify
@@ -450,8 +510,12 @@ describe("dotnetPath", () => {
     describe("verifyOrExit", () => {
         test("when shell.which returns a value, it returns that value", () => {
             // Arrange
-            const mockDotnetPath = upath.toUnix(path.join(faker.random.word(), "dotnet"));
-            const shellWhichSpy = jest.spyOn(shell, "which").mockImplementation(() => mockDotnetPath);
+            const mockDotnetPath = upath.toUnix(
+                path.join(faker.random.word(), "dotnet")
+            );
+            const shellWhichSpy = jest
+                .spyOn(shell, "which")
+                .mockImplementation(() => mockDotnetPath);
             const shellExitSpy = jest.spyOn(shell, "exit").mockImplementation();
 
             // Act
@@ -463,21 +527,25 @@ describe("dotnetPath", () => {
             expect(result).toBe(mockDotnetPath);
         });
 
-        test.each([
-            undefined,
-            null
-        ])("when shell.which() returns %p, it calls shell.exit", (returnValue) => {
-            // Arrange
-            const shellWhichSpy = jest.spyOn(shell, "which").mockImplementation(() => returnValue);
-            const shellExitSpy = jest.spyOn(shell, "exit").mockImplementation();
+        test.each([undefined, null])(
+            "when shell.which() returns %p, it calls shell.exit",
+            (returnValue) => {
+                // Arrange
+                const shellWhichSpy = jest
+                    .spyOn(shell, "which")
+                    .mockImplementation(() => returnValue);
+                const shellExitSpy = jest
+                    .spyOn(shell, "exit")
+                    .mockImplementation();
 
-            // Act
-            dotnetPath.verifyOrExit();
+                // Act
+                dotnetPath.verifyOrExit();
 
-            // Assert
-            expect(shellWhichSpy).toHaveBeenCalled();
-            expect(shellExitSpy).toHaveBeenCalledWith(1);
-        });
+                // Assert
+                expect(shellWhichSpy).toHaveBeenCalled();
+                expect(shellExitSpy).toHaveBeenCalledWith(1);
+            }
+        );
     });
 
     // #endregion verifyOrExit
@@ -487,24 +555,28 @@ describe("dotnetPath", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("webProjectFileDir", () => {
-        test.each([
-            undefined,
-            null
-        ])("when webProjectFilePath() returns %p, it returns undefined", (returnValue) => {
-            // Arrange
-            const webProjectFilePathSpy = jest.spyOn(dotnetPath, "webProjectFilePath").mockImplementation(() => returnValue);
+        test.each([undefined, null])(
+            "when webProjectFilePath() returns %p, it returns undefined",
+            (returnValue) => {
+                // Arrange
+                const webProjectFilePathSpy = jest
+                    .spyOn(dotnetPath, "webProjectFilePath")
+                    .mockImplementation(() => returnValue);
 
-            // Act
-            const result = dotnetPath.webProjectFileDir();
+                // Act
+                const result = dotnetPath.webProjectFileDir();
 
-            // Assert
-            expect(webProjectFilePathSpy).toHaveBeenCalledTimes(1);
-            expect(result).toBeUndefined();
-        });
+                // Assert
+                expect(webProjectFilePathSpy).toHaveBeenCalledTimes(1);
+                expect(result).toBeUndefined();
+            }
+        );
 
         test("when webProjectFilePath() returns a value, it calls path.dirname", () => {
             // Arrange
-            const webProjectFilePathSpy = jest.spyOn(dotnetPath, "webProjectFilePath").mockImplementation(() => mockFilePath);
+            const webProjectFilePathSpy = jest
+                .spyOn(dotnetPath, "webProjectFilePath")
+                .mockImplementation(() => mockFilePath);
 
             // Act
             const result = dotnetPath.webProjectFileDir();
@@ -524,7 +596,9 @@ describe("dotnetPath", () => {
     describe("webProjectFilePath", () => {
         test("when file.first returns a non-null value, it returns that value", () => {
             // Arrange
-            const fileFirstSpy = jest.spyOn(file, "first").mockImplementation(() => mockFilePath);
+            const fileFirstSpy = jest
+                .spyOn(file, "first")
+                .mockImplementation(() => mockFilePath);
 
             // Act
             const result = dotnetPath.webProjectFilePath();
@@ -534,28 +608,31 @@ describe("dotnetPath", () => {
             expect(result).toBe(mockFilePath);
         });
 
-        test.each([
-            undefined,
-            null
-        ])("when file.first returns %p, it returns undefined", (returnValue) => {
-            // Arrange
-            // If file.first only ever returns null/undefined, it means the current directory has
-            // no matching files/subdirectories.
-            const fileFirstSpy = jest.spyOn(file, "first").mockImplementation(() => returnValue);
+        test.each([undefined, null])(
+            "when file.first returns %p, it returns undefined",
+            (returnValue) => {
+                // Arrange
+                // If file.first only ever returns null/undefined, it means the current directory has
+                // no matching files/subdirectories.
+                const fileFirstSpy = jest
+                    .spyOn(file, "first")
+                    .mockImplementation(() => returnValue);
 
-            // Act
-            const result = dotnetPath.webProjectFilePath();
+                // Act
+                const result = dotnetPath.webProjectFilePath();
 
-            // Assert
-            expect(fileFirstSpy).toHaveBeenCalled();
-            expect(result).toBeUndefined();
-        });
+                // Assert
+                expect(fileFirstSpy).toHaveBeenCalled();
+                expect(result).toBeUndefined();
+            }
+        );
 
         test("when file.first is called multiple times, it returns the first non-null value", () => {
             // Arrange
             const expectedFile = mockFilePath;
             const unexpectedFile = `unexpected-${mockFilePath}`;
-            const fileFirstSpy = jest.spyOn(file, "first")
+            const fileFirstSpy = jest
+                .spyOn(file, "first")
                 .mockImplementationOnce(() => undefined)
                 .mockImplementationOnce(() => null)
                 .mockImplementationOnce(() => expectedFile)
@@ -571,7 +648,9 @@ describe("dotnetPath", () => {
 
         test("when called consecutively, it returns the cached value", () => {
             // Arrange
-            const fileFirstSpy = jest.spyOn(file, "first").mockImplementation(() => mockFilePath);
+            const fileFirstSpy = jest
+                .spyOn(file, "first")
+                .mockImplementation(() => mockFilePath);
 
             // Act
             const result1 = dotnetPath.webProjectFilePath();
@@ -595,7 +674,9 @@ describe("dotnetPath", () => {
     describe("webProjectFilePathOrExit", () => {
         test("when webProjectFilePath() returns a value, it returns that value", () => {
             // Arrange
-            const webProjectFilePathSpy = jest.spyOn(dotnetPath, "webProjectFilePath").mockImplementation(() => mockFilePath);
+            const webProjectFilePathSpy = jest
+                .spyOn(dotnetPath, "webProjectFilePath")
+                .mockImplementation(() => mockFilePath);
 
             // Act
             const result = dotnetPath.webProjectFilePathOrExit();
@@ -605,21 +686,25 @@ describe("dotnetPath", () => {
             expect(result).toBe(mockFilePath);
         });
 
-        test.each([
-            undefined,
-            null
-        ])("when webProjectFilePath() returns %p, it calls shell.exit", (returnValue) => {
-            // Arrange
-            const webProjectFilePathSpy = jest.spyOn(dotnetPath, "webProjectFilePath").mockImplementation(() => returnValue);
-            const shellExitSpy = jest.spyOn(shell, "exit").mockImplementation();
+        test.each([undefined, null])(
+            "when webProjectFilePath() returns %p, it calls shell.exit",
+            (returnValue) => {
+                // Arrange
+                const webProjectFilePathSpy = jest
+                    .spyOn(dotnetPath, "webProjectFilePath")
+                    .mockImplementation(() => returnValue);
+                const shellExitSpy = jest
+                    .spyOn(shell, "exit")
+                    .mockImplementation();
 
-            // Act
-            dotnetPath.webProjectFilePathOrExit();
+                // Act
+                dotnetPath.webProjectFilePathOrExit();
 
-            // Assert
-            expect(webProjectFilePathSpy).toHaveBeenCalledTimes(1);
-            expect(shellExitSpy).toHaveBeenCalledWith(1);
-        });
+                // Assert
+                expect(webProjectFilePathSpy).toHaveBeenCalledTimes(1);
+                expect(shellExitSpy).toHaveBeenCalledWith(1);
+            }
+        );
     });
 
     // #endregion webProjectFilePathOrExit

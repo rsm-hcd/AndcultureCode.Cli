@@ -2,14 +2,14 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const { EOL }    = require("os");
+const { EOL } = require("os");
 const {
     ERROR_OUTPUT_STRING,
     HELP_DESCRIPTION,
     HELP_OPTIONS,
-}                = require("../_modules/constants");
+} = require("../_modules/constants");
 const { yellow } = require("../_modules/formatters");
-const testUtils  = require("./test-utils");
+const testUtils = require("./test-utils");
 
 // #endregion Imports
 
@@ -52,11 +52,18 @@ const _shouldDisplayHelpMenu = (command, args = [], debug = false) =>
     _givenOptions(HELP_OPTIONS, (option) => {
         test("it displays the help menu", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand(command, [...args, option]);
+            const result = await testUtils.executeCliCommand(command, [
+                ...args,
+                option,
+            ]);
 
             // Assert
             if (debug) {
-                console.debug(`${yellow(`testUtils.shouldDisplayHelpMenu ${command} ${args}`)}${EOL}${EOL}${result}`);
+                console.debug(
+                    `${yellow(
+                        `testUtils.shouldDisplayHelpMenu ${command} ${args}`
+                    )}${EOL}${EOL}${result}`
+                );
             }
             expect(result).toContain(HELP_DESCRIPTION);
         });
@@ -96,4 +103,3 @@ const describes = {
 module.exports = describes;
 
 // #endregion Exports
-

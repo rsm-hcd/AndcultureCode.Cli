@@ -3,13 +3,15 @@
 // -----------------------------------------------------------------------------------------
 
 /** Output to be prefixed on messages sent to echo.error() */
-module.exports.ERROR_OUTPUT_STRING = "[ERROR]"
+module.exports.ERROR_OUTPUT_STRING = "[ERROR]";
 
 /** Standardized error message for an invalid package version string */
-module.exports.ERROR_INVALID_VERSION_STRING = "Invalid package version string (see https://docs.microsoft.com/en-us/nuget/concepts/package-versioning)";
+module.exports.ERROR_INVALID_VERSION_STRING =
+    "Invalid package version string (see https://docs.microsoft.com/en-us/nuget/concepts/package-versioning)";
 
 /** Standardized error message when an error occurs while reading csproj files */
-module.exports.ERROR_READING_CSPROJ_FILES = "There was an error reading csproj files.";
+module.exports.ERROR_READING_CSPROJ_FILES =
+    "There was an error reading csproj files.";
 
 /** Constant to hold the standard 'help' flag description */
 module.exports.HELP_DESCRIPTION = "display help for command";

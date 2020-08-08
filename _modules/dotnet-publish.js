@@ -2,10 +2,10 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const dir        = require("./dir");
+const dir = require("./dir");
 const dotnetPath = require("./dotnet-path");
-const echo       = require("./echo");
-const shell      = require("shelljs");
+const echo = require("./echo");
+const shell = require("shelljs");
 
 // #endregion Imports
 
@@ -31,7 +31,6 @@ const dotnetPublish = {
      * defaults to dotnet solution's 'release' directory
      */
     run(absoluteOutputDir) {
-
         if (absoluteOutputDir === undefined || absoluteOutputDir === null) {
             absoluteOutputDir = dotnetPath.releaseDir();
         }
@@ -42,14 +41,16 @@ const dotnetPublish = {
         echo.newLine();
 
         dir.pushd(dotnetPath.solutionDir());
-        echo.message(`Publishing dotnet solution (via ${this.cmd(absoluteOutputDir)})...`);
+        echo.message(
+            `Publishing dotnet solution (via ${this.cmd(absoluteOutputDir)})...`
+        );
 
         if (shell.exec(this.cmd(absoluteOutputDir)).code !== 0) {
             echo.error("Failed to publish dotnet project");
             shell.exit(1);
         }
 
-        echo.success(" - Dotnet solution published")
+        echo.success(" - Dotnet solution published");
         dir.popd();
     },
 };
