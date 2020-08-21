@@ -25,9 +25,10 @@ const { red, tabbedNewLine } = formatters;
 // -----------------------------------------------------------------------------------------
 
 const dotnetCli = {
-    cmd(cliArgs) {
+    cmd(cliArgs = "") {
+        const pathName = path.basename(dotnetPath.cliPath() || "");
         return {
-            args: [path.basename(dotnetPath.cliPath() || "")].concat(cliArgs.split(" ")),
+            args: [pathName].concat(cliArgs.split(" ")),
             cmd: "dotnet",
             toString() {
                 return `${this.cmd} ${this.args.join(" ")}`;
@@ -36,7 +37,7 @@ const dotnetCli = {
     },
     description() {
         return (
-            `Shortcut that forwards any/all LMS Dotnet Cli commands to be run in the correct location in the project (via ${this.cmd()}) ` +
+            `Shortcut that forwards any/all Dotnet Cli commands to be run in the correct location in the project (via ${this.cmd()}) ` +
             tabbedNewLine(
                 red("NOTE: ") +
                     'Arguments need to be wrapped in quotes, ie "test database migrate"'
@@ -54,12 +55,13 @@ const dotnetCli = {
 
         dir.pushd(dotnetPath.cliDir());
 
-        // Dynamically find the latest dotnet core bin so that upgrades won't break this command
-
         const { cmd, args } = this.cmd(cliArgs);
 
         echo.success(`Full command:` + this.cmd(cliArgs).toString());
-        const { status } = child_process.spawnSync(cmd, args, { stdio: "inherit", shell: true });
+        const { status } = child_process.spawnSync(cmd, args, {
+            stdio: "inherit",
+            shell: true,
+        });
 
         if (status !== 0) {
             echo.error("Command failed, see output for details.");
