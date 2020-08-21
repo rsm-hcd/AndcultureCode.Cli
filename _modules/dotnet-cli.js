@@ -25,9 +25,11 @@ const { red, tabbedNewLine } = formatters;
 // -----------------------------------------------------------------------------------------
 
 const dotnetCli = {
-    cmd(cliArgs) {
+    cmd(cliArgs = "") {
         return {
-            args: [path.basename(dotnetPath.cliPath() || "")].concat(cliArgs.split(" ")),
+            args: [path.basename(dotnetPath.cliPath() || "")].concat(
+                cliArgs.split(" ")
+            ),
             cmd: "dotnet",
             toString() {
                 return `${this.cmd} ${this.args.join(" ")}`;
@@ -43,7 +45,7 @@ const dotnetCli = {
             )
         );
     },
-    run(cliArgs) {
+    run(cliArgs = "") {
         const cliDir = dotnetPath.cliDir();
 
         // Build dotnet project if the *Cli.dll is not found
@@ -59,7 +61,10 @@ const dotnetCli = {
         const { cmd, args } = this.cmd(cliArgs);
 
         echo.success(`Full command:` + this.cmd(cliArgs).toString());
-        const { status } = child_process.spawnSync(cmd, args, { stdio: "inherit", shell: true });
+        const { status } = child_process.spawnSync(cmd, args, {
+            stdio: "inherit",
+            shell: true,
+        });
 
         if (status !== 0) {
             echo.error("Command failed, see output for details.");
