@@ -3,9 +3,9 @@
 // -----------------------------------------------------------------------------------------
 
 const child_process = require("child_process");
-const dotnetPath    = require("./dotnet-path");
-const echo          = require("./echo");
-const shell         = require("shelljs");
+const dotnetPath = require("./dotnet-path");
+const echo = require("./echo");
+const shell = require("shelljs");
 
 // #endregion Imports
 
@@ -34,7 +34,10 @@ const dotnetRestore = {
 
         echo.message(`Restoring nuget packages (via ${this.cmd()})...`);
 
-        const { status } = child_process.spawnSync(cmd, args, { stdio: "inherit", shell: true });
+        const { status } = child_process.spawnSync(cmd, args, {
+            stdio: "inherit",
+            shell: true,
+        });
         if (status !== 0) {
             echo.error("Solution failed to restore. See output for details.");
             shell.exit(status);

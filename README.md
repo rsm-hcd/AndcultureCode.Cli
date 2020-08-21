@@ -7,7 +7,7 @@
 ## Getting started
 From the root of the cloned or forked repository, run this command:
 ```
-npm install && ./cli.js install
+npm install && ./and-cli.js install
 ```
 
 What this does:

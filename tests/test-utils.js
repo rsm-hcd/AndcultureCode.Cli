@@ -3,13 +3,13 @@
 // -----------------------------------------------------------------------------------------
 
 const child_process = require("child_process");
-const concat        = require("concat-stream");
-const constants     = require("../_modules/constants");
-const faker         = require("faker");
-const formatters    = require("../_modules/formatters");
-const path          = require("path");
-const upath         = require("upath");
-const shell         = require("shelljs");
+const concat = require("concat-stream");
+const constants = require("../_modules/constants");
+const faker = require("faker");
+const formatters = require("../_modules/formatters");
+const path = require("path");
+const upath = require("upath");
+const shell = require("shelljs");
 
 // #endregion Imports
 
@@ -29,7 +29,7 @@ jest.unmock("child_process");
 // -----------------------------------------------------------------------------------------
 
 const { ERROR_OUTPUT_STRING } = constants;
-const { red }                 = formatters;
+const { red } = formatters;
 
 // #endregion Variables
 
@@ -44,18 +44,23 @@ const _createNodeProcess = (processPath, args = [], env = null) => {
     // we have bigger issues. Immediately throw an error so the test does not continue.
     const nodePath = shell.which("node");
     if (nodePath == null) {
-        _throwFatalError("Could not locate node executable to spawn processes. Check your environment path.");
+        _throwFatalError(
+            "Could not locate node executable to spawn processes. Check your environment path."
+        );
     }
 
     return child_process.spawn(nodePath.toString(), args, {
-        env: Object.assign({
-            // Set the HOME directory to the current working directory. This should usually be a temp
-            // directory -- see testUtils.createAndUseTmpDir()
-            HOME: shell.pwd().toString(),
-            NODE_ENV: "test",
-            // We need the PATH from the host to execute programs the same way a user would
-            PATH: process.env.PATH,
-        }, env)
+        env: Object.assign(
+            {
+                // Set the HOME directory to the current working directory. This should usually be a temp
+                // directory -- see testUtils.createAndUseTmpDir()
+                HOME: shell.pwd().toString(),
+                NODE_ENV: "test",
+                // We need the PATH from the host to execute programs the same way a user would
+                PATH: process.env.PATH,
+            },
+            env
+        ),
     });
 };
 
@@ -115,7 +120,12 @@ const testUtils = {
     createAndUseTmpDir(prefix = "") {
         const defaultPrefix = "tmp";
         const oldPwd = shell.pwd().toString();
-        const tmpDir = upath.toUnix(path.join(oldPwd, `${defaultPrefix}-${prefix}-${faker.random.uuid()}`));
+        const tmpDir = upath.toUnix(
+            path.join(
+                oldPwd,
+                `${defaultPrefix}-${prefix}-${faker.random.uuid()}`
+            )
+        );
 
         shell.mkdir("-p", tmpDir);
         shell.cd(tmpDir);
@@ -140,7 +150,9 @@ const testUtils = {
     executeCliCommand(command = null, args = [], opts = {}) {
         // Generate the absolute path of the main executable file (cli.js) based on the current
         // file's directory.
-        const cliEntrypointPath = upath.toUnix(path.join(__dirname, "..", "and-cli.js"));
+        const cliEntrypointPath = upath.toUnix(
+            path.join(__dirname, "..", "and-cli.js")
+        );
         if (command != null) {
             args = [command, ...args];
         }
@@ -158,7 +170,11 @@ const testUtils = {
     executeOrThrow(processPath, args = [], opts = {}) {
         const { status } = child_process.spawnSync(processPath, args, opts);
         if (status !== 0) {
-            _throwFatalError(`'${processPath} ${args.join(" ")}' failed with exit code: ${status}`);
+            _throwFatalError(
+                `'${processPath} ${args.join(
+                    " "
+                )}' failed with exit code: ${status}`
+            );
         }
     },
 
@@ -184,7 +200,7 @@ const testUtils = {
      */
     randomWord() {
         return faker.random.word().split(" ")[0];
-    }
+    },
 };
 
 // #endregion Public Functions

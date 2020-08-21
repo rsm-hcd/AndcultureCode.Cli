@@ -3,8 +3,8 @@
 // -----------------------------------------------------------------------------------------
 
 const archiver = require("archiver");
-const echo     = require("./echo");
-const fs       = require("fs");
+const echo = require("./echo");
+const fs = require("fs");
 
 // #endregion Imports
 
@@ -13,7 +13,6 @@ const fs       = require("fs");
 // -----------------------------------------------------------------------------------------
 
 const zip = {
-
     /**
      * File source and destination descriptor
      * @typedef {Object} InputDirectory
@@ -46,20 +45,24 @@ const zip = {
                 inputFiles = [];
             }
 
-            const archive         = archiver("zip");
-            const output          = fs.createWriteStream(outputPath);
+            const archive = archiver("zip");
+            const output = fs.createWriteStream(outputPath);
             const rejectWithError = (error) => {
                 echo.error(` - Failed creating zip - ${error}`);
                 reject(error);
             };
 
             output.on("close", () => {
-                echo.success(` - Finished creating zip '${outputPath}' -- ${archive.pointer()} total bytes`);
+                echo.success(
+                    ` - Finished creating zip '${outputPath}' -- ${archive.pointer()} total bytes`
+                );
                 resolve();
             });
 
             archive.on("warning", (err) => {
-                if (err.code === "ENOENT") { return; }
+                if (err.code === "ENOENT") {
+                    return;
+                }
                 rejectWithError(err);
             });
 
@@ -70,13 +73,17 @@ const zip = {
 
             // add directories
             inputDirectories.forEach((inputDirectory) => {
-                const destination = inputDirectory.destination ? inputDirectory.destination : inputDirectory.source;
+                const destination = inputDirectory.destination
+                    ? inputDirectory.destination
+                    : inputDirectory.source;
                 archive.directory(inputDirectory.source, destination);
             });
 
             // add files
             inputFiles.forEach((inputFile) => {
-                const destination = inputFile.destination ? inputFile.destination : inputFile.source;
+                const destination = inputFile.destination
+                    ? inputFile.destination
+                    : inputFile.source;
                 archive.file(inputFile.source, { name: destination });
             });
 

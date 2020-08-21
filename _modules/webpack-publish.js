@@ -2,11 +2,11 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const echo         = require("./echo");
+const echo = require("./echo");
 const frontendPath = require("./frontend-path");
-const nodeClean    = require("./node-clean");
-const nodeRestore  = require("./node-restore");
-const shell        = require("shelljs");
+const nodeClean = require("./node-clean");
+const nodeRestore = require("./node-restore");
+const shell = require("shelljs");
 
 // #endregion Imports
 
@@ -23,7 +23,9 @@ const webpackPublish = {
     },
     run() {
         // Clean publish directory
-        echo.message(`Cleaning publish directory ${frontendPath.publishDir()}...`);
+        echo.message(
+            `Cleaning publish directory ${frontendPath.publishDir()}...`
+        );
 
         if (shell.rm("-rf", frontendPath.publishDir()).code !== 0) {
             echo.error("Failed cleaning publish directory");

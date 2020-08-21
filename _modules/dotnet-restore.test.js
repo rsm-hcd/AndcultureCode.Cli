@@ -3,10 +3,10 @@
 // -----------------------------------------------------------------------------------------
 
 const child_process = require("child_process");
-const dotnetPath    = require("./dotnet-path");
+const dotnetPath = require("./dotnet-path");
 const dotnetRestore = require("./dotnet-restore");
-const faker         = require("faker");
-const shell         = require("shelljs");
+const faker = require("faker");
+const shell = require("shelljs");
 
 // #endregion Imports
 
@@ -19,8 +19,10 @@ describe("dotnetRestore", () => {
     let shellExitSpy;
 
     beforeEach(() => {
-        dotnetPathSpy = jest.spyOn(dotnetPath, "solutionPathOrExit").mockImplementation();
-        shellExitSpy  = jest.spyOn(shell, "exit").mockImplementation();
+        dotnetPathSpy = jest
+            .spyOn(dotnetPath, "solutionPathOrExit")
+            .mockImplementation();
+        shellExitSpy = jest.spyOn(shell, "exit").mockImplementation();
     });
 
     // -----------------------------------------------------------------------------------------
