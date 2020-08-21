@@ -3,8 +3,8 @@
 // -----------------------------------------------------------------------------------------
 
 const formatters = require("./formatters");
-const readline   = require("readline-promise").default;
-const shell      = require("shelljs");
+const readline = require("readline-promise").default;
+const shell = require("shelljs");
 
 // #endregion Imports
 
@@ -30,7 +30,9 @@ const prompt = {
     async confirmOrExit(question, exitStatus = 0) {
         const prompt = this.getPrompt();
 
-        const answer = await prompt.questionAsync(`${question} ${formatters.yellow("(y/N)")}: `);
+        const answer = await prompt.questionAsync(
+            `${question} ${formatters.yellow("(y/N)")}: `
+        );
         if (!answer.match(/[yY]/)) {
             shell.exit(exitStatus);
         }
@@ -47,13 +49,13 @@ const prompt = {
         }
 
         cachedPrompt = readline.createInterface({
-            input:  process.stdin,
+            input: process.stdin,
             output: process.stdout,
         });
 
         return cachedPrompt;
     },
-}
+};
 
 // #endregion Functions
 

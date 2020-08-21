@@ -9,7 +9,7 @@
  * 'cmd' module explicitly unmocks the `child_process` module.
  */
 const child_process = {
-    spawn:     jest.fn(),
+    spawn: jest.fn(),
     spawnSync: jest.fn(() => {
         return {
             status: 0,

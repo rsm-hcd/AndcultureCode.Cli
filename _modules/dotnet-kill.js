@@ -3,9 +3,9 @@
 // -----------------------------------------------------------------------------------------
 
 const child_process = require("child_process");
-const echo          = require("./echo");
-const ps            = require("./ps");
-const shell         = require("shelljs");
+const echo = require("./echo");
+const ps = require("./ps");
+const shell = require("shelljs");
 
 // #endregion Imports
 
@@ -17,7 +17,7 @@ const dotnetKill = {
     cmd() {
         return {
             args: ["build-server", "shutdown"],
-            cmd:  "dotnet",
+            cmd: "dotnet",
             toString() {
                 return `${this.cmd} ${this.args.join(" ")}`;
             },
@@ -30,9 +30,14 @@ const dotnetKill = {
         const { cmd, args } = this.cmd();
 
         echo.message(`Stopping dotnet build servers via (${this.cmd()})...`);
-        const { status, stderr } = child_process.spawnSync(cmd, args, { stdio: "inherit", shell: true });
+        const { status, stderr } = child_process.spawnSync(cmd, args, {
+            stdio: "inherit",
+            shell: true,
+        });
         if (status !== 0) {
-            echo.error(`There was an error shutting down the MSBuild server: ${status} ${stderr}`);
+            echo.error(
+                `There was an error shutting down the MSBuild server: ${status} ${stderr}`
+            );
             shell.exit(status);
         }
 
@@ -54,7 +59,7 @@ const dotnetKill = {
 
         echo.success("Finished force killing lingering dotnet processes.");
     },
-}
+};
 
 // #endregion Functions
 

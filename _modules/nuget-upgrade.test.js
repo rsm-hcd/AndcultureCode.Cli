@@ -2,10 +2,10 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const faker        = require("faker");
+const faker = require("faker");
 const nugetUpgrade = require("./nuget-upgrade");
-const path         = require("path");
-const shell        = require("shelljs");
+const path = require("path");
+const shell = require("shelljs");
 
 // #endregion Imports
 
@@ -14,14 +14,15 @@ const shell        = require("shelljs");
 // -----------------------------------------------------------------------------------------
 
 describe("nugetUpgrade", () => {
-    const mockShellFn = (code = 0, stdout = "") => jest.fn().mockImplementation(() => {
-        return { code, stdout };
-    });
+    const mockShellFn = (code = 0, stdout = "") =>
+        jest.fn().mockImplementation(() => {
+            return { code, stdout };
+        });
 
     let shellExitSpy;
 
     beforeEach(() => {
-        shellExitSpy = jest.spyOn(shell, "exit").mockImplementation(() => { });
+        shellExitSpy = jest.spyOn(shell, "exit").mockImplementation(() => {});
     });
 
     // -----------------------------------------------------------------------------------------
@@ -33,7 +34,9 @@ describe("nugetUpgrade", () => {
             // Arrange
             const mockReturnCode = faker.random.number({ min: 1 });
             const mockDirname = faker.random.word();
-            jest.spyOn(shell, "find").mockImplementation(mockShellFn(mockReturnCode));
+            jest.spyOn(shell, "find").mockImplementation(
+                mockShellFn(mockReturnCode)
+            );
             jest.spyOn(path, "dirname").mockImplementation(() => mockDirname);
 
             // Act
@@ -54,7 +57,9 @@ describe("nugetUpgrade", () => {
         test("when shell.grep returns non-zero exit code, it calls shell.exit with that code", () => {
             // Arrange
             const mockReturnCode = faker.random.number({ min: 1 });
-            jest.spyOn(shell, "grep").mockImplementation(mockShellFn(mockReturnCode));
+            jest.spyOn(shell, "grep").mockImplementation(
+                mockShellFn(mockReturnCode)
+            );
 
             // Act
             nugetUpgrade.getCsprojFilesContainingPackage([]);
@@ -85,7 +90,9 @@ describe("nugetUpgrade", () => {
         test("when shell.sed returns non-zero exit code, it calls shell.exit with that code", () => {
             // Arrange
             const mockReturnCode = faker.random.number({ min: 1 });
-            jest.spyOn(shell, "sed").mockImplementation(mockShellFn(mockReturnCode));
+            jest.spyOn(shell, "sed").mockImplementation(
+                mockShellFn(mockReturnCode)
+            );
 
             // Act
             nugetUpgrade.replacePackageVersion();
@@ -117,13 +124,16 @@ describe("nugetUpgrade", () => {
             packageName
             ${""}
             ${" "}
-        `("when given '$packageName' as a package name, it calls shell.exit with non-zero code", ({ packageName }) => {
-            // Arrange & Act
-            nugetUpgrade.validatePackageName(packageName);
+        `(
+            "when given '$packageName' as a package name, it calls shell.exit with non-zero code",
+            ({ packageName }) => {
+                // Arrange & Act
+                nugetUpgrade.validatePackageName(packageName);
 
-            // Assert
-            expect(shellExitSpy).toHaveBeenCalledWith(1);
-        });
+                // Assert
+                expect(shellExitSpy).toHaveBeenCalledWith(1);
+            }
+        );
 
         test("when given a string with >= 1 characters, it does not call shell.exit", () => {
             // Arrange & Act
@@ -149,13 +159,16 @@ describe("nugetUpgrade", () => {
             ${"1.0"}
             ${"1.0.x"}
             ${"red"}
-        `("when given '$packageVersion' as a package version, it calls shell.exit", ({ packageVersion }) => {
-            // Arrange & Act
-            nugetUpgrade.validatePackageVersion(packageVersion);
+        `(
+            "when given '$packageVersion' as a package version, it calls shell.exit",
+            ({ packageVersion }) => {
+                // Arrange & Act
+                nugetUpgrade.validatePackageVersion(packageVersion);
 
-            // Assert
-            expect(shellExitSpy).toHaveBeenCalledWith(1);
-        });
+                // Assert
+                expect(shellExitSpy).toHaveBeenCalledWith(1);
+            }
+        );
 
         test.each`
             packageVersion
@@ -163,13 +176,16 @@ describe("nugetUpgrade", () => {
             ${"6.11.1231"}
             ${"4.3.1-rc"}
             ${"2.2.44-beta1"}
-        `("when given a valid semver '$packageVersion', it does not call shell.exit", ({ packageVersion }) => {
-            // Arrange & Act
-            nugetUpgrade.validatePackageVersion(packageVersion);
+        `(
+            "when given a valid semver '$packageVersion', it does not call shell.exit",
+            ({ packageVersion }) => {
+                // Arrange & Act
+                nugetUpgrade.validatePackageVersion(packageVersion);
 
-            // Assert
-            expect(shellExitSpy).not.toHaveBeenCalled();
-        });
+                // Assert
+                expect(shellExitSpy).not.toHaveBeenCalled();
+            }
+        );
     });
 
     // #endregion validatePackageVersion

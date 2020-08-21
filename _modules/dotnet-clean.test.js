@@ -3,10 +3,10 @@
 // -----------------------------------------------------------------------------------------
 
 const child_process = require("child_process");
-const dotnetPath    = require("./dotnet-path");
-const dotnetClean   = require("./dotnet-clean");
-const faker         = require("faker");
-const shell         = require("shelljs");
+const dotnetPath = require("./dotnet-path");
+const dotnetClean = require("./dotnet-clean");
+const faker = require("faker");
+const shell = require("shelljs");
 
 // #endregion Imports
 
@@ -29,8 +29,10 @@ describe("dotnetClean", () => {
     let shellExitSpy;
 
     beforeEach(() => {
-        dotnetPathSpy = jest.spyOn(dotnetPath, "solutionPathOrExit").mockImplementation();
-        shellExitSpy  = jest.spyOn(shell, "exit").mockImplementation();
+        dotnetPathSpy = jest
+            .spyOn(dotnetPath, "solutionPathOrExit")
+            .mockImplementation();
+        shellExitSpy = jest.spyOn(shell, "exit").mockImplementation();
     });
 
     // -----------------------------------------------------------------------------------------
@@ -47,8 +49,10 @@ describe("dotnetClean", () => {
 
         test("when no 'bin' or 'obj' directories exist, it does not call shell.rm", () => {
             // Arrange
-            const shellFindSpy = jest.spyOn(shell, "find").mockImplementation(() => []);
-            const shellRmSpy   = jest.spyOn(shell, "rm");
+            const shellFindSpy = jest
+                .spyOn(shell, "find")
+                .mockImplementation(() => []);
+            const shellRmSpy = jest.spyOn(shell, "rm");
 
             // Act
             dotnetClean.run();
@@ -60,8 +64,10 @@ describe("dotnetClean", () => {
 
         test("when '.git' directory exists, it is not passed to shell.rm", () => {
             // Arrange
-            const shellFindSpy = jest.spyOn(shell, "find").mockImplementation(() => [".git", "bin", "obj"]);
-            const shellRmSpy   = jest.spyOn(shell, "rm");
+            const shellFindSpy = jest
+                .spyOn(shell, "find")
+                .mockImplementation(() => [".git", "bin", "obj"]);
+            const shellRmSpy = jest.spyOn(shell, "rm");
 
             // Act
             dotnetClean.run();
@@ -74,8 +80,10 @@ describe("dotnetClean", () => {
 
         test("when 'node_modules' directory exists, it is not passed to shell.rm", () => {
             // Arrange
-            const shellFindSpy = jest.spyOn(shell, "find").mockImplementation(() => ["node_modules", "bin", "obj"]);
-            const shellRmSpy   = jest.spyOn(shell, "rm");
+            const shellFindSpy = jest
+                .spyOn(shell, "find")
+                .mockImplementation(() => ["node_modules", "bin", "obj"]);
+            const shellRmSpy = jest.spyOn(shell, "rm");
 
             // Act
             dotnetClean.run();
@@ -89,10 +97,12 @@ describe("dotnetClean", () => {
         test("when shell.rm fails to clean 'bin' directories, it calls shell.exit", () => {
             // Arrange
             jest.spyOn(shell, "find").mockImplementation(() => ["bin"]);
-            const exitCode   = faker.random.number({ min: 1 });
-            const shellRmSpy = jest.spyOn(shell, "rm").mockImplementation(() => {
-                return { code: exitCode };
-            });
+            const exitCode = faker.random.number({ min: 1 });
+            const shellRmSpy = jest
+                .spyOn(shell, "rm")
+                .mockImplementation(() => {
+                    return { code: exitCode };
+                });
 
             // Act
             dotnetClean.run();
@@ -105,10 +115,12 @@ describe("dotnetClean", () => {
         test("when shell.rm fails to clean 'obj' directories, it calls shell.exit", () => {
             // Arrange
             jest.spyOn(shell, "find").mockImplementation(() => ["obj"]);
-            const exitCode   = faker.random.number({ min: 1 });
-            const shellRmSpy = jest.spyOn(shell, "rm").mockImplementation(() => {
-                return { code: exitCode };
-            });
+            const exitCode = faker.random.number({ min: 1 });
+            const shellRmSpy = jest
+                .spyOn(shell, "rm")
+                .mockImplementation(() => {
+                    return { code: exitCode };
+                });
 
             // Act
             dotnetClean.run();
@@ -122,11 +134,12 @@ describe("dotnetClean", () => {
             // Arrange
             jest.spyOn(shell, "find").mockImplementation(() => []);
             jest.spyOn(shell, "rm").mockImplementation();
-            const exitCode     = faker.random.number({ min: 1 });
-            const spawnSyncSpy = jest.spyOn(child_process, "spawnSync").mockImplementation(() => {
-                return { status: exitCode };
-            });
-
+            const exitCode = faker.random.number({ min: 1 });
+            const spawnSyncSpy = jest
+                .spyOn(child_process, "spawnSync")
+                .mockImplementation(() => {
+                    return { status: exitCode };
+                });
 
             // Act
             dotnetClean.run();

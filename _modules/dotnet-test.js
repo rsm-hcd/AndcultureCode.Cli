@@ -3,11 +3,11 @@
 // -----------------------------------------------------------------------------------------
 
 const { spawnSync } = require("child_process");
-const dir           = require("./dir");
-const dotnetBuild   = require("./dotnet-build");
-const dotnetPath    = require("./dotnet-path");
-const echo          = require("./echo");
-const shell         = require("shelljs");
+const dir = require("./dir");
+const dotnetBuild = require("./dotnet-build");
+const dotnetPath = require("./dotnet-path");
+const echo = require("./echo");
+const shell = require("shelljs");
 
 // #endregion Imports
 
@@ -15,7 +15,8 @@ const shell         = require("shelljs");
 // #region Constants
 // -----------------------------------------------------------------------------------------
 
-const COVERAGE_FLAGS = "-p:CollectCoverage=true -p:CoverletOutputFormat=opencover";
+const COVERAGE_FLAGS =
+    "-p:CollectCoverage=true -p:CoverletOutputFormat=opencover";
 
 // #endregion Constants
 
@@ -23,9 +24,9 @@ const COVERAGE_FLAGS = "-p:CollectCoverage=true -p:CoverletOutputFormat=opencove
 // #region Variables
 // -----------------------------------------------------------------------------------------
 
-let _ciMode       = false;
-let _filter       = [];
-let _skipClean    = false;
+let _ciMode = false;
+let _filter = [];
+let _skipClean = false;
 let _withCoverage = false;
 
 // #endregion Variables
@@ -45,7 +46,7 @@ const dotnetTest = {
     cmd() {
         return {
             args: ["test", "--no-build", "--no-restore"],
-            cmd:  "dotnet",
+            cmd: "dotnet",
             toString() {
                 return `${this.cmd} ${this.args.join(" ")}`;
             },
@@ -88,11 +89,15 @@ const dotnetTest = {
             args.push(COVERAGE_FLAGS);
         }
 
-        let message = `Running tests in the ${project} project... via (${cmd} ${args.join(" ")}} ${project})`;
+        let message = `Running tests in the ${project} project... via (${cmd} ${args.join(
+            " "
+        )}} ${project})`;
 
         if (_filter != null && _filter.length > 0) {
             args.push("--filter", _filter);
-            message = `Running tests in the ${project} project that match the xunit filter of '${_filter}' via (${cmd} ${args.join(" ")}})} ${project})`;
+            message = `Running tests in the ${project} project that match the xunit filter of '${_filter}' via (${cmd} ${args.join(
+                " "
+            )}})} ${project})`;
         }
 
         // Push the project name on as the last arg in the array
@@ -135,18 +140,28 @@ const dotnetTest = {
 
         const testProjects = shell.find("**/*.Test*.csproj");
         if (testProjects == null || testProjects.length === 0) {
-            echo.error("Could not find any csproj files matching the pattern *.Test*.csproj.");
+            echo.error(
+                "Could not find any csproj files matching the pattern *.Test*.csproj."
+            );
             shell.exit(1);
         }
 
-        echo.message(`Found ${testProjects.length} test projects in the ${dotnetPath.solutionDir()} solution...`);
+        echo.message(
+            `Found ${
+                testProjects.length
+            } test projects in the ${dotnetPath.solutionDir()} solution...`
+        );
 
         // Call runProject() for each project found that matches the pattern. This will return an object containing
         // the project name, exit status and stdout/stderr (if in ci mode)
-        const results = testProjects.map((testProject) => this.runProject(testProject));
+        const results = testProjects.map((testProject) =>
+            this.runProject(testProject)
+        );
 
         // Check the results array for any non-zero exit codes and display helpful output for each
-        const failedProjects = results.filter((testResult) => testResult.code !== 0);
+        const failedProjects = results.filter(
+            (testResult) => testResult.code !== 0
+        );
         if (failedProjects.length === 0) {
             dir.popd();
             echo.newLine();
@@ -162,10 +177,14 @@ const dotnetTest = {
                 return;
             }
 
-            echo.error(`Tests failed for ${testResult.name}. Scroll up or search the output for the project name for more detail.`);
+            echo.error(
+                `Tests failed for ${testResult.name}. Scroll up or search the output for the project name for more detail.`
+            );
         });
 
-        echo.error(`${failedProjects.length} test projects exited with non-zero exit status. See above output for more detail.`);
+        echo.error(
+            `${failedProjects.length} test projects exited with non-zero exit status. See above output for more detail.`
+        );
         shell.exit(1);
     },
     runBySolution() {
@@ -189,11 +208,15 @@ const dotnetTest = {
             args.push(COVERAGE_FLAGS);
         }
 
-        let message = `Running all tests in the ${dotnetPath.solutionPath()} solution... via (${cmd} ${args.join(" ")})`;
+        let message = `Running all tests in the ${dotnetPath.solutionPath()} solution... via (${cmd} ${args.join(
+            " "
+        )})`;
 
         if (_filter != null && _filter.length > 0) {
             args.push("--filter", _filter);
-            message = `Running tests in the ${dotnetPath.solutionPath()} solution that match the xunit filter of '${_filter}' via (${cmd} ${args.join(" ")})`;
+            message = `Running tests in the ${dotnetPath.solutionPath()} solution that match the xunit filter of '${_filter}' via (${cmd} ${args.join(
+                " "
+            )})`;
         }
 
         echo.message(message);
@@ -221,7 +244,7 @@ const dotnetTest = {
         }
 
         return this;
-    }
+    },
 };
 
 // #endregion Functions

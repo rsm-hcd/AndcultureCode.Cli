@@ -2,7 +2,7 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const path  = require("path");
+const path = require("path");
 const upath = require("upath");
 
 // #endregion Imports
@@ -12,7 +12,6 @@ const upath = require("upath");
 // -----------------------------------------------------------------------------------------
 
 const frontendPath = {
-
     /**
      * Retrieves the frontend project's folder path
      */
@@ -26,7 +25,6 @@ const frontendPath = {
     publishDir() {
         return upath.toUnix(path.join(this.projectDir(), "build"));
     },
-
 };
 
 // #endregion Functions
