@@ -5,8 +5,8 @@
 // -----------------------------------------------------------------------------------------
 
 const commands = require("./_modules/commands");
-const program  = require("commander");
-const version  = require("./package.json").version;
+const program = require("commander");
+const version = require("./package.json").version;
 
 // #endregion Imports
 

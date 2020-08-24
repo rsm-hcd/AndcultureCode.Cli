@@ -5,9 +5,9 @@ require("./command-runner").run(async () => {
     // -----------------------------------------------------------------------------------------
 
     const commands = require("./_modules/commands");
-    const echo     = require("./_modules/echo");
-    const program  = require("commander");
-    const shell    = require("shelljs");
+    const echo = require("./_modules/echo");
+    const program = require("commander");
+    const shell = require("shelljs");
 
     // #endregion Imports
 
@@ -27,7 +27,6 @@ require("./command-runner").run(async () => {
          * @param {string} options Options for the copy operation (See https://github.com/shelljs/shelljs)
          */
         run(source, destination, options) {
-
             echo.message(`Copying '${source}' to '${destination}'...`);
 
             let result = null;
@@ -46,7 +45,7 @@ require("./command-runner").run(async () => {
 
             echo.success("Copy successful");
         },
-    }
+    };
 
     // #endregion Functions
 
@@ -57,9 +56,18 @@ require("./command-runner").run(async () => {
     program
         .usage("option(s)")
         .description(commands.copy.description)
-        .option("-d, --destination <destination>", "Required destination directory path")
-        .option("-f, --flags <options>", "Optional flags when copying (See https://github.com/shelljs/shelljs 'cp')")
-        .option("-s, --source <source>", "Required source file or directory path")
+        .option(
+            "-d, --destination <destination>",
+            "Required destination directory path"
+        )
+        .option(
+            "-f, --flags <options>",
+            "Optional flags when copying (See https://github.com/shelljs/shelljs 'cp')"
+        )
+        .option(
+            "-s, --source <source>",
+            "Required source file or directory path"
+        )
         .parse(process.argv);
 
     if (program.source && program.destination) {
@@ -67,7 +75,9 @@ require("./command-runner").run(async () => {
     }
 
     // If no options are passed in, output help
-    if (process.argv.slice(2).length === 0) { program.help(); }
+    if (process.argv.slice(2).length === 0) {
+        program.help();
+    }
 
     // #endregion Entrypoint
 });

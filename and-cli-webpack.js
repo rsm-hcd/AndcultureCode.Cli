@@ -4,15 +4,15 @@ require("./command-runner").run(async () => {
     // #region Imports
     // -----------------------------------------------------------------------------------------
 
-    const { spawnSync }  = require("child_process");
-    const commands       = require("./_modules/commands");
-    const dir            = require("./_modules/dir");
-    const echo           = require("./_modules/echo");
-    const frontendPath   = require("./_modules/frontend-path");
-    const nodeClean      = require("./_modules/node-clean");
-    const nodeRestore    = require("./_modules/node-restore");
-    const program        = require("commander");
-    const shell          = require("shelljs");
+    const { spawnSync } = require("child_process");
+    const commands = require("./_modules/commands");
+    const dir = require("./_modules/dir");
+    const echo = require("./_modules/echo");
+    const frontendPath = require("./_modules/frontend-path");
+    const nodeClean = require("./_modules/node-clean");
+    const nodeRestore = require("./_modules/node-restore");
+    const program = require("commander");
+    const shell = require("shelljs");
     const webpackPublish = require("./_modules/webpack-publish");
 
     // #endregion Imports
@@ -25,11 +25,11 @@ require("./command-runner").run(async () => {
         cmd() {
             return {
                 args: ["run", "start"],
-                cmd:  "npm",
+                cmd: "npm",
                 toString() {
-                    return `${this.cmd} ${this.args.join(" ")}`
+                    return `${this.cmd} ${this.args.join(" ")}`;
                 },
-            }
+            };
         },
         description() {
             return `Runs the webpack project (via ${this.cmd().toString()}}) found in ${frontendPath.projectDir()}`;
@@ -50,7 +50,10 @@ require("./command-runner").run(async () => {
             const { cmd, args } = this.cmd();
 
             echo.message(`Running frontend (via ${this.cmd().toString()})...`);
-            const result = spawnSync(cmd, args, { stdio: "inherit", shell: true });
+            const result = spawnSync(cmd, args, {
+                stdio: "inherit",
+                shell: true,
+            });
 
             if (result.status !== 0) {
                 echo.error(`Exited with error: ${result.status}`);
@@ -71,9 +74,9 @@ require("./command-runner").run(async () => {
         .usage("option(s)")
         .description(
             `${commands.webpack.description} Certain options can be chained together for specific behavior` +
-            "(--clean and --restore can be used in conjunction)."
+                "(--clean and --restore can be used in conjunction)."
         )
-        .option("-c, --clean",   nodeClean.description())
+        .option("-c, --clean", nodeClean.description())
         .option("-p, --publish", webpackPublish.description())
         .option("-R, --restore", nodeRestore.description())
         .parse(process.argv);

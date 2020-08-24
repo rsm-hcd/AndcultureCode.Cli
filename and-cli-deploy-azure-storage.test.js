@@ -2,9 +2,9 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const { ERROR_OUTPUT_STRING }   = require("./_modules/constants")
+const { ERROR_OUTPUT_STRING } = require("./_modules/constants");
 const { shouldDisplayHelpMenu } = require("./tests/describes");
-const testUtils                 = require("./tests/test-utils");
+const testUtils = require("./tests/test-utils");
 
 // #endregion Imports
 
@@ -20,7 +20,9 @@ describe("and-cli-deploy-azure-storage", () => {
     describe("clientId and tenantId", () => {
         test("given no '--client-id' or '--tenant-id' flag, it displays an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-storage"]);
+            const result = await testUtils.executeCliCommand("deploy", [
+                "azure-storage",
+            ]);
 
             // Assert
             expect(result).toContain(ERROR_OUTPUT_STRING);
@@ -29,7 +31,11 @@ describe("and-cli-deploy-azure-storage", () => {
 
         test("given only '--tenant-id' flag, it displays an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-storage"], "--tenant-id=test");
+            const result = await testUtils.executeCliCommand(
+                "deploy",
+                ["azure-storage"],
+                "--tenant-id=test"
+            );
 
             // Assert
             expect(result).toContain(ERROR_OUTPUT_STRING);
@@ -38,7 +44,11 @@ describe("and-cli-deploy-azure-storage", () => {
 
         test("given only '--client-id' flag, it displays an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-storage"], "--client-id=test");
+            const result = await testUtils.executeCliCommand(
+                "deploy",
+                ["azure-storage"],
+                "--client-id=test"
+            );
 
             // Assert
             expect(result).toContain(ERROR_OUTPUT_STRING);
@@ -55,7 +65,9 @@ describe("and-cli-deploy-azure-storage", () => {
     describe("destination", () => {
         test("given no '--destination' flag, it displays an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-storage"]);
+            const result = await testUtils.executeCliCommand("deploy", [
+                "azure-storage",
+            ]);
 
             // Assert
             expect(result).toContain(ERROR_OUTPUT_STRING);
@@ -80,7 +92,9 @@ describe("and-cli-deploy-azure-storage", () => {
     describe("secret", () => {
         test("given no '--secret' flag, it displays an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-storage"]);
+            const result = await testUtils.executeCliCommand("deploy", [
+                "azure-storage",
+            ]);
 
             // Assert
             expect(result).toContain(ERROR_OUTPUT_STRING);
@@ -97,7 +111,11 @@ describe("and-cli-deploy-azure-storage", () => {
     describe("username", () => {
         test("given no '--username' and no '--client-id' flag, it displays an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-storage"], "--tenant-id=test");
+            const result = await testUtils.executeCliCommand(
+                "deploy",
+                ["azure-storage"],
+                "--tenant-id=test"
+            );
 
             // Assert
             expect(result).toContain(ERROR_OUTPUT_STRING);
@@ -106,7 +124,11 @@ describe("and-cli-deploy-azure-storage", () => {
 
         test("given no '--username' and no '--tenant-id' flag, it displays an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-storage"], "--client-id=test");
+            const result = await testUtils.executeCliCommand(
+                "deploy",
+                ["azure-storage"],
+                "--client-id=test"
+            );
 
             // Assert
             expect(result).toContain(ERROR_OUTPUT_STRING);
@@ -115,7 +137,11 @@ describe("and-cli-deploy-azure-storage", () => {
 
         test("given '--username' and no '--tenant-id' or '--client-id' flag, it doesn't display an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-storage"], "--username=test");
+            const result = await testUtils.executeCliCommand(
+                "deploy",
+                ["azure-storage"],
+                "--username=test"
+            );
 
             // Assert
             expect(result).toContain(ERROR_OUTPUT_STRING);

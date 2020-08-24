@@ -6,10 +6,10 @@ const {
     givenOptions,
     shouldDisplayError,
     shouldDisplayHelpMenu,
-}                 = require("./tests/describes");
+} = require("./tests/describes");
 const dotnetBuild = require("./_modules/dotnet-build");
-const dotnetPath  = require("./_modules/dotnet-path");
-const testUtils   = require("./tests/test-utils");
+const dotnetPath = require("./_modules/dotnet-path");
+const testUtils = require("./tests/test-utils");
 
 // #endregion Imports
 
@@ -19,7 +19,7 @@ const testUtils   = require("./tests/test-utils");
 
 describe("and-cli-dotnet", () => {
     let _tmpDir;
-    let _cleanupTmpDir = () => { };
+    let _cleanupTmpDir = () => {};
     beforeEach(() => {
         // Verify that dotnet is installed before continuing.
         dotnetPath.verifyOrExit();
@@ -44,14 +44,14 @@ describe("and-cli-dotnet", () => {
 
     givenOptions(dotnetBuild.options(), (option) => {
         describe("given no solution can be found", () =>
-            shouldDisplayError(async () =>
-                // Arrange & Act
-                await testUtils.executeCliCommand("dotnet", [option])
-            )
-        );
+            shouldDisplayError(
+                async () =>
+                    // Arrange & Act
+                    await testUtils.executeCliCommand("dotnet", [option])
+            ));
 
         if (testUtils.isCI()) {
-            test.skip("Tests below are skipped in CI until we resolve https://travis-ci.community/t/not-able-to-install-net-core-3/5562/5", () => { });
+            test.skip("Tests below are skipped in CI until we resolve https://travis-ci.community/t/not-able-to-install-net-core-3/5562/5", () => {});
             return;
         }
 
@@ -66,7 +66,9 @@ describe("and-cli-dotnet", () => {
                 testUtils.executeOrThrow("dotnet", ["sln", "add", "."]); // Add the console app project to the solution
 
                 // Act
-                const result = await testUtils.executeCliCommand("dotnet", [option]);
+                const result = await testUtils.executeCliCommand("dotnet", [
+                    option,
+                ]);
 
                 // Assert
                 expect(result).toContain("Build succeeded.");

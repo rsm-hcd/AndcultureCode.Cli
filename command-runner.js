@@ -9,4 +9,4 @@ const shell = require("shelljs");
 module.exports.run = async (fn) => {
     await fn();
     shell.exit(0);
-}
+};
