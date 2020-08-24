@@ -13,10 +13,10 @@
         "cli"
     ],
     "scripts": {
-        "configure": "git config core.hooksPath .githooks",
-        "preinstall": "npm run configure",
+        "configure:git": "echo Ensuring git hooksPath is set to .githooks directory && git config core.hooksPath .githooks && chmod +x .githooks/*",
+        "preinstall": "npm run configure:git",
         "test": "jest --coverage",
-        "watch:test": "jest ./src --watch"
+        "watch:test": "jest --watch"
     },
     "repository": {
         "type": "git",
