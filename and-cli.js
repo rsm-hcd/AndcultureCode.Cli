@@ -4,9 +4,9 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const commands = require("./_modules/commands");
-const program  = require("commander");
-const version  = require("./package.json").version;
+const commands = require("./modules/commands");
+const program = require("commander");
+const version = require("./package.json").version;
 
 // #endregion Imports
 
@@ -39,7 +39,7 @@ const fixArgumentPosixPathConversion = () => {
 program.description("andculture cli");
 program.version(version);
 
-// Programatically loop over the 'commands' module, parsing the command + description out and
+// Programmatically loop over the 'commands' module, parsing the command + description out and
 // registering them with commander
 const commandObjects = Object.keys(commands).map((key) => commands[key]);
 

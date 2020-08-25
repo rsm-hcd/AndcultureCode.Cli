@@ -2,7 +2,7 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const { shouldDisplayHelpMenu } = require("./tests/describes");
+const { shouldDisplayHelpMenu } = require("./tests/shared-specs");
 
 // #endregion Imports
 

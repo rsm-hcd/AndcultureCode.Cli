@@ -7,8 +7,9 @@ const {
     ERROR_OUTPUT_STRING,
     HELP_DESCRIPTION,
     HELP_OPTIONS,
-} = require("../_modules/constants");
-const { yellow } = require("../_modules/formatters");
+} = require("../modules/constants");
+const { yellow } = require("../modules/formatters");
+const shell = require("shelljs");
 const testUtils = require("./test-utils");
 
 // #endregion Imports
@@ -70,7 +71,7 @@ const _shouldDisplayHelpMenu = (command, args = [], debug = false) =>
     });
 
 /**
- * Test spec ensuring that the given command properly displays the an error string when run.
+ * Test spec ensuring that the given function properly returns the error string when run.
  * Defaults to the error constant specified for `echo.error()`, but can be overridden for a more
  * specific error message if needed.
  *
@@ -88,18 +89,62 @@ const _shouldDisplayError = (fn, error = ERROR_OUTPUT_STRING) => {
     });
 };
 
+/**
+ * Custom bundling of setup/teardown for a test suite or describe block requiring a temporary directory.
+ * Returns the name of the temporary directory and cleanup function if needed for the execution of the test,
+ * but will always attempt to run the cleanup function in the `afterEach` step regardless.
+ *
+ * @param {string} [prefix=""] Optional prefix for the temporary directory to use. Temporary directory
+ * is always prefixed with `tmp-`
+ * @param {() => void} beforeEachFn Optional function to be run at the start of the `beforeEach` block
+ * @param {() => void} afterEachFn Optional function to be run at the start of the `afterEach` block
+ * @returns
+ */
+const _withTemporaryDirectory = (prefix = "", beforeEachFn, afterEachFn) => {
+    let _tmpDir = "";
+    let _cleanupTmpDir = () => {};
+
+    beforeEach(() => {
+        if (beforeEachFn != null) {
+            beforeEachFn();
+        }
+
+        // Before each test, create a temporary directory for the test to work with. We can muck around
+        // for lifetime of the test and it will be cleaned up in the 'afterEach' hook.
+        const { tmpDir, cleanupTmpDir } = testUtils.createAndUseTmpDir(prefix);
+
+        // Save references to the temporary directory and cleanup function to return to the test instance
+        _tmpDir = tmpDir;
+        _cleanupTmpDir = cleanupTmpDir;
+    });
+
+    afterEach(() => {
+        if (afterEachFn != null) {
+            afterEachFn();
+        }
+
+        _cleanupTmpDir();
+    });
+
+    return {
+        cleanupTmpDir: _cleanupTmpDir,
+        tmpDir: _tmpDir,
+    };
+};
+
 // #endregion Functions
 
 // -----------------------------------------------------------------------------------------
 // #region Exports
 // -----------------------------------------------------------------------------------------
 
-const describes = {
+const sharedSpecs = {
     givenOptions: _givenOptions,
     shouldDisplayError: _shouldDisplayError,
     shouldDisplayHelpMenu: _shouldDisplayHelpMenu,
+    withTemporaryDirectory: _withTemporaryDirectory,
 };
 
-module.exports = describes;
+module.exports = sharedSpecs;
 
 // #endregion Exports

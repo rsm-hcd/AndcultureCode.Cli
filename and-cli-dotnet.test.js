@@ -6,67 +6,61 @@ const {
     givenOptions,
     shouldDisplayError,
     shouldDisplayHelpMenu,
-}                 = require("./tests/describes");
-const dotnetBuild = require("./_modules/dotnet-build");
-const dotnetPath  = require("./_modules/dotnet-path");
-const testUtils   = require("./tests/test-utils");
+    withTemporaryDirectory,
+} = require("./tests/shared-specs");
+const { dotnet } = require("./modules/commands");
+const dotnetBuild = require("./modules/dotnet-build");
+const dotnetPath = require("./modules/dotnet-path");
+const testUtils = require("./tests/test-utils");
 
 // #endregion Imports
+
+// -----------------------------------------------------------------------------------------
+// #region Constants
+// -----------------------------------------------------------------------------------------
+
+const COMMAND = dotnet.command;
+
+// #endregion Constants
 
 // -----------------------------------------------------------------------------------------
 // #region Tests
 // -----------------------------------------------------------------------------------------
 
 describe("and-cli-dotnet", () => {
-    let _tmpDir;
-    let _cleanupTmpDir = () => { };
-    beforeEach(() => {
-        // Verify that dotnet is installed before continuing.
+    // -----------------------------------------------------------------------------------------
+    // #region Setup
+    // -----------------------------------------------------------------------------------------
+
+    withTemporaryDirectory(COMMAND, () => {
         dotnetPath.verifyOrExit();
-
-        // Before each test, create a temporary directory for the test to work with. We can muck around
-        // for lifetime of the test and it will be cleaned up in the 'afterEach' hook.
-        const { tmpDir, cleanupTmpDir } = testUtils.createAndUseTmpDir(
-            "and-cli-dotnet"
-        );
-        _tmpDir = tmpDir;
-        _cleanupTmpDir = cleanupTmpDir;
     });
 
-    afterEach(() => {
-        // Remove the temporary directory and return to whence we came.
-        _cleanupTmpDir();
-    });
+    // #endregion Setup
 
     // -----------------------------------------------------------------------------------------
     // #region build
     // -----------------------------------------------------------------------------------------
 
-    givenOptions(dotnetBuild.options(), (option) => {
-        describe("given no solution can be found", () =>
-            shouldDisplayError(async () =>
-                // Arrange & Act
-                await testUtils.executeCliCommand("dotnet", [option])
-            )
-        );
+    givenOptions(dotnetBuild.getOptions().toArray(), (option) => {
+        describe("when no solution can be found", () =>
+            shouldDisplayError(
+                async () =>
+                    // Arrange & Act
+                    await testUtils.executeCliCommand(COMMAND, [option])
+            ));
 
-        if (testUtils.isCI()) {
-            test.skip("Tests below are skipped in CI until we resolve https://travis-ci.community/t/not-able-to-install-net-core-3/5562/5", () => { });
-            return;
-        }
-
-        describe("given solution exists", () => {
+        describe("when solution exists", () => {
             test("it performs a build", async () => {
                 // Arrange
-                // Note: We may want to consider pulling this out into test-utils for the other parent-level
-                // dotnet commands to leverage for integration testing cleans, restores, tests, etc.
-                // For now, we can leave it here.
-                testUtils.executeOrThrow("dotnet", ["new", "solution"]); // Create the solution file
-                testUtils.executeOrThrow("dotnet", ["new", "console"]); // Create a console app project
-                testUtils.executeOrThrow("dotnet", ["sln", "add", "."]); // Add the console app project to the solution
+                testUtils.createDotnetSolution();
+                testUtils.createDotnetConsoleApp();
+                testUtils.addDotnetProject();
 
                 // Act
-                const result = await testUtils.executeCliCommand("dotnet", [option]);
+                const result = await testUtils.executeCliCommand(COMMAND, [
+                    option,
+                ]);
 
                 // Assert
                 expect(result).toContain("Build succeeded.");

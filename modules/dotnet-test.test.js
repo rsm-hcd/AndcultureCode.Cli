@@ -4,7 +4,6 @@
 
 const dotnetBuild = require("./dotnet-build");
 const dotnetTest = require("./dotnet-test");
-const shell = require("shelljs");
 const testUtils = require("../tests/test-utils");
 
 // #endregion Imports
@@ -23,11 +22,6 @@ jest.mock("path");
 // -----------------------------------------------------------------------------------------
 
 describe("dotnetTest", () => {
-    if (testUtils.isCI()) {
-        test.skip("Test suite skipped in CI until we resolve https://travis-ci.community/t/not-able-to-install-net-core-3/5562/5", () => {});
-        return;
-    }
-
     // -----------------------------------------------------------------------------------------
     // #region runBySolution
     // -----------------------------------------------------------------------------------------
@@ -39,7 +33,7 @@ describe("dotnetTest", () => {
             dotnetBuildSpy = jest
                 .spyOn(dotnetBuild, "run")
                 .mockImplementation(() => {});
-            jest.spyOn(shell, "exit").mockImplementation(() => {});
+            testUtils.spyOnShellExit();
         });
 
         test("it calls dotnetBuild.run() by default", () => {

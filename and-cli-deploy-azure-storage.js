@@ -4,13 +4,13 @@ require("./command-runner").run(async () => {
     // #region Imports
     // -----------------------------------------------------------------------------------------
 
-    const azure          = require("./_modules/azure");
-    const deployConfig   = require("./_modules/deploy-config");
-    const echo           = require("./_modules/echo");
-    const frontendPath   = require("./_modules/frontend-path");
-    const program        = require("commander");
-    const shell          = require("shelljs");
-    const webpackPublish = require("./_modules/webpack-publish");
+    const azure = require("./modules/azure");
+    const deployConfig = require("./modules/deploy-config");
+    const echo = require("./modules/echo");
+    const frontendPath = require("./modules/frontend-path");
+    const program = require("commander");
+    const shell = require("shelljs");
+    const webpackPublish = require("./modules/webpack-publish");
 
     // #endregion Imports
 
@@ -18,14 +18,15 @@ require("./command-runner").run(async () => {
     // #region Variables
     // -----------------------------------------------------------------------------------------
 
-    let   clientId            = null;
-    let   destination         = null;
-    const pythonInstallerUrl  = "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
-    let   recursive           = false;
-    let   secret              = null;
-    let   sourcePath          = frontendPath.publishDir() + "/*";
-    let   tenantId            = null;
-    let   username            = null;
+    let clientId = null;
+    let destination = null;
+    const pythonInstallerUrl =
+        "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
+    let recursive = false;
+    let secret = null;
+    let sourcePath = frontendPath.publishDir() + "/*";
+    let tenantId = null;
+    let username = null;
 
     // #endregion Variables
 
@@ -97,10 +98,13 @@ require("./command-runner").run(async () => {
             tenantId = program.tenantId;
             username = program.username;
 
-            const missingServicePrincipalArgs = (clientId == null || tenantId == null);
+            const missingServicePrincipalArgs =
+                clientId == null || tenantId == null;
 
             if (username == null && missingServicePrincipalArgs) {
-                errors.push("when --client-id or --tenant-id not provided, --username is required");
+                errors.push(
+                    "when --client-id or --tenant-id not provided, --username is required"
+                );
             }
 
             secret = program.secret;
@@ -128,7 +132,9 @@ require("./command-runner").run(async () => {
             }
 
             if (!shell.which("az")) {
-                echo.message("Azure CLI not found. Attempting install via PIP...");
+                echo.message(
+                    "Azure CLI not found. Attempting install via PIP..."
+                );
 
                 if (!shell.which("pip")) {
                     echo.error(`PIP is required - ${pythonInstallerUrl}`);
@@ -162,16 +168,37 @@ require("./command-runner").run(async () => {
     program
         .usage("option")
         .description(deployAzureStorage.description())
-        .option("--client-id <clientID>",      "Required Client ID (if deploying using Service Principal)")
-        .option("--destination <destination>", "Required absolute container URL path (ie. https://workingenv.blob.core.windows.net/folder/subfolder)")
-        .option("--public-url <url>",          "Optional URL replaced in release files (ie. absolute Azure CDN or container URL)")
-        .option("--publish",                   "Optional flag to run a webpack publish")
-        .option("--recursive",                 "Optional flag to recursively deploy a folder")
-        .option("--secret <profile>",          "Required secret for login -- either client secret for service principal or account password")
-        .option("--source <source>",           `Optional path of folder to copy from this machine. Default is '${frontendPath.publishDir()}'`)
-        .option("--tenant-id <tenantID>",      "Required Tenant ID (if deploying using Service Principal)")
-        .option("--username <username>",       "Required Azure username (if deploying using Azure credentials)")
-        .option("--webpack",                   "Deploy webpack built frontend application")
+        .option(
+            "--client-id <clientID>",
+            "Required Client ID (if deploying using Service Principal)"
+        )
+        .option(
+            "--destination <destination>",
+            "Required absolute container URL path (ie. https://workingenv.blob.core.windows.net/folder/subfolder)"
+        )
+        .option(
+            "--public-url <url>",
+            "Optional URL replaced in release files (ie. absolute Azure CDN or container URL)"
+        )
+        .option("--publish", "Optional flag to run a webpack publish")
+        .option("--recursive", "Optional flag to recursively deploy a folder")
+        .option(
+            "--secret <profile>",
+            "Required secret for login -- either client secret for service principal or account password"
+        )
+        .option(
+            "--source <source>",
+            `Optional path of folder to copy from this machine. Default is '${frontendPath.publishDir()}'`
+        )
+        .option(
+            "--tenant-id <tenantID>",
+            "Required Tenant ID (if deploying using Service Principal)"
+        )
+        .option(
+            "--username <username>",
+            "Required Azure username (if deploying using Azure credentials)"
+        )
+        .option("--webpack", "Deploy webpack built frontend application")
         .parse(process.argv);
 
     await deployAzureStorage.run();

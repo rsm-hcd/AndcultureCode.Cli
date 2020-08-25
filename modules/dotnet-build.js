@@ -3,10 +3,12 @@
 // -----------------------------------------------------------------------------------------
 
 const child_process = require("child_process");
+const commandStringFactory = require("../utilities/command-string-factory");
 const dotnetClean = require("./dotnet-clean");
 const dotnetPath = require("./dotnet-path");
 const dotnetRestore = require("./dotnet-restore");
 const echo = require("./echo");
+const optionStringFactory = require("../utilities/option-string-factory");
 const shell = require("shelljs");
 
 // #endregion Imports
@@ -17,19 +19,18 @@ const shell = require("shelljs");
 
 const dotnetBuild = {
     cmd() {
-        return {
-            args: ["build", dotnetPath.solutionPath(), "--no-restore"],
-            cmd: "dotnet",
-            toString() {
-                return `${this.cmd} ${this.args.join(" ")}`;
-            },
-        };
-    },
-    options() {
-        return ["-b", "--build"];
+        return commandStringFactory.build(
+            "dotnet",
+            "build",
+            dotnetPath.solutionPath(),
+            "--no-restore"
+        );
     },
     description() {
         return `Builds the dotnet project (via ${this.cmd()})`;
+    },
+    getOptions() {
+        return optionStringFactory.build("build", "b");
     },
     run(clean, restore) {
         // Verify that the solution path exists or exit early.

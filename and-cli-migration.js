@@ -4,9 +4,9 @@ require("./command-runner").run(async () => {
     // #region Imports
     // -----------------------------------------------------------------------------------------
 
-    const commands  = require("./_modules/commands");
-    const migration = require("./_modules/migration");
-    const program   = require("commander");
+    const commands = require("./modules/commands");
+    const migration = require("./modules/migration");
+    const program = require("commander");
 
     // #endregion Imports
 
@@ -25,9 +25,9 @@ require("./command-runner").run(async () => {
     program
         .usage("option")
         .description(commands.migration.description)
-        .option("-a, --add",     migration.description(modes.ADD))
-        .option("-d, --delete",  migration.description(modes.DELETE))
-        .option("-r, --run",     migration.description(modes.RUN))
+        .option("-a, --add", migration.description(modes.ADD))
+        .option("-d, --delete", migration.description(modes.DELETE))
+        .option("-r, --run", migration.description(modes.RUN))
         .parse(process.argv);
 
     if (program.add) {
@@ -51,7 +51,9 @@ require("./command-runner").run(async () => {
             .run();
     }
 
-    if (process.argv.slice(2).length === 0) { program.help(); }
+    if (process.argv.slice(2).length === 0) {
+        program.help();
+    }
 
     // #endregion Entrypoint
 });

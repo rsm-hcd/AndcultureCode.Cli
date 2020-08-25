@@ -7,6 +7,7 @@ const file = require("./file");
 const path = require("path");
 const shell = require("shelljs");
 const upath = require("upath");
+const testUtils = require("../tests/test-utils");
 
 // #endregion Imports
 
@@ -240,9 +241,7 @@ describe("dotnetPath", () => {
                 const dataProjectFilePathSpy = jest
                     .spyOn(dotnetPath, "dataProjectFilePath")
                     .mockImplementation(() => returnValue);
-                const shellExitSpy = jest
-                    .spyOn(shell, "exit")
-                    .mockImplementation();
+                const shellExitSpy = testUtils.spyOnShellExit();
 
                 // Act
                 dotnetPath.dataProjectFilePathOrExit();
@@ -445,9 +444,7 @@ describe("dotnetPath", () => {
                 const solutionPathSpy = jest
                     .spyOn(dotnetPath, "solutionPath")
                     .mockImplementation(() => returnValue);
-                const shellExitSpy = jest
-                    .spyOn(shell, "exit")
-                    .mockImplementation();
+                const shellExitSpy = testUtils.spyOnShellExit();
 
                 // Act
                 dotnetPath.solutionPathOrExit();
@@ -516,7 +513,7 @@ describe("dotnetPath", () => {
             const shellWhichSpy = jest
                 .spyOn(shell, "which")
                 .mockImplementation(() => mockDotnetPath);
-            const shellExitSpy = jest.spyOn(shell, "exit").mockImplementation();
+            const shellExitSpy = testUtils.spyOnShellExit();
 
             // Act
             const result = dotnetPath.verifyOrExit();
@@ -534,9 +531,7 @@ describe("dotnetPath", () => {
                 const shellWhichSpy = jest
                     .spyOn(shell, "which")
                     .mockImplementation(() => returnValue);
-                const shellExitSpy = jest
-                    .spyOn(shell, "exit")
-                    .mockImplementation();
+                const shellExitSpy = testUtils.spyOnShellExit();
 
                 // Act
                 dotnetPath.verifyOrExit();
@@ -693,9 +688,7 @@ describe("dotnetPath", () => {
                 const webProjectFilePathSpy = jest
                     .spyOn(dotnetPath, "webProjectFilePath")
                     .mockImplementation(() => returnValue);
-                const shellExitSpy = jest
-                    .spyOn(shell, "exit")
-                    .mockImplementation();
+                const shellExitSpy = testUtils.spyOnShellExit();
 
                 // Act
                 dotnetPath.webProjectFilePathOrExit();

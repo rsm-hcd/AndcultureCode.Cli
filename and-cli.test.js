@@ -2,14 +2,10 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const {
-    givenOptions,
-    shouldDisplayHelpMenu,
-}                         = require("./tests/describes");
-const { UNKNOWN_COMMAND } = require("./_modules/constants");
-const commands            = require("./_modules/commands");
-const testUtils           = require("./tests/test-utils");
-
+const { givenOptions, shouldDisplayHelpMenu } = require("./tests/shared-specs");
+const { UNKNOWN_COMMAND } = require("./modules/constants");
+const commands = require("./modules/commands");
+const testUtils = require("./tests/test-utils");
 
 // #endregion Imports
 
@@ -24,7 +20,9 @@ describe("and-cli", () => {
 
     describe("commands", () => {
         // Pull out the flattened list of command objects from 'commands' module
-        const commandObjects = Object.keys(commands).map((key) => commands[key]);
+        const commandObjects = Object.keys(commands).map(
+            (key) => commands[key]
+        );
         const commandStrings = commandObjects.map((obj) => obj.command);
 
         givenOptions(commandStrings, (command) =>
@@ -65,8 +63,6 @@ describe("and-cli", () => {
             // If the above function did not throw, this should fail the test.
             expect.assertions(1);
         });
-
-
     });
 
     // #endregion commands

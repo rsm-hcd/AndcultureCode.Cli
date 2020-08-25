@@ -6,6 +6,7 @@ const faker = require("faker");
 const nugetUpgrade = require("./nuget-upgrade");
 const path = require("path");
 const shell = require("shelljs");
+const testUtils = require("../tests/test-utils");
 
 // #endregion Imports
 
@@ -14,6 +15,8 @@ const shell = require("shelljs");
 // -----------------------------------------------------------------------------------------
 
 describe("nugetUpgrade", () => {
+    // Developer note: Now that we have a set of test utility functions, this would be a good candidate
+    // for abstraction
     const mockShellFn = (code = 0, stdout = "") =>
         jest.fn().mockImplementation(() => {
             return { code, stdout };
@@ -22,7 +25,7 @@ describe("nugetUpgrade", () => {
     let shellExitSpy;
 
     beforeEach(() => {
-        shellExitSpy = jest.spyOn(shell, "exit").mockImplementation(() => {});
+        shellExitSpy = testUtils.spyOnShellExit();
     });
 
     // -----------------------------------------------------------------------------------------

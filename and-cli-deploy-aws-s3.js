@@ -4,12 +4,12 @@ require("./command-runner").run(async () => {
     // #region Imports
     // -----------------------------------------------------------------------------------------
 
-    const deployConfig   = require("./_modules/deploy-config");
-    const echo           = require("./_modules/echo");
-    const frontendPath   = require("./_modules/frontend-path");
-    const program        = require("commander");
-    const shell          = require("shelljs");
-    const webpackPublish = require("./_modules/webpack-publish");
+    const deployConfig = require("./modules/deploy-config");
+    const echo = require("./modules/echo");
+    const frontendPath = require("./modules/frontend-path");
+    const program = require("commander");
+    const shell = require("shelljs");
+    const webpackPublish = require("./modules/webpack-publish");
 
     // #endregion Imports
 
@@ -17,10 +17,11 @@ require("./command-runner").run(async () => {
     // #region Variables
     // -----------------------------------------------------------------------------------------
 
-    let   destination         = null;
-    let   profile             = null;
-    const pythonInstallerUrl  = "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
-    let   sourcePath          = frontendPath.publishDir();
+    let destination = null;
+    let profile = null;
+    const pythonInstallerUrl =
+        "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
+    let sourcePath = frontendPath.publishDir();
 
     // #endregion Variables
 
@@ -31,7 +32,6 @@ require("./command-runner").run(async () => {
     // Developer note: This could/should likely be extracted into its own module so that it can be
     // unit tested and export constants for option flags.
     const deployAwsS3 = {
-
         cmd(src, dest) {
             return `aws s3 sync ${src} s3://${dest}`;
         },
@@ -61,7 +61,8 @@ require("./command-runner").run(async () => {
             echo.message(` - Source path: ${sourcePath}`);
             echo.message(` - Destination path: ${destination}`);
 
-            const syncCommand = this.cmd(sourcePath, destination) + ` --profile ${profile}`;
+            const syncCommand =
+                this.cmd(sourcePath, destination) + ` --profile ${profile}`;
             echo.message(` - Command: ${syncCommand}`);
             if (shell.exec(syncCommand, { silent: false }).code !== 0) {
                 echo.error(" - Failed to deploy to AWS S3");
@@ -136,12 +137,24 @@ require("./command-runner").run(async () => {
     program
         .usage("option")
         .description(deployAwsS3.description())
-        .option("--destination <destination>", "Required container/bucket folder path (ie. my-bucket/path/to/folder)")
-        .option("--profile <profile>",         "Required AWS S3 profile configured in either ~/.aws/config or ~/.aws/credentials")
-        .option("--public-url <url>",          "Optional URL replaced in release files (ie. absolute S3 bucket URL)")
-        .option("--publish",                   "Optional flag to run a webpack publish")
-        .option("--source <source>",           `Optional path of folder to copy from this machine. Default is '${frontendPath.publishDir()}'`)
-        .option("--webpack",                   "Deploy webpack built frontend application")
+        .option(
+            "--destination <destination>",
+            "Required container/bucket folder path (ie. my-bucket/path/to/folder)"
+        )
+        .option(
+            "--profile <profile>",
+            "Required AWS S3 profile configured in either ~/.aws/config or ~/.aws/credentials"
+        )
+        .option(
+            "--public-url <url>",
+            "Optional URL replaced in release files (ie. absolute S3 bucket URL)"
+        )
+        .option("--publish", "Optional flag to run a webpack publish")
+        .option(
+            "--source <source>",
+            `Optional path of folder to copy from this machine. Default is '${frontendPath.publishDir()}'`
+        )
+        .option("--webpack", "Deploy webpack built frontend application")
         .parse(process.argv);
 
     await deployAwsS3.run();

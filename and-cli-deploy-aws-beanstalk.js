@@ -4,14 +4,14 @@ require("./command-runner").run(async () => {
     // #region Imports
     // -----------------------------------------------------------------------------------------
 
-    const dir           = require("./_modules/dir");
-    const dotnetPath    = require("./_modules/dotnet-path");
-    const dotnetPublish = require("./_modules/dotnet-publish");
-    const echo          = require("./_modules/echo");
-    const file          = require("./_modules/file");
-    const program       = require("commander");
-    const shell         = require("shelljs");
-    const zip           = require("./_modules/zip");
+    const dir = require("./modules/dir");
+    const dotnetPath = require("./modules/dotnet-path");
+    const dotnetPublish = require("./modules/dotnet-publish");
+    const echo = require("./modules/echo");
+    const file = require("./modules/file");
+    const program = require("commander");
+    const shell = require("shelljs");
+    const zip = require("./modules/zip");
 
     // #endregion Imports
 
@@ -19,9 +19,10 @@ require("./command-runner").run(async () => {
     // #region Variables
     // -----------------------------------------------------------------------------------------
 
-    const pythonInstallerUrl = "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
-    let timeout              = `--timeout 20`; // Default AWSEBCLI command timeout in minutes
-    let verbose              = "";
+    const pythonInstallerUrl =
+        "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
+    let timeout = `--timeout 20`; // Default AWSEBCLI command timeout in minutes
+    let verbose = "";
 
     // #endregion Variables
 
@@ -58,34 +59,53 @@ require("./command-runner").run(async () => {
 
             // Create inner release zip
             const innerReleaseFilename = "release.zip";
-            const innerReleaseDir      = `${projectDir}release`;
-            const innerReleaseZipFile  = `${projectDir}${innerReleaseFilename}`;
+            const innerReleaseDir = `${projectDir}release`;
+            const innerReleaseZipFile = `${projectDir}${innerReleaseFilename}`;
             file.deleteIfExists(innerReleaseZipFile);
-            await zip.create([{ source: innerReleaseDir, destination: "/" }], null, innerReleaseZipFile);
+            await zip.create(
+                [{ source: innerReleaseDir, destination: "/" }],
+                null,
+                innerReleaseZipFile
+            );
 
             // Create outer bundle release zip
-            const awsBundleManifestFilename = "aws-windows-deployment-manifest.json"; // TODO: Refactor to intelligently locate aws manifest file (ie. don't assume windows)
-            const awsBundleManifestFile     = `${projectDir}${awsBundleManifestFilename}`;
-            const outerReleaseZipFile       = `${projectDir}release-bundle.zip`;
+            const awsBundleManifestFilename =
+                "aws-windows-deployment-manifest.json"; // TODO: Refactor to intelligently locate aws manifest file (ie. don't assume windows)
+            const awsBundleManifestFile = `${projectDir}${awsBundleManifestFilename}`;
+            const outerReleaseZipFile = `${projectDir}release-bundle.zip`;
             file.deleteIfExists(outerReleaseZipFile);
 
-            const inputDirectories           = [];
+            const inputDirectories = [];
             const awsBundleExtensionsDirname = ".ebextensions";
-            const awsBundleExtensionsDir     = `${projectDir}${awsBundleExtensionsDirname}`;
+            const awsBundleExtensionsDir = `${projectDir}${awsBundleExtensionsDirname}`;
             if (shell.test("-e", awsBundleExtensionsDir)) {
                 echo.message("Adding .ebextensions directory");
-                inputDirectories.push({ source: awsBundleExtensionsDir, destination: awsBundleExtensionsDirname });
+                inputDirectories.push({
+                    source: awsBundleExtensionsDir,
+                    destination: awsBundleExtensionsDirname,
+                });
             }
 
             const inputFiles = [
-                { source: innerReleaseZipFile,   destination: innerReleaseFilename      },
-                { source: awsBundleManifestFile, destination: awsBundleManifestFilename },
+                {
+                    source: innerReleaseZipFile,
+                    destination: innerReleaseFilename,
+                },
+                {
+                    source: awsBundleManifestFile,
+                    destination: awsBundleManifestFilename,
+                },
             ];
             await zip.create(inputDirectories, inputFiles, outerReleaseZipFile);
 
             // Call EB deploy
-            echo.message("Deploying to AWS beanstalk. Check AWS console for realtime output. This could take a few minutes...");
-            if (shell.exec(this.cmds.deploy + ` ${timeout} ${verbose}`).code !== 0) {
+            echo.message(
+                "Deploying to AWS beanstalk. Check AWS console for realtime output. This could take a few minutes..."
+            );
+            if (
+                shell.exec(this.cmds.deploy + ` ${timeout} ${verbose}`).code !==
+                0
+            ) {
                 echo.error(" - Failed to deploy to AWS beanstalk");
                 shell.exit(1);
             }
@@ -124,7 +144,6 @@ require("./command-runner").run(async () => {
 
             return true;
         },
-
     };
 
     // #endregion Functions
@@ -136,9 +155,12 @@ require("./command-runner").run(async () => {
     program
         .usage("option")
         .description(deployAwsBeanstalk.description())
-        .option("--dotnet",            "Deploy dotnet core application via beanstalk")
-        .option("--timeout <timeout>", `Optional elastic beanstalk deploy timeout. Default is ${timeout} minutes. When exceeded, exits with error`)
-        .option("--verbose",           "Stream events from AWS")
+        .option("--dotnet", "Deploy dotnet core application via beanstalk")
+        .option(
+            "--timeout <timeout>",
+            `Optional elastic beanstalk deploy timeout. Default is ${timeout} minutes. When exceeded, exits with error`
+        )
+        .option("--verbose", "Stream events from AWS")
         .parse(process.argv);
 
     await deployAwsBeanstalk.run();

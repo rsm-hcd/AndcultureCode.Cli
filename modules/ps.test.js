@@ -19,7 +19,7 @@ const faker = require("faker");
 const fkill = require("fkill");
 const ps = require("./ps");
 const psList = require("ps-list");
-const shell = require("shelljs");
+const testUtils = require("../tests/test-utils");
 
 // #endregion Imports
 
@@ -30,7 +30,7 @@ const shell = require("shelljs");
 describe("ps", () => {
     let shellExitSpy;
     beforeEach(() => {
-        shellExitSpy = jest.spyOn(shell, "exit").mockImplementation();
+        shellExitSpy = testUtils.spyOnShellExit();
     });
 
     // -----------------------------------------------------------------------------------------

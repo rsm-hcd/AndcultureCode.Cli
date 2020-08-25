@@ -2,7 +2,9 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
+const commandStringFactory = require("../utilities/command-string-factory");
 const echo = require("./echo");
+const optionStringFactory = require("../utilities/option-string-factory");
 const shell = require("shelljs");
 
 // #endregion Imports
@@ -13,10 +15,13 @@ const shell = require("shelljs");
 
 const nodeRestore = {
     cmd() {
-        return "npm install";
+        return commandStringFactory.build("npm", "install");
     },
     description() {
         return `Restore npm dependencies (via ${this.cmd()}) in the current directory`;
+    },
+    getOptions() {
+        return optionStringFactory.build("restore", "R");
     },
     run() {
         echo.message(

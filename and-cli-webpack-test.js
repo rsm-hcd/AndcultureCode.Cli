@@ -5,32 +5,58 @@ require("./command-runner").run(async () => {
     // -----------------------------------------------------------------------------------------
 
     const { spawnSync } = require("child_process");
-    const dir           = require("./_modules/dir");
-    const echo          = require("./_modules/echo");
-    const frontendPath  = require("./_modules/frontend-path");
-    const nodeClean     = require("./_modules/node-clean");
-    const nodeRestore   = require("./_modules/node-restore");
-    const program       = require("commander");
-    const shell         = require("shelljs");
+    const commandStringFactory = require("./utilities/command-string-factory");
+    const dir = require("./modules/dir");
+    const echo = require("./modules/echo");
+    const frontendPath = require("./modules/frontend-path");
+    const nodeClean = require("./modules/node-clean");
+    const nodeRestore = require("./modules/node-restore");
+    const optionStringFactory = require("./utilities/option-string-factory");
+    const program = require("commander");
+    const shell = require("shelljs");
 
     // #endregion Imports
+
+    // -----------------------------------------------------------------------------------------
+    // #region Constants
+    // -----------------------------------------------------------------------------------------
+
+    const CI_OPTION_STRING = optionStringFactory.build("ci");
+
+    const WEBPACK_TEST_OPTIONS = {
+        CI: CI_OPTION_STRING,
+    };
+
+    // #endregion Constants
 
     // -----------------------------------------------------------------------------------------
     // #region Functions
     // -----------------------------------------------------------------------------------------
 
+    /**
+     * Developer note: This should be abstracted into a module and tested
+     * @see https://github.com/AndcultureCode/AndcultureCode.Cli/issues/96
+     */
     const webpackTest = {
-        cmd() {
-            return {
-                args: ["run", "test"],
-                cmd:  "npm",
-                toString() {
-                    return `${this.cmd} ${this.args.join(" ")}`;
-                },
-            };
+        cmd(isCI = false) {
+            if (isCI) {
+                return commandStringFactory.build(
+                    "npx",
+                    "cross-env",
+                    "CI=true",
+                    "npm",
+                    "run",
+                    "test"
+                );
+            }
+
+            return commandStringFactory.build("npm", "run", "test");
         },
         description() {
-            return `Runs the webpack project tests in ${frontendPath.projectDir()} (via ${this.cmd().toString()})`;
+            return `Runs the webpack project tests in ${frontendPath.projectDir()} (via ${this.cmd()})`;
+        },
+        getOptions() {
+            return WEBPACK_TEST_OPTIONS;
         },
         run() {
             dir.pushd(frontendPath.projectDir());
@@ -43,11 +69,11 @@ require("./command-runner").run(async () => {
                 nodeRestore.run();
             }
 
-            echo.message(`Running frontend tests (via ${this.cmd().toString()})...`);
+            echo.message(`Running frontend tests (via ${this.cmd()})...`);
 
             // Continuous Integration mode (ci)
             if (program.ci) {
-                const result = shell.exec(`npx cross-env CI=true ${this.cmd().toString()}`, { silent: false });
+                const result = shell.exec(this.cmd(true), { silent: false });
 
                 if (result.code !== 0) {
                     echo.headerError("One or many tests failed");
@@ -57,12 +83,12 @@ require("./command-runner").run(async () => {
             }
 
             // Interactive mode (non-ci)
-
-            // Since the spawnSync function takes the base command and all arguments separately, we cannot
-            // leverage the base dotnet command string here. We'll build out the arg list in an array.
             const { cmd, args } = this.cmd();
 
-            const result = spawnSync(cmd, args, { stdio: "inherit", shell: true });
+            const result = spawnSync(cmd, args, {
+                stdio: "inherit",
+                shell: true,
+            });
 
             if (result.status !== 0) {
                 echo.error(`Exited with error: ${result.status}`);
@@ -85,12 +111,15 @@ require("./command-runner").run(async () => {
         .usage("option(s)")
         .description(
             webpackTest.description() +
-            "\r\nCertain options can be chained together for specific behavior" +
-            " (--clean and --restore can be used in conjunction)."
+                "\r\nCertain options can be chained together for specific behavior" +
+                " (--clean and --restore can be used in conjunction)."
         )
-        .option("--ci",          "Run the command for continuous integration instead of as a daemon")
-        .option("-c, --clean",   nodeClean.description())
-        .option("-R, --restore", nodeRestore.description())
+        .option(
+            WEBPACK_TEST_OPTIONS.CI,
+            "Run the command for continuous integration instead of as a daemon"
+        )
+        .option(nodeClean.getOptions(), nodeClean.description())
+        .option(nodeRestore.getOptions(), nodeRestore.description())
         .parse(process.argv);
 
     webpackTest.run();

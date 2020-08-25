@@ -2,9 +2,9 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const { ERROR_OUTPUT_STRING }   = require("./_modules/constants")
-const { shouldDisplayHelpMenu } = require("./tests/describes");
-const testUtils                 = require("./tests/test-utils");
+const { ERROR_OUTPUT_STRING } = require("./modules/constants");
+const { shouldDisplayHelpMenu } = require("./tests/shared-specs");
+const testUtils = require("./tests/test-utils");
 
 // #endregion Imports
 
@@ -20,7 +20,9 @@ describe("and-cli-deploy-azure-web-app", () => {
     describe("appName", () => {
         test("given no '--app-name' flag, it displays an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"]);
+            const result = await testUtils.executeCliCommand("deploy", [
+                "azure-web-app",
+            ]);
 
             // Assert
             expect(result).toContain(ERROR_OUTPUT_STRING);
@@ -37,7 +39,9 @@ describe("and-cli-deploy-azure-web-app", () => {
     describe("branch", () => {
         test("given no '--branch' flag, it displays an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"]);
+            const result = await testUtils.executeCliCommand("deploy", [
+                "azure-web-app",
+            ]);
 
             // Assert
             expect(result).toContain(ERROR_OUTPUT_STRING);
@@ -54,7 +58,9 @@ describe("and-cli-deploy-azure-web-app", () => {
     describe("clientId and tenantId", () => {
         test("given no '--client-id' or '--tenant-id' flag, it displays an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"]);
+            const result = await testUtils.executeCliCommand("deploy", [
+                "azure-web-app",
+            ]);
 
             // Assert
             expect(result).toContain(ERROR_OUTPUT_STRING);
@@ -63,7 +69,11 @@ describe("and-cli-deploy-azure-web-app", () => {
 
         test("given only '--tenant-id' flag, it displays an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"], "--tenant-id=test");
+            const result = await testUtils.executeCliCommand(
+                "deploy",
+                ["azure-web-app"],
+                "--tenant-id=test"
+            );
 
             // Assert
             expect(result).toContain(ERROR_OUTPUT_STRING);
@@ -72,7 +82,11 @@ describe("and-cli-deploy-azure-web-app", () => {
 
         test("given only '--client-id' flag, it displays an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"], "--client-id=test");
+            const result = await testUtils.executeCliCommand(
+                "deploy",
+                ["azure-web-app"],
+                "--client-id=test"
+            );
 
             // Assert
             expect(result).toContain(ERROR_OUTPUT_STRING);
@@ -97,7 +111,9 @@ describe("and-cli-deploy-azure-web-app", () => {
     describe("remote", () => {
         test("given no '--remote' flag, it displays an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"]);
+            const result = await testUtils.executeCliCommand("deploy", [
+                "azure-web-app",
+            ]);
 
             // Assert
             expect(result).toContain(ERROR_OUTPUT_STRING);
@@ -114,7 +130,9 @@ describe("and-cli-deploy-azure-web-app", () => {
     describe("resourceGroup", () => {
         test("given no '--resource-group' flag, it displays an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"]);
+            const result = await testUtils.executeCliCommand("deploy", [
+                "azure-web-app",
+            ]);
 
             // Assert
             expect(result).toContain(ERROR_OUTPUT_STRING);
@@ -131,7 +149,9 @@ describe("and-cli-deploy-azure-web-app", () => {
     describe("secret", () => {
         test("given no '--secret' flag, it displays an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"]);
+            const result = await testUtils.executeCliCommand("deploy", [
+                "azure-web-app",
+            ]);
 
             // Assert
             expect(result).toContain(ERROR_OUTPUT_STRING);
@@ -148,7 +168,11 @@ describe("and-cli-deploy-azure-web-app", () => {
     describe("username", () => {
         test("given no '--username' and no '--client-id' flag, it displays an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"], "--tenant-id=test");
+            const result = await testUtils.executeCliCommand(
+                "deploy",
+                ["azure-web-app"],
+                "--tenant-id=test"
+            );
 
             // Assert
             expect(result).toContain(ERROR_OUTPUT_STRING);
@@ -157,7 +181,11 @@ describe("and-cli-deploy-azure-web-app", () => {
 
         test("given no '--username' and no '--tenant-id' flag, it displays an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"], "--client-id=test");
+            const result = await testUtils.executeCliCommand(
+                "deploy",
+                ["azure-web-app"],
+                "--client-id=test"
+            );
 
             // Assert
             expect(result).toContain(ERROR_OUTPUT_STRING);
@@ -166,7 +194,11 @@ describe("and-cli-deploy-azure-web-app", () => {
 
         test("given '--username' and no '--tenant-id' or '--client-id' flag, it doesn't display an error", async () => {
             // Arrange & Act
-            const result = await testUtils.executeCliCommand("deploy", ["azure-web-app"], "--username=test");
+            const result = await testUtils.executeCliCommand(
+                "deploy",
+                ["azure-web-app"],
+                "--username=test"
+            );
 
             // Assert
             expect(result).toContain(ERROR_OUTPUT_STRING);
