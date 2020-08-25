@@ -2,11 +2,12 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
+const child_process = require("child_process");
 const dotnetBuild = require("./dotnet-build");
 const dotnetCli = require("./dotnet-cli");
 const dotnetPath = require("./dotnet-path");
 const faker = require("faker");
-const testUtils = require("../tests/test-utils");
+const shell = require("shelljs");
 
 // #endregion Imports
 
@@ -22,7 +23,7 @@ describe("dotnetCli", () => {
     describe("run", () => {
         let shellExitSpy;
         beforeEach(() => {
-            shellExitSpy = testUtils.spyOnShellExit();
+            shellExitSpy = jest.spyOn(shell, "exit").mockImplementation();
         });
 
         test(`when dotnetPath.cliDir() path returns undefined it calls donetBuild.run`, () => {
@@ -45,7 +46,11 @@ describe("dotnetCli", () => {
         test(`when spawn.sync returns non 0 it calls shell.exit with the status`, () => {
             // Arrange
             const exitCode = faker.random.number({ min: 1 });
-            const spawnSync = testUtils.spyOnSpawnSync(exitCode);
+            const spawnSync = jest
+                .spyOn(child_process, "spawnSync")
+                .mockImplementation(() => {
+                    return { status: exitCode };
+                });
 
             // Act
             dotnetCli.run();
