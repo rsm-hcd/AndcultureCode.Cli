@@ -5,7 +5,6 @@
 const child_process = require("child_process");
 const commandStringFactory = require("../utilities/command-string-factory");
 const dir = require("./dir");
-const child_process = require("child_process");
 const dotnetBuild = require("./dotnet-build");
 const dotnetPath = require("./dotnet-path");
 const echo = require("./echo");
