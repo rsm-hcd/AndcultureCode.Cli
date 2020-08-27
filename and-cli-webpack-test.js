@@ -69,7 +69,9 @@ require("./command-runner").run(async () => {
                 nodeRestore.run();
             }
 
-            echo.message(`Running frontend tests (via ${this.cmd()})...`);
+            echo.message(
+                `Running frontend tests (via ${this.cmd(program.ci)})...`
+            );
 
             // Continuous Integration mode (ci)
             if (program.ci) {
