@@ -5,7 +5,9 @@
 const child_process = require("child_process");
 const commandStringFactory = require("../utilities/command-string-factory");
 const dir = require("./dir");
+const dotnetClean = require("./dotnet-clean");
 const dotnetPath = require("./dotnet-path");
+const dotnetRestore = require("./dotnet-restore");
 const echo = require("./echo");
 const optionStringFactory = require("../utilities/option-string-factory");
 const shell = require("shelljs");
@@ -55,6 +57,9 @@ const dotnet = {
         return DOTNET_OPTIONS;
     },
     run() {
+        // Verify that the solution path exists or exit early.
+        dotnetPath.solutionPathOrExit();
+
         if (_clean) {
             dotnetClean.run();
         }
