@@ -4,13 +4,13 @@ require("./command-runner").run(async () => {
     // #region Imports
     // -----------------------------------------------------------------------------------------
 
-    const azure = require("./_modules/azure");
-    const deployConfig = require("./_modules/deploy-config");
-    const echo = require("./_modules/echo");
-    const frontendPath = require("./_modules/frontend-path");
+    const azure = require("./modules/azure");
+    const deployConfig = require("./modules/deploy-config");
+    const echo = require("./modules/echo");
+    const frontendPath = require("./modules/frontend-path");
     const program = require("commander");
     const shell = require("shelljs");
-    const webpackPublish = require("./_modules/webpack-publish");
+    const webpackPublish = require("./modules/webpack-publish");
 
     // #endregion Imports
 

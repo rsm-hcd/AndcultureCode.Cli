@@ -4,11 +4,11 @@ require("./command-runner").run(async () => {
     // #region Imports
     // -----------------------------------------------------------------------------------------
 
-    const commands = require("./_modules/commands");
-    const constants = require("./_modules/constants");
-    const dotnetPath = require("./_modules/dotnet-path");
-    const echo = require("./_modules/echo");
-    const nugetUpgrade = require("./_modules/nuget-upgrade");
+    const commands = require("./modules/commands");
+    const constants = require("./modules/constants");
+    const dotnetPath = require("./modules/dotnet-path");
+    const echo = require("./modules/echo");
+    const nugetUpgrade = require("./modules/nuget-upgrade");
     const program = require("commander");
     const shell = require("shelljs");
 

@@ -3,8 +3,8 @@ require("./command-runner").run(async () => {
     // -----------------------------------------------------------------------------------------
     // #region Imports
     // -----------------------------------------------------------------------------------------
-    const echo = require("./_modules/echo");
-    const github = require("./_modules/github");
+    const echo = require("./modules/echo");
+    const github = require("./modules/github");
     const program = require("commander");
 
     // #endregion Imports

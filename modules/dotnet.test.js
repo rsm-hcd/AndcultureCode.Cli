@@ -2,11 +2,12 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const child_process = require("child_process");
+const dotnet = require("./dotnet");
+const dotnetClean = require("./dotnet-clean");
 const dotnetPath = require("./dotnet-path");
 const dotnetRestore = require("./dotnet-restore");
 const faker = require("faker");
-const shell = require("shelljs");
+const testUtils = require("../tests/test-utils");
 
 // #endregion Imports
 
@@ -14,15 +15,21 @@ const shell = require("shelljs");
 // #region Tests
 // -----------------------------------------------------------------------------------------
 
-describe("dotnetRestore", () => {
+describe("dotnet", () => {
+    let dotnetCleanSpy;
     let dotnetPathSpy;
+    let dotnetRestoreSpy;
     let shellExitSpy;
 
     beforeEach(() => {
+        dotnetCleanSpy = jest.spyOn(dotnetClean, "run").mockImplementation();
         dotnetPathSpy = jest
             .spyOn(dotnetPath, "solutionPathOrExit")
             .mockImplementation();
-        shellExitSpy = jest.spyOn(shell, "exit").mockImplementation();
+        dotnetRestoreSpy = jest
+            .spyOn(dotnetRestore, "run")
+            .mockImplementation();
+        shellExitSpy = testUtils.spyOnShellExit();
     });
 
     // -----------------------------------------------------------------------------------------
@@ -32,23 +39,38 @@ describe("dotnetRestore", () => {
     describe("run", () => {
         test("it verifies the dotnet solution can be found by calling dotnetPath module", () => {
             // Arrange & Act
-            dotnetRestore.run();
+            dotnet.run();
 
             // Assert
             expect(dotnetPathSpy).toHaveBeenCalled();
         });
 
+        test("when 'clean' is true, it calls dotnetClean module", () => {
+            // Arrange & Act
+            dotnet.setClean(true).run();
+
+            // Assert
+            expect(dotnetCleanSpy).toHaveBeenCalled();
+        });
+
+        test("when 'restore' is true, it calls dotnetRestore module", () => {
+            // Arrange & Act
+            dotnet.setRestore(true).run();
+
+            // Assert
+            expect(dotnetRestoreSpy).toHaveBeenCalled();
+        });
+
         test("when dotnet command returns non-zero exit code, it calls shell.exit with that code", () => {
             // Arrange
             const exitCode = faker.random.number({ min: 1 });
-            jest.spyOn(child_process, "spawnSync").mockImplementation(() => {
-                return { status: exitCode };
-            });
+            const spawnSyncSpy = testUtils.spyOnSpawnSync(exitCode);
 
             // Act
-            dotnetRestore.run();
+            dotnet.run();
 
             // Assert
+            expect(spawnSyncSpy).toHaveBeenCalled();
             expect(shellExitSpy).toHaveBeenCalledWith(exitCode);
         });
     });

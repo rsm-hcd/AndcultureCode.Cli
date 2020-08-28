@@ -4,14 +4,14 @@ require("./command-runner").run(async () => {
     // #region Imports
     // -----------------------------------------------------------------------------------------
 
-    const dir = require("./_modules/dir");
-    const dotnetPath = require("./_modules/dotnet-path");
-    const dotnetPublish = require("./_modules/dotnet-publish");
-    const echo = require("./_modules/echo");
-    const file = require("./_modules/file");
+    const dir = require("./modules/dir");
+    const dotnetPath = require("./modules/dotnet-path");
+    const dotnetPublish = require("./modules/dotnet-publish");
+    const echo = require("./modules/echo");
+    const file = require("./modules/file");
     const program = require("commander");
     const shell = require("shelljs");
-    const zip = require("./_modules/zip");
+    const zip = require("./modules/zip");
 
     // #endregion Imports
 

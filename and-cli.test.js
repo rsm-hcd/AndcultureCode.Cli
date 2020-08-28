@@ -2,9 +2,9 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const { givenOptions, shouldDisplayHelpMenu } = require("./tests/describes");
-const { UNKNOWN_COMMAND } = require("./_modules/constants");
-const commands = require("./_modules/commands");
+const { givenOptions, shouldDisplayHelpMenu } = require("./tests/shared-specs");
+const { UNKNOWN_COMMAND } = require("./modules/constants");
+const commands = require("./modules/commands");
 const testUtils = require("./tests/test-utils");
 
 // #endregion Imports

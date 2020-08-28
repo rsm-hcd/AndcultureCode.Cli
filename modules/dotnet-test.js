@@ -2,11 +2,17 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const { spawnSync } = require("child_process");
+const {
+    CollectionUtils,
+    StringUtils,
+} = require("andculturecode-javascript-core");
+const child_process = require("child_process");
+const commandStringFactory = require("../utilities/command-string-factory");
 const dir = require("./dir");
 const dotnetBuild = require("./dotnet-build");
 const dotnetPath = require("./dotnet-path");
 const echo = require("./echo");
+const optionStringFactory = require("../utilities/option-string-factory");
 const shell = require("shelljs");
 
 // #endregion Imports
@@ -15,8 +21,27 @@ const shell = require("shelljs");
 // #region Constants
 // -----------------------------------------------------------------------------------------
 
+const BASE_COMMAND_STRING = commandStringFactory.build(
+    "dotnet",
+    "test",
+    "--no-build",
+    "--no-restore"
+);
 const COVERAGE_FLAGS =
     "-p:CollectCoverage=true -p:CoverletOutputFormat=opencover";
+
+// OptionStrings must be defined before object containing them (DOTNET_TEST_OPTIONS)
+const BY_PROJECT_OPTION_STRING = optionStringFactory.build("by-project");
+const CI_OPTION_STRING = optionStringFactory.build("ci");
+const COVERAGE_OPTION_STRING = optionStringFactory.build("coverage");
+const SKIP_CLEAN_OPTION_STRING = optionStringFactory.build("skip-clean", "s");
+
+const DOTNET_TEST_OPTIONS = {
+    BY_PROJECT: BY_PROJECT_OPTION_STRING,
+    CI: CI_OPTION_STRING,
+    COVERAGE: COVERAGE_OPTION_STRING,
+    SKIP_CLEAN: SKIP_CLEAN_OPTION_STRING,
+};
 
 // #endregion Constants
 
@@ -32,6 +57,79 @@ let _withCoverage = false;
 // #endregion Variables
 
 // -----------------------------------------------------------------------------------------
+// #region Private Functions
+// -----------------------------------------------------------------------------------------
+
+/**
+ * Builds out the final command string based on configured variables in this module
+ *
+ * If no project is provided, it assumes we are running the entire solution.
+ *
+ * @param {string} [project=""]
+ */
+const _buildCommandString = (project = "") => {
+    const { cmd } = BASE_COMMAND_STRING;
+    // Clone the args from the base command so we aren't manipulating the same references
+    const args = [...BASE_COMMAND_STRING.args];
+
+    if (_withCoverage) {
+        // The two coverage flags need to be pushed onto the args array before the project name
+        // it seems. The dotnet command was not recognizing them at the end of the args array.
+        args.push(COVERAGE_FLAGS);
+    }
+
+    if (StringUtils.hasValue(project)) {
+        args.push(project);
+    }
+
+    if (CollectionUtils.isEmpty(_filter)) {
+        return commandStringFactory.build(cmd, ...args);
+    }
+
+    // If we have filters to apply, further modification on the args array is necessary
+    // Remove the project from the args array & place at end to ensure it is the last value
+    // passed to dotnet test
+    args = args
+        .filter((arg) => arg !== project)
+        .concat("--filter", _filter, project);
+    return commandStringFactory.build(cmd, ...args);
+};
+
+/**
+ * Builds the informational message for which project or solution is about to be tested.
+ *
+ * If no project is provided, it assumes we are running the entire solution.
+ *
+ * @param {CommandString} commandString
+ * @param {string} [project=""]
+ * @returns
+ */
+const _buildMessage = (commandString, project = "") => {
+    const runningSolution = StringUtils.isEmpty(project);
+    const hasFilter = CollectionUtils.hasValues(_filter);
+
+    // Running entire solution with a filter
+    if (runningSolution && hasFilter) {
+        return `Running tests in the ${dotnetPath.solutionPath()} solution that match the xunit filter of '${_filter}' via (${commandString})`;
+    }
+
+    // Running entire solution w/o filter
+    if (runningSolution) {
+        return `Running all tests in the ${dotnetPath.solutionPath()} solution... via (${commandString})`;
+    }
+
+    // Running by project with a filter
+    if (hasFilter) {
+        return `Running tests in the ${project} project that match the xunit filter of '${_filter}' via (${commandString})`;
+    }
+
+    // Running by project w/o filter
+    return `Running tests in the ${project} project... via (${commandString})`;
+};
+
+// #endregion Private Functions
+
+// -----------------------------------------------------------------------------------------
 // #region Functions
 // -----------------------------------------------------------------------------------------
 
@@ -44,16 +142,13 @@ const dotnetTest = {
         return this;
     },
     cmd() {
-        return {
-            args: ["test", "--no-build", "--no-restore"],
-            cmd: "dotnet",
-            toString() {
-                return `${this.cmd} ${this.args.join(" ")}`;
-            },
-        };
+        return BASE_COMMAND_STRING;
     },
     description() {
-        return `Runs dotnet test runner on the ${dotnetPath.solutionPath()} solution (via ${this.cmd().toString()})`;
+        return `Runs dotnet test runner on the ${dotnetPath.solutionPath()} solution (via ${this.cmd()})`;
+    },
+    getOptions() {
+        return DOTNET_TEST_OPTIONS;
     },
     filter(filter) {
         if (filter != null) {
@@ -78,37 +173,20 @@ const dotnetTest = {
      *  }
      */
     runProject(project) {
-        // Since the spawnSync function takes the base command and all arguments separately, we cannot
-        // leverage the base dotnet test command string here. We'll build out the arg list in an array.
-
-        const { cmd, args } = this.cmd();
-
-        if (_withCoverage) {
-            // The two coverage flags need to be pushed onto the args array before the project name
-            // it seems. The dotnet command was not recognizing them at the end of the args array.
-            args.push(COVERAGE_FLAGS);
-        }
-
-        let message = `Running tests in the ${project} project... via (${cmd} ${args.join(
-            " "
-        )}} ${project})`;
-
-        if (_filter != null && _filter.length > 0) {
-            args.push("--filter", _filter);
-            message = `Running tests in the ${project} project that match the xunit filter of '${_filter}' via (${cmd} ${args.join(
-                " "
-            )}})} ${project})`;
-        }
-
-        // Push the project name on as the last arg in the array
-        args.push(project);
+        // Build out the full command string as well as informational message based on configuration
+        const commandString = _buildCommandString(project);
+        const { cmd, args } = commandString;
+        const message = _buildMessage(commandString, project);
 
         echo.message(message);
 
         // Determine the stdio mode based on whether or not this is being run in ci mode.
         // If in ci mode, we need to pipe output to capture stdout/stderr for the output summary.
         const stdioMode = _ciMode ? "pipe" : "inherit";
-        const result = spawnSync(cmd, args, { stdio: stdioMode, shell: true });
+        const result = child_process.spawnSync(cmd, args, {
+            stdio: stdioMode,
+            shell: true,
+        });
 
         // We only need to manually output stdout/stderr in ci mode since we're piping it.
         // For regular use, stdout/stderr will be inherited and output automatically.
@@ -139,7 +217,7 @@ const dotnetTest = {
         dir.pushd(solutionDir);
 
         const testProjects = shell.find("**/*.Test*.csproj");
-        if (testProjects == null || testProjects.length === 0) {
+        if (CollectionUtils.isEmpty(testProjects)) {
             echo.error(
                 "Could not find any csproj files matching the pattern *.Test*.csproj."
             );
@@ -162,7 +240,7 @@ const dotnetTest = {
         const failedProjects = results.filter(
             (testResult) => testResult.code !== 0
         );
-        if (failedProjects.length === 0) {
+        if (CollectionUtils.isEmpty(failedProjects)) {
             dir.popd();
             echo.newLine();
             echo.message("Exited dotnet-test");
@@ -199,29 +277,17 @@ const dotnetTest = {
 
         dir.pushd(solutionDir);
 
-        // Since the spawnSync function takes the base command and all arguments separately, we cannot
-        // leverage the base dotnet test command string here. We'll build out the arg list in an array.
-
-        const { cmd, args } = this.cmd();
-
-        if (_withCoverage) {
-            args.push(COVERAGE_FLAGS);
-        }
-
-        let message = `Running all tests in the ${dotnetPath.solutionPath()} solution... via (${cmd} ${args.join(
-            " "
-        )})`;
-
-        if (_filter != null && _filter.length > 0) {
-            args.push("--filter", _filter);
-            message = `Running tests in the ${dotnetPath.solutionPath()} solution that match the xunit filter of '${_filter}' via (${cmd} ${args.join(
-                " "
-            )})`;
-        }
+        // Build out the full command string as well as informational message based on configuration
+        const commandString = _buildCommandString();
+        const { cmd, args } = commandString;
+        const message = _buildMessage(commandString);
 
         echo.message(message);
 
-        const result = spawnSync(cmd, args, { stdio: "inherit", shell: true });
+        const result = child_process.spawnSync(cmd, args, {
+            stdio: "inherit",
+            shell: true,
+        });
         if (result.status !== 0) {
             echo.error(`Exited with error: ${result.status}`);
             shell.exit(result.status);

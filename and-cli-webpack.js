@@ -4,35 +4,49 @@ require("./command-runner").run(async () => {
     // #region Imports
     // -----------------------------------------------------------------------------------------
 
-    const { spawnSync } = require("child_process");
-    const commands = require("./_modules/commands");
-    const dir = require("./_modules/dir");
-    const echo = require("./_modules/echo");
-    const frontendPath = require("./_modules/frontend-path");
-    const nodeClean = require("./_modules/node-clean");
-    const nodeRestore = require("./_modules/node-restore");
+    const child_process = require("child_process");
+    const commands = require("./modules/commands");
+    const commandStringFactory = require("./utilities/command-string-factory");
+    const dir = require("./modules/dir");
+    const echo = require("./modules/echo");
+    const frontendPath = require("./modules/frontend-path");
+    const nodeClean = require("./modules/node-clean");
+    const nodeRestore = require("./modules/node-restore");
     const program = require("commander");
     const shell = require("shelljs");
-    const webpackPublish = require("./_modules/webpack-publish");
+    const webpackPublish = require("./modules/webpack-publish");
 
     // #endregion Imports
+
+    // -----------------------------------------------------------------------------------------
+    // #region Constants
+    // -----------------------------------------------------------------------------------------
+
+    const WEBPACK_OPTIONS = {
+        CLEAN: nodeClean.getOptions(),
+        PUBLISH: webpackPublish.getOptions(),
+        RESTORE: nodeRestore.getOptions(),
+    };
+
+    // #endregion Constants
 
     // -----------------------------------------------------------------------------------------
     // #region Functions
     // -----------------------------------------------------------------------------------------
 
+    /**
+     * Developer note: This should be abstracted into a module and tested
+     * @see https://github.com/AndcultureCode/AndcultureCode.Cli/issues/97
+     */
     const webpack = {
         cmd() {
-            return {
-                args: ["run", "start"],
-                cmd: "npm",
-                toString() {
-                    return `${this.cmd} ${this.args.join(" ")}`;
-                },
-            };
+            return commandStringFactory.build("npm", "run", "start");
         },
         description() {
-            return `Runs the webpack project (via ${this.cmd().toString()}}) found in ${frontendPath.projectDir()}`;
+            return `Runs the webpack project (via ${this.cmd()}}) found in ${frontendPath.projectDir()}`;
+        },
+        getOptions() {
+            return WEBPACK_OPTIONS;
         },
         run() {
             dir.pushd(frontendPath.projectDir());
@@ -49,8 +63,8 @@ require("./command-runner").run(async () => {
             // leverage the base dotnet command string here. We'll build out the arg list in an array.
             const { cmd, args } = this.cmd();
 
-            echo.message(`Running frontend (via ${this.cmd().toString()})...`);
-            const result = spawnSync(cmd, args, {
+            echo.message(`Running frontend (via ${this.cmd()})...`);
+            const result = child_process.spawnSync(cmd, args, {
                 stdio: "inherit",
                 shell: true,
             });
@@ -76,9 +90,9 @@ require("./command-runner").run(async () => {
             `${commands.webpack.description} Certain options can be chained together for specific behavior` +
                 "(--clean and --restore can be used in conjunction)."
         )
-        .option("-c, --clean", nodeClean.description())
-        .option("-p, --publish", webpackPublish.description())
-        .option("-R, --restore", nodeRestore.description())
+        .option(WEBPACK_OPTIONS.CLEAN, nodeClean.description())
+        .option(WEBPACK_OPTIONS.PUBLISH, webpackPublish.description())
+        .option(WEBPACK_OPTIONS.RESTORE, nodeRestore.description())
         .parse(process.argv);
 
     // Publish

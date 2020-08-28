@@ -3,9 +3,11 @@
 // -----------------------------------------------------------------------------------------
 
 const echo = require("./echo");
+const commandStringFactory = require("../utilities/command-string-factory");
 const frontendPath = require("./frontend-path");
 const nodeClean = require("./node-clean");
 const nodeRestore = require("./node-restore");
+const optionStringFactory = require("../utilities/option-string-factory");
 const shell = require("shelljs");
 
 // #endregion Imports
@@ -16,10 +18,13 @@ const shell = require("shelljs");
 
 const webpackPublish = {
     cmd() {
-        return "npm run build";
+        return commandStringFactory.build("npm", "run", "build");
     },
     description() {
         return `Publishes a release build of the frontend project (via ${this.cmd()}) in ${frontendPath.projectDir()}`;
+    },
+    getOptions() {
+        return optionStringFactory.build("publish", "p");
     },
     run() {
         // Clean publish directory

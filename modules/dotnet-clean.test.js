@@ -2,11 +2,11 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const child_process = require("child_process");
 const dotnetPath = require("./dotnet-path");
 const dotnetClean = require("./dotnet-clean");
 const faker = require("faker");
 const shell = require("shelljs");
+const testUtils = require("../tests/test-utils");
 
 // #endregion Imports
 
@@ -32,7 +32,7 @@ describe("dotnetClean", () => {
         dotnetPathSpy = jest
             .spyOn(dotnetPath, "solutionPathOrExit")
             .mockImplementation();
-        shellExitSpy = jest.spyOn(shell, "exit").mockImplementation();
+        shellExitSpy = testUtils.spyOnShellExit();
     });
 
     // -----------------------------------------------------------------------------------------
@@ -135,11 +135,7 @@ describe("dotnetClean", () => {
             jest.spyOn(shell, "find").mockImplementation(() => []);
             jest.spyOn(shell, "rm").mockImplementation();
             const exitCode = faker.random.number({ min: 1 });
-            const spawnSyncSpy = jest
-                .spyOn(child_process, "spawnSync")
-                .mockImplementation(() => {
-                    return { status: exitCode };
-                });
+            const spawnSyncSpy = testUtils.spyOnSpawnSync(exitCode);
 
             // Act
             dotnetClean.run();

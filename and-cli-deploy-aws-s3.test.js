@@ -2,8 +2,8 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const { ERROR_OUTPUT_STRING } = require("./_modules/constants");
-const { shouldDisplayHelpMenu } = require("./tests/describes");
+const { ERROR_OUTPUT_STRING } = require("./modules/constants");
+const { shouldDisplayHelpMenu } = require("./tests/shared-specs");
 const testUtils = require("./tests/test-utils");
 
 // #endregion Imports

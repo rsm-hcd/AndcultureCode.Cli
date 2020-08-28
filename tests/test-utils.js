@@ -2,14 +2,15 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
+const { StringUtils } = require("andculturecode-javascript-core");
 const child_process = require("child_process");
 const concat = require("concat-stream");
-const constants = require("../_modules/constants");
+const constants = require("../modules/constants");
 const faker = require("faker");
-const formatters = require("../_modules/formatters");
+const formatters = require("../modules/formatters");
 const path = require("path");
-const upath = require("upath");
 const shell = require("shelljs");
+const upath = require("upath");
 
 // #endregion Imports
 
@@ -65,6 +66,21 @@ const _createNodeProcess = (processPath, args = [], env = null) => {
 };
 
 /**
+ * Wrapper around the `dotnet` CLI for scaffolding out new solutions/projects.
+ *
+ * @param {string} type Type of the dotnet project to be created, such as `solution`, `console`, `xunit`, etc.
+ * @param {string} [name=""]
+ */
+const _executeDotnetNew = (type, name = "") => {
+    // Base arguments for creating the project
+    const args = ["new", type];
+    if (StringUtils.hasValue(name)) {
+        args.push("--name", name);
+    }
+    testUtils.executeOrThrow("dotnet", args);
+};
+
+/**
  * Wrapper around `child_process.spawn()` that creates a child node process to execute the given
  * process path, returning a promise that can be awaited.
  *
@@ -112,6 +128,16 @@ const _throwFatalError = (message) => {
  */
 const testUtils = {
     /**
+     * Adds one or more dotnet projects to the solution in the current directory based on the given
+     * path. Defaults to `"\*\*\/*.csproj"` which will adds all projects in the current directory to the solution.
+     *
+     * @param {string} [path="."]
+     */
+    addDotnetProject(path = "**/*.csproj") {
+        const matchingPaths = shell.ls(path);
+        this.executeOrThrow("dotnet", ["sln", "add", ...matchingPaths]);
+    },
+    /**
      * Creates and enters a temporary working directory. Returns the directory name as well as
      * a cleanup function for resetting the working directory and removing created dir/files.
      *
@@ -136,6 +162,33 @@ const testUtils = {
         };
 
         return { cleanupTmpDir, tmpDir };
+    },
+    /**
+     * Uses the dotnet cli to creates a new dotnet solution in the current directory. If no name is
+     * provided, it uses the name of the current directory as the solution name.
+     *
+     * @param {string} [name=""]
+     */
+    createDotnetSolution(name = "") {
+        _executeDotnetNew("solution", name);
+    },
+    /**
+     * Uses the dotnet cli to creates a new dotnet console app in the current directory. If no name is
+     * provided, it uses the name of the current directory as the project name.
+     *
+     * @param {string} [name=""]
+     */
+    createDotnetConsoleApp(name = "") {
+        _executeDotnetNew("console", name);
+    },
+    /**
+     * Uses the dotnet cli to creates a new XUnit project in the current directory. If no name is
+     * provided, it uses the name of the current directory as the project name.
+     *
+     * @param {string} [name=""]
+     */
+    createDotnetXUnitProject(name = "") {
+        _executeDotnetNew("xunit", name);
     },
     /**
      * Wrapper around `child_process.spawn` that passes in the main executable, `cli.js`, as the process path.
@@ -200,6 +253,28 @@ const testUtils = {
      */
     randomWord() {
         return faker.random.word().split(" ")[0];
+    },
+
+    /**
+     * Returns a Jest spy instance of the mocked `shell.exit` method
+     */
+    spyOnShellExit() {
+        const shellMock = jest.requireMock("shelljs");
+        return jest.spyOn(shellMock, "exit").mockImplementation();
+    },
+
+    /**
+     *  Returns a Jest spy instance of the mocked `child_process.spawnSync` method
+     *
+     * @param {number} status Optional exit status for the mocked method to return. Defaults to 0.
+     */
+    spyOnSpawnSync(status = 0) {
+        const child_processMock = jest.requireMock("child_process");
+        return jest
+            .spyOn(child_processMock, "spawnSync")
+            .mockImplementation(() => {
+                return { status };
+            });
     },
 };
 

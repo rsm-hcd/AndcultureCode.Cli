@@ -4,8 +4,8 @@ require("./command-runner").run(async () => {
     // #region Imports
     // -----------------------------------------------------------------------------------------
 
-    const azure = require("./_modules/azure");
-    const echo = require("./_modules/echo");
+    const azure = require("./modules/azure");
+    const echo = require("./modules/echo");
     const program = require("commander");
     const shell = require("shelljs");
 

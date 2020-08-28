@@ -3,7 +3,9 @@
 // -----------------------------------------------------------------------------------------
 
 const child_process = require("child_process");
+const commandStringFactory = require("../utilities/command-string-factory");
 const echo = require("./echo");
+const optionStringFactory = require("../utilities/option-string-factory");
 const ps = require("./ps");
 const shell = require("shelljs");
 
@@ -15,16 +17,13 @@ const shell = require("shelljs");
 
 const dotnetKill = {
     cmd() {
-        return {
-            args: ["build-server", "shutdown"],
-            cmd: "dotnet",
-            toString() {
-                return `${this.cmd} ${this.args.join(" ")}`;
-            },
-        };
+        return commandStringFactory.build("dotnet", "build-server", "shutdown");
     },
     description() {
         return `Forcefully kills any running dotnet processes (see https://github.com/dotnet/cli/issues/1327)`;
+    },
+    getOptions() {
+        return optionStringFactory.build("kill", "-k");
     },
     async run() {
         const { cmd, args } = this.cmd();

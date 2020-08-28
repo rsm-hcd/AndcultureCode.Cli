@@ -2,11 +2,10 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const child_process = require("child_process");
 const dotnetKill = require("./dotnet-kill");
 const faker = require("faker");
 const ps = require("./ps");
-const shell = require("shelljs");
+const testUtils = require("../tests/test-utils");
 
 // #endregion Imports
 
@@ -31,17 +30,13 @@ describe("dotnetKill", () => {
     describe("run", () => {
         let shellExitSpy;
         beforeEach(() => {
-            shellExitSpy = jest.spyOn(shell, "exit").mockImplementation();
+            shellExitSpy = testUtils.spyOnShellExit();
         });
 
         test(`when '${dotnetKill.cmd()}' fails, it calls shell.exit`, () => {
             // Arrange
             const exitCode = faker.random.number({ min: 1 });
-            const spawnSyncSpy = jest
-                .spyOn(child_process, "spawnSync")
-                .mockImplementationOnce(() => {
-                    return { status: exitCode };
-                });
+            const spawnSyncSpy = testUtils.spyOnSpawnSync(exitCode);
 
             // Act
             dotnetKill.run();

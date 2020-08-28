@@ -4,9 +4,9 @@ require("./command-runner").run(async () => {
     // #region Imports
     // -----------------------------------------------------------------------------------------
 
-    const commands = require("./_modules/commands");
-    const echo = require("./_modules/echo");
-    const file = require("./_modules/file");
+    const commands = require("./modules/commands");
+    const echo = require("./modules/echo");
+    const file = require("./modules/file");
     const path = require("path");
     const program = require("commander");
     const shell = require("shelljs");

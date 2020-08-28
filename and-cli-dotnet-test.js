@@ -3,7 +3,7 @@ require("./command-runner").run(async () => {
     // -----------------------------------------------------------------------------------------
     // #region Imports
     // -----------------------------------------------------------------------------------------
-    const dotnetTest = require("./_modules/dotnet-test");
+    const dotnetTest = require("./modules/dotnet-test");
     const program = require("commander");
 
     // #endregion Imports
@@ -21,7 +21,7 @@ require("./command-runner").run(async () => {
         )
         .option(
             "--ci",
-            "Runs the command in a 'ci' (continuous integration) mode, which provides a summary of failed test projects (only effects --by-project mode)"
+            "Runs the command in a 'ci' (continuous integration) mode, which provides a summary of failed test projects (only affects --by-project mode)"
         )
         .option(
             "--coverage",

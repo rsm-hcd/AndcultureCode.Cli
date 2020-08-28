@@ -4,8 +4,8 @@ require("./command-runner").run(async () => {
     // #region Imports
     // -----------------------------------------------------------------------------------------
 
-    const commands = require("./_modules/commands");
-    const migration = require("./_modules/migration");
+    const commands = require("./modules/commands");
+    const migration = require("./modules/migration");
     const program = require("commander");
 
     // #endregion Imports

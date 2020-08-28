@@ -2,9 +2,12 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
+const { StringUtils } = require("andculturecode-javascript-core");
+const commandStringFactory = require("../utilities/command-string-factory");
 const dir = require("./dir");
 const dotnetPath = require("./dotnet-path");
 const echo = require("./echo");
+const optionStringFactory = require("../utilities/option-string-factory");
 const shell = require("shelljs");
 
 // #endregion Imports
@@ -15,16 +18,23 @@ const shell = require("shelljs");
 
 const dotnetPublish = {
     cmd(outputDirectory) {
-        if (outputDirectory === undefined || outputDirectory === null) {
-            return "dotnet publish";
+        if (StringUtils.isEmpty(outputDirectory)) {
+            return commandStringFactory.build("dotnet", "publish");
         }
 
-        return `dotnet publish -o "${outputDirectory}"`;
+        return commandStringFactory.build(
+            "dotnet",
+            "publish",
+            "-o",
+            `"${outputDirectory}"`
+        );
     },
     description() {
         return `Publishes the dotnet solution from the root of the project (via ${this.cmd()})`;
     },
-
+    getOptions() {
+        return optionStringFactory.build("publish", "p");
+    },
     /**
      * Runs a publish of the dotnet solution to the local file system
      * @param {string} absoluteOutputDir Optional absolute path of release output directory. If not provided,
