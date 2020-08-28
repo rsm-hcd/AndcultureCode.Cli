@@ -17,7 +17,7 @@
         "preinstall": "npm run configure:git",
         "test": "jest",
         "test:unit": "jest --coverage '^((?!and-cli).)*$'",
-        "test:integration": "jest '(and-cli)(.)*(.test.js)'",
+        "test:integration": "jest --runInBand '(and-cli)(.)*(.test.js)'",
         "watch:test": "jest --watch"
     },
     "repository": {
