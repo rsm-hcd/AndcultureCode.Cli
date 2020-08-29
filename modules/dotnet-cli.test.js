@@ -7,7 +7,9 @@ const dotnetBuild = require("./dotnet-build");
 const dotnetCli = require("./dotnet-cli");
 const dotnetPath = require("./dotnet-path");
 const faker = require("faker");
+const path = require("path");
 const shell = require("shelljs");
+const testUtils = require("../tests/test-utils");
 
 // #endregion Imports
 
@@ -16,6 +18,28 @@ const shell = require("shelljs");
 // -----------------------------------------------------------------------------------------
 
 describe("dotnetCli", () => {
+    // -----------------------------------------------------------------------------------------
+    // #region cmd
+    // -----------------------------------------------------------------------------------------
+
+    describe("cmd", () => {
+        test("given a space separated string of arguments, it returns a properly command string to the Cli executable", () => {
+            // Arrange
+            const cliPath = testUtils.randomFile();
+            const cliArgs = faker.random.words(3);
+            jest.spyOn(dotnetPath, "cliPath").mockImplementation(() => cliPath);
+            const expectedString = `dotnet ${cliPath} ${cliArgs}`;
+
+            // Act
+            const result = dotnetCli.cmd(cliArgs).toString();
+
+            // Assert
+            expect(result).toBe(expectedString);
+        });
+    });
+
+    // #endregion cmd
+
     // -----------------------------------------------------------------------------------------
     // #region run
     // -----------------------------------------------------------------------------------------
@@ -26,7 +50,7 @@ describe("dotnetCli", () => {
             shellExitSpy = jest.spyOn(shell, "exit").mockImplementation();
         });
 
-        test(`when dotnetPath.cliDir() path returns undefined it calls donetBuild.run`, () => {
+        test("when dotnetPath.cliDir returns undefined, it calls dotnetBuild.run", () => {
             // Arrange
             const dotnetPathSpy = jest
                 .spyOn(dotnetPath, "cliDir")
@@ -43,14 +67,10 @@ describe("dotnetCli", () => {
             expect(dotnetBuildSpy).toHaveBeenCalled();
         });
 
-        test(`when spawn.sync returns non 0 it calls shell.exit with the status`, () => {
+        test("when child_process.spawnSync returns non-zero status, it calls shell.exit with the status", () => {
             // Arrange
-            const exitCode = faker.random.number({ min: 1 });
-            const spawnSync = jest
-                .spyOn(child_process, "spawnSync")
-                .mockImplementation(() => {
-                    return { status: exitCode };
-                });
+            const exitCode = testUtils.randomNumber(1);
+            const spawnSync = testUtils.spyOnSpawnSync(exitCode);
 
             // Act
             dotnetCli.run();
