@@ -12,6 +12,16 @@ const testUtils = require("../tests/test-utils");
 // #endregion Imports
 
 // -----------------------------------------------------------------------------------------
+// #region Mocks
+// -----------------------------------------------------------------------------------------
+
+// Mocking dir module to suppress lots of extra output from popd/pushd errors from lack of actual
+// directory stack.
+jest.mock("./dir");
+
+// #endregion Mocks
+
+// -----------------------------------------------------------------------------------------
 // #region Tests
 // -----------------------------------------------------------------------------------------
 
