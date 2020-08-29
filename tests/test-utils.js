@@ -260,15 +260,18 @@ const testUtils = {
      * it yet
      *
      * See https://stackoverflow.com/a/39960706
-     * @param {string} extension
+     * @param {boolean} [includePath=false] Flag to determine whether a full path is generated along
+     * with the filename, or just the filename itself.
      * @returns
      */
-    randomFile(extension) {
-        if (StringUtils.isEmpty(extension)) {
-            extension = faker.system.commonFileExt();
+    randomFile(includePath = false) {
+        const extension = `.${faker.system.commonFileExt()}`;
+
+        if (includePath) {
+            return `${this.randomPath()}${extension}`;
         }
 
-        return `${this.randomPath()}.${extension}`;
+        return `${this.randomWord()}${extension}`;
     },
 
     /**
