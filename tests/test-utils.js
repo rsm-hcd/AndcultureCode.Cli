@@ -246,16 +246,6 @@ const testUtils = {
     },
 
     /**
-     * Wrapper of faker.random.number
-     *
-     * @param {number} [min=Number.MIN_VALUE] Minimum number value to randomly generate
-     * @param {number} [max=Number.MAX_VALUE] Maximum number value to randomly generate
-     */
-    randomNumber(min = Number.MIN_VALUE, max = Number.MAX_VALUE) {
-        return faker.random.number({ min, max });
-    },
-
-    /**
      * Implementation of a random file generating function, since faker.js does not seem to have
      * it yet
      *
@@ -272,6 +262,16 @@ const testUtils = {
         }
 
         return `${this.randomWord()}${extension}`;
+    },
+
+    /**
+     * Wrapper of faker.random.number
+     *
+     * @param {number} [min=Number.MIN_VALUE] Minimum number value to randomly generate
+     * @param {number} [max=Number.MAX_VALUE] Maximum number value to randomly generate
+     */
+    randomNumber(min = Number.MIN_VALUE, max = Number.MAX_VALUE) {
+        return faker.random.number({ min, max });
     },
 
     /**
