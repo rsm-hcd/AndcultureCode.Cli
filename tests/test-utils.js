@@ -246,6 +246,57 @@ const testUtils = {
     },
 
     /**
+     * Implementation of a random file generating function, since faker.js does not seem to have
+     * it yet
+     *
+     * See https://stackoverflow.com/a/39960706
+     * @param {boolean} [includePath=false] Flag to determine whether a full path is generated along
+     * with the filename, or just the filename itself.
+     * @returns
+     */
+    randomFile(includePath = false) {
+        const extension = `.${faker.system.commonFileExt()}`;
+
+        if (includePath) {
+            return `${this.randomPath()}${extension}`;
+        }
+
+        return `${this.randomWord()}${extension}`;
+    },
+
+    /**
+     * Wrapper of faker.random.number
+     *
+     * @param {number} [min=Number.MIN_VALUE] Minimum number value to randomly generate
+     * @param {number} [max=Number.MAX_VALUE] Maximum number value to randomly generate
+     */
+    randomNumber(min = Number.MIN_VALUE, max = Number.MAX_VALUE) {
+        return faker.random.number({ min, max });
+    },
+
+    /**
+     * Implementation of a random path generating function based on https://stackoverflow.com/a/39960706
+     *
+     * @param {number} [maxDepth=5] Maximum number of directories deep to generate a path for.
+     * @returns A randomly generated path with the platform-specific separator
+     */
+    randomPath(maxDepth = 5) {
+        // Override invalid values for the max depth of the path
+        if (maxDepth == null || maxDepth <= 1) {
+            maxDepth = 5;
+        }
+
+        const words = [];
+        for (let i = 0; i < maxDepth; i++) {
+            words.push(this.randomWord());
+        }
+        const randomPath = words.join(path.sep).toLowerCase();
+        return path.format({
+            base: randomPath,
+        });
+    },
+
+    /**
      * Wrapper of faker.random.word.
      *
      * Unfortunately there is an unresolved bug https://github.com/Marak/faker.js/issues/661

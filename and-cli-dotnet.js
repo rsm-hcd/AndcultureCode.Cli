@@ -62,7 +62,7 @@ require("./command-runner").run(async () => {
     }
 
     if (program.cli) {
-        dotnetCli.run(program.args.join(" "));
+        dotnetCli.run(program.args);
     }
 
     if (program.kill) {

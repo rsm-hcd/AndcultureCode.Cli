@@ -20,13 +20,9 @@ const shell = require("shelljs");
 // -----------------------------------------------------------------------------------------
 
 const dotnetCli = {
-    cmd(cliArgs = "") {
+    cmd(cliArgs = []) {
         const pathName = path.basename(dotnetPath.cliPath() || "");
-        return commandStringFactory.build(
-            "dotnet",
-            pathName,
-            cliArgs.split(" ")
-        );
+        return commandStringFactory.build("dotnet", pathName, ...cliArgs);
     },
     description() {
         return (
@@ -40,7 +36,7 @@ const dotnetCli = {
     getOptions() {
         return optionStringFactory.build("cli", "C");
     },
-    run(cliArgs = "") {
+    run(cliArgs = []) {
         const cliDir = dotnetPath.cliDir();
 
         // Build dotnet project if the *Cli.dll is not found

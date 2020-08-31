@@ -15,7 +15,7 @@ const upath = require("upath");
 // -----------------------------------------------------------------------------------------
 
 /**
- * Representse the directory where a Presentation.Cli dll would live after a `dotnet build`
+ * Represents the directory where a Presentation.Cli dll would live after a `dotnet build`
  */
 const cliFilePath = "Presentation/Cli/bin/Debug/**/*Cli.dll";
 

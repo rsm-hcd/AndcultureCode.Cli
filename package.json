@@ -13,11 +13,12 @@
         "cli"
     ],
     "scripts": {
-        "configure:git": "echo Ensuring git hooksPath is set to .githooks directory && git config core.hooksPath .githooks && chmod +x .githooks/*",
+        "configure:git": "echo Ensuring git hooksPath is set to .githooks directory; git config core.hooksPath .githooks; chmod +x .githooks/*",
+        "postpublish": "cross-env-shell \"git add -A && git commit -m \"$npm_package_version\" && git push origin master\"",
         "preinstall": "npm run configure:git",
         "test": "jest",
-        "test:unit": "jest --coverage '^((?!and-cli).)*$'",
-        "test:integration": "jest --runInBand '(and-cli)(.)*(.test.js)'",
+        "test:unit": "jest --coverage \"^((?!and-cli).)*$\"",
+        "test:integration": "jest --runInBand \"(and-cli)(.)*(.test.js)\"",
         "watch:test": "jest --watch"
     },
     "repository": {
