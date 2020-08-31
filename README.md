@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/AndcultureCode/AndcultureCode.Cli.svg?branch=master)](https://travis-ci.org/AndcultureCode/AndcultureCode.Cli)
 [![codecov](https://codecov.io/gh/AndcultureCode/AndcultureCode.Cli/branch/master/graph/badge.svg)](https://codecov.io/gh/AndcultureCode/AndcultureCode.Cli)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 `and-cli` command-line tool to manage the development of software applications.
 
