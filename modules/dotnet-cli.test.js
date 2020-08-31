@@ -31,7 +31,7 @@ describe("dotnetCli", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("cmd", () => {
-        test("given a string array of arguments, it returns a properly command string to the Cli executable", () => {
+        test("given a string array of arguments, it returns a properly formatted command string to the Cli path with space-separated arguments", () => {
             // Arrange
             const cliPath = testUtils.randomFile();
             const cliArgs = faker.random.words(3).split(" ");
@@ -55,7 +55,7 @@ describe("dotnetCli", () => {
     describe("run", () => {
         let shellExitSpy;
         beforeEach(() => {
-            shellExitSpy = jest.spyOn(shell, "exit").mockImplementation();
+            shellExitSpy = testUtils.spyOnShellExit();
         });
 
         test("when dotnetPath.cliPath returns undefined, it calls dotnetBuild.run", () => {
