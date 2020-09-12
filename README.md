@@ -40,7 +40,83 @@ npm install and-cli -g
 yarn global add and-cli
 ```
 
-The documentation for `and-cli` can be found in [COMMANDS.md](./COMMANDS.md).
+The documentation for `and-cli` commands can be found in [COMMANDS.md](./COMMANDS.md).
+
+## Project structure
+
+```
+.
+├── __mocks__/                              # Mocked module implementations for Jest
+│   ...
+│   └── shelljs.js
+├── modules/                                # Modules are shared functions holding business logic to be imported & called by commands
+│   ...
+│   ├── command-registry.js                 # Module holding abstractions around command registration (internal & external)
+│   ├── command-registry.test.js            # Unit test file for the command-registry module
+│   ├── commands.js                         # Module exporting names & descriptions of each command to be registered for the CLI
+|   ...
+│   └── zip.js
+├── tests/                                  # Setup, utilities and shared specs for the test suite
+|   ...
+│   └── test-utils.js
+├── types/                                  # Custom types found in the project. Not currently on TS, but this will ease the migration
+|   ...
+│   └── option-string-type.js
+├── utilities/                              # Utility functions that aren't really categorized as a standard 'module'
+|   ...
+|   ├── option-string-factory.js            # Factory for building out option strings to be passed to `program.option`, ie `-i, --info`
+|   └── option-string-factory.test.js       # Unit tests file for the option-string-factory utility
+├── and-cli.js                              # Main entrypoint/parent command that registers subcommands
+├── and-cli-copy.js                         # Implementation of the 'copy' command
+├── and-cli-copy.test.js                    # Integration test file for the 'copy' command
+| ...
+├── and-cli.test.js                         # Integration test file for the main entrypoint/parent command
+├── COMMANDS.md                             # Markdown file containing extra documentation for each command
+├── command-runner.js                       # Utility module for wrapping command body functions in to mimic top-level async
+├── package.json
+└── package-lock.json
+
+```
+
+## Testing strategy
+
+For testing, we use [`Jest`](https://github.com/facebook/jest). We integration test top-level commands (such as `and-cli-dotnet`) and unit test shared modules/utilities (such as `modules/dotnet-build` or `utilities/option-string-factory`).
+
+While we do not have any coverage thresholds currently configured, we ask that new modules/utilities introduced to the codebase are unit tested for high-value paths. Integration tests should be considered, but written more sparingly due to the overhead of run-time.
+
+## Extending functionality
+
+The functionality of this CLI can be extended by adding it as a dependency in your node project and requiring the main module, ie `require("and-cli")`. All commands should be registered through the `command-registry` module, which provides multiple functions for adding, overriding, and removing commands.
+
+A small example of a project that imports this package and pulls in all of the base commands:
+
+```JS
+#!/usr/bin/env node
+
+// -----------------------------------------------------------------------------------------
+// #region Imports
+// -----------------------------------------------------------------------------------------
+
+const commandRegistry = require("and-cli/modules/command-registry");
+const program = require("and-cli");
+
+// #endregion Imports
+
+// -----------------------------------------------------------------------------------------
+// #region Entrypoint
+// -----------------------------------------------------------------------------------------
+
+// Register all of the base commands from the and-cli with this application
+commandRegistry.registerBaseCommands();
+
+program.parse(process.argv);
+
+// #endregion Entrypoint
+```
+
+For more examples, or to see what the full project structure might look like, see this example repository:
+
+[`and-cli-plugin-example`](https://github.com/brandongregoryscott/and-cli-plugin-example)
 
 ## Troubleshooting
 

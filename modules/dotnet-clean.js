@@ -3,6 +3,7 @@
 // -----------------------------------------------------------------------------------------
 
 const { CollectionUtils } = require("andculturecode-javascript-core");
+const { NODE_MODULES } = require("./constants");
 const child_process = require("child_process");
 const commandStringFactory = require("../utilities/command-string-factory");
 const dir = require("./dir");
@@ -29,7 +30,7 @@ const _getMatchingPaths = (dir) =>
         if (path.startsWith(".git")) {
             return false;
         } // If sln is on the root of repo, we must avoid cleaning .git
-        if (path.includes("node_modules")) {
+        if (path.includes(NODE_MODULES)) {
             return false;
         } // Disregard any in node_modules directories
         return path.match(dir);

@@ -1,0 +1,28 @@
+{
+    "[csharp]": {
+        "editor.defaultFormatter": "ms-dotnettools.csharp"
+    },
+    "[scss]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "csharp.format.enable": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.rulers": [100],
+    "json.schemas": [
+        {
+            "fileMatch": ["cypress.json"],
+            "url": "https://on.cypress.io/cypress.schema.json"
+        }
+    ],
+    "prettier.requireConfig": true,
+    "trailing-spaces.trimOnSave": true,
+    "typescript.preferences.quoteStyle": "double",
+    "typescript.tsdk": "./frontend/node_modules/typescript/lib"
+}

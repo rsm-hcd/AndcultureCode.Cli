@@ -2,6 +2,12 @@
 // #region Exports
 // -----------------------------------------------------------------------------------------
 
+/** Constant to hold a reference to name of the CLI so we aren't hard-coding it multiple places */
+module.exports.CLI_NAME = "and-cli";
+
+/** Constant to hold a reference to the name of the entrypoint/main file */
+module.exports.ENTRYPOINT = `${this.CLI_NAME}.js`;
+
 /** Output to be prefixed on messages sent to echo.error() */
 module.exports.ERROR_OUTPUT_STRING = "[ERROR]";
 
@@ -18,6 +24,9 @@ module.exports.HELP_DESCRIPTION = "display help for command";
 
 /** Constant to hold the standard help flags for commands */
 module.exports.HELP_OPTIONS = ["-h", "--help"];
+
+/** Constant to hold the 'node_modules' directory string */
+module.exports.NODE_MODULES = "node_modules";
 
 /** Constant to hold the standard 'unknown command' output from Commander when parsing arguments */
 module.exports.UNKNOWN_COMMAND = "unknown command";
