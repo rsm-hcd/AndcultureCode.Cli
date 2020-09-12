@@ -248,13 +248,11 @@ const testUtils = {
     /**
      * Returns a randomized casing (mix of uppercase/lowercase letters) of the provided string.
      *
-     * If no string is provided, the `randomWord` function is used to generate a random string.
-     *
      * @param {word} string
      */
     randomCase(word) {
         if (StringUtils.isEmpty(word)) {
-            word = this.randomWord();
+            return "";
         }
 
         const randomizedString = word
