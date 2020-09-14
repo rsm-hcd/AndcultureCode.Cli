@@ -2,6 +2,7 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
+const { NODE_MODULES } = require("./constants");
 const commandStringFactory = require("../utilities/command-string-factory");
 const echo = require("./echo");
 const optionStringFactory = require("../utilities/option-string-factory");
@@ -10,20 +11,12 @@ const shell = require("shelljs");
 // #endregion Imports
 
 // -----------------------------------------------------------------------------------------
-// #region Constants
-// -----------------------------------------------------------------------------------------
-
-const NODE_MODULES_DIR = "node_modules";
-
-// #endregion Constants
-
-// -----------------------------------------------------------------------------------------
 // #region Functions
 // -----------------------------------------------------------------------------------------
 
 const nodeClean = {
     cmd() {
-        return commandStringFactory.build("rm", "-rf", NODE_MODULES_DIR);
+        return commandStringFactory.build("rm", "-rf", NODE_MODULES);
     },
     description() {
         return `Clean the npm dependencies (via ${this.cmd()}) in the current directory`;
@@ -33,12 +26,12 @@ const nodeClean = {
     },
     run() {
         echo.message(
-            `Recursively deleting '${NODE_MODULES_DIR}' directory in ${shell.pwd()}...`
+            `Recursively deleting '${NODE_MODULES}' directory in ${shell.pwd()}...`
         );
 
-        shell.rm("-rf", NODE_MODULES_DIR);
+        shell.rm("-rf", NODE_MODULES);
 
-        echo.success(`'${NODE_MODULES_DIR}' directory deleted successfully!`);
+        echo.success(`'${NODE_MODULES}' directory deleted successfully!`);
     },
 };
 

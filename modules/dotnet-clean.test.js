@@ -2,6 +2,7 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
+const { NODE_MODULES } = require("./constants");
 const dotnetPath = require("./dotnet-path");
 const dotnetClean = require("./dotnet-clean");
 const faker = require("faker");
@@ -82,7 +83,7 @@ describe("dotnetClean", () => {
             // Arrange
             const shellFindSpy = jest
                 .spyOn(shell, "find")
-                .mockImplementation(() => ["node_modules", "bin", "obj"]);
+                .mockImplementation(() => [NODE_MODULES, "bin", "obj"]);
             const shellRmSpy = jest.spyOn(shell, "rm");
 
             // Act

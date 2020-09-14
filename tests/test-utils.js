@@ -204,7 +204,7 @@ const testUtils = {
         // Generate the absolute path of the main executable file (cli.js) based on the current
         // file's directory.
         const cliEntrypointPath = upath.toUnix(
-            path.join(__dirname, "..", "and-cli.js")
+            path.join(__dirname, "..", constants.ENTRYPOINT)
         );
         if (command != null) {
             args = [command, ...args];
@@ -245,6 +245,30 @@ const testUtils = {
         return !this.isCI();
     },
 
+    /**
+     * Returns a randomized casing (mix of uppercase/lowercase letters) of the provided string.
+     *
+     * @param {word} string
+     */
+    randomCase(word) {
+        if (StringUtils.isEmpty(word)) {
+            return "";
+        }
+
+        const randomizedString = word
+            .split("")
+            .map((char) => {
+                const randomInt = this.randomNumber(1, 100);
+                if (randomInt % 2 === 0) {
+                    return char.toUpperCase();
+                }
+
+                return char.toLowerCase();
+            })
+            .join("");
+
+        return randomizedString;
+    },
     /**
      * Implementation of a random file generating function, since faker.js does not seem to have
      * it yet
@@ -300,7 +324,7 @@ const testUtils = {
      * Wrapper of faker.random.word.
      *
      * Unfortunately there is an unresolved bug https://github.com/Marak/faker.js/issues/661
-     * and it will occassionally return multiple which can cause test flake
+     * and it will occasionally return multiple which can cause test flake
      */
     randomWord() {
         return faker.random.word().split(" ")[0];

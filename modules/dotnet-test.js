@@ -70,7 +70,7 @@ let _withCoverage = false;
 const _buildCommandString = (project = "") => {
     const { cmd } = BASE_COMMAND_STRING;
     // Clone the args from the base command so we aren't manipulating the same references
-    const args = [...BASE_COMMAND_STRING.args];
+    let args = [...BASE_COMMAND_STRING.args];
 
     if (_withCoverage) {
         // The two coverage flags need to be pushed onto the args array before the project name

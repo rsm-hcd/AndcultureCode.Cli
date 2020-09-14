@@ -4,6 +4,8 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
+const { CLI_NAME } = require("./modules/constants");
+const commandRegistry = require("./modules/command-registry");
 const program = require("commander");
 const shell = require("shelljs");
 
@@ -16,7 +18,7 @@ const shell = require("shelljs");
 const deployTypes = shell
     .ls(__dirname)
     .filter((file) => !file.includes("test"))
-    .filter((file) => file.startsWith("and-cli-deploy-"))
+    .filter((file) => file.startsWith(`${CLI_NAME}-deploy-`))
     .map((file) => file.match(/and-cli-deploy-(.*)\.js/)[1]);
 
 // #endregion Variables
@@ -27,9 +29,14 @@ const deployTypes = shell
 
 program.description("Runs deployments for various application types");
 
-deployTypes.forEach((deployType) => {
-    program.command(deployType, `Run deployments for ${deployType}`); // Note: Description is required
-});
+commandRegistry.registerCommands(
+    deployTypes.map((deployType) => {
+        return {
+            command: deployType,
+            description: `Run deployments for ${deployType}`,
+        };
+    })
+);
 
 program.parse(process.argv);
 
