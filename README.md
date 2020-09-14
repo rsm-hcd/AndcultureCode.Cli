@@ -116,7 +116,7 @@ program.parse(process.argv);
 
 For more examples, or to see what the full project structure might look like, see this example repository:
 
-[`and-cli-plugin-example`](https://github.com/brandongregoryscott/and-cli-plugin-example)
+[`AndcultureCode.Cli.PluginExample`](https://github.com/AndcultureCode/AndcultureCode.Cli.PluginExample)
 
 ## Troubleshooting
 
