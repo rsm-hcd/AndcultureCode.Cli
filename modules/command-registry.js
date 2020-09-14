@@ -82,22 +82,6 @@ const _getExecutablePath = (commandName) => {
 };
 
 /**
- * Removes a command from the program by name.
- *
- * @param {string} name
- */
-const _removeCommand = (commandName) => {
-    if (StringUtils.isEmpty(commandName)) {
-        return;
-    }
-
-    program.commands = program.commands.filter(
-        (registeredCommand) =>
-            !_commandEqualsByName(registeredCommand, commandName)
-    );
-};
-
-/**
  * Sorts the command list alphabetically by name
  */
 const _sortCommandsByName = () => {
@@ -150,10 +134,9 @@ const _validateAndGetBaseCommand = (commandName) => {
  * Validates a command registration based on whether a command of the same name is already registered,
  * and if the consumer has opted in to overriding it.
  *
- * If the command exists and the user has opted in to overriding it, it will remove the original command.
- *
  * @param {CommandDefinition} commandDefinition
  * @param {boolean} overrideIfRegistered
+ * @returns {boolean} True if the command is not already registered, or is registered & can be overridden.
  */
 const _validateCommandRegistration = (
     commandDefinition,
@@ -164,19 +147,14 @@ const _validateCommandRegistration = (
     // First, check to see if command is already registered.
     const commandIsRegistered = _getCommand(command) != null;
 
-    if (commandIsRegistered && !overrideIfRegistered) {
-        echo.warn(
-            `Command '${command}' has already been registered and 'overrideIfRegistered' is set to false. Skipping this command registration.`
-        );
-        return false;
+    if (!commandIsRegistered || overrideIfRegistered) {
+        return true;
     }
 
-    if (commandIsRegistered && overrideIfRegistered) {
-        // Filter out the registered command of the same name
-        _removeCommand(command);
-    }
-
-    return true;
+    echo.warn(
+        `Command '${command}' has already been registered and 'overrideIfRegistered' is set to false. Skipping this command registration.`
+    );
+    return false;
 };
 
 /**
@@ -203,8 +181,6 @@ const _registerCommand = (commandDefinition, isBaseCommand = false) => {
     });
 
     _sortCommandsByName();
-
-    return;
 };
 
 /**
@@ -242,7 +218,6 @@ const commandRegistry = {
      */
     clear() {
         program.commands = [];
-
         return this;
     },
 
@@ -260,7 +235,6 @@ const commandRegistry = {
      * Returns a registered command by name. If the command is not registered, returns `undefined`
      *
      * @param {string} name
-     *
      * @returns {program.Command}
      */
     getCommand(name) {
@@ -274,7 +248,6 @@ const commandRegistry = {
      * Should only be called once.
      *
      * @param {boolean} isImportedModule
-     *
      * @returns `this` for chaining
      */
     initialize(isImportedModule) {
@@ -294,7 +267,6 @@ const commandRegistry = {
      * @param {boolean} [overrideIfRegistered=false] If true, subsequent registrations of a command
      * with the same name will override the last. Otherwise, a warning will be displayed and the
      * original command will remain.
-     *
      * @returns `this` for chaining
      */
     registerBaseCommand(name, overrideIfRegistered = false) {
@@ -304,10 +276,14 @@ const commandRegistry = {
             return this;
         }
 
+        // Ensure we are able to register the given command based on name + configuration
         if (!_validateCommandRegistration(baseCommand, overrideIfRegistered)) {
             return this;
         }
 
+        // Filter out the registered command of the same name incase it is already registered
+        // If it is not already registered, this should have no effect.
+        this.removeCommand(name);
         _registerCommand(baseCommand, true);
 
         return this;
@@ -338,10 +314,10 @@ const commandRegistry = {
      * @param {boolean} [overrideIfRegistered=false] If true, subsequent registrations of a command
      * with the same name will override the last. Otherwise, a warning will be displayed and the
      * original command will remain.
-     *
      * @returns `this` for chaining
      */
     registerCommand(commandDefinition, overrideIfRegistered = false) {
+        // Ensure we are able to register the given command based on name + configuration
         if (
             !_validateCommandRegistration(
                 commandDefinition,
@@ -351,6 +327,9 @@ const commandRegistry = {
             return this;
         }
 
+        // Filter out the registered command of the same name incase it is already registered
+        // If it is not already registered, this should have no effect.
+        this.removeCommand(commandDefinition.command);
         _registerCommand(commandDefinition, false);
 
         return this;
@@ -363,7 +342,6 @@ const commandRegistry = {
      * @param {boolean} [overrideIfRegistered=false] If true, subsequent registrations of a command
      * with the same name will override the last. Otherwise, a warning will be displayed and the
      * original command will remain.
-     *
      * @returns `this` for chaining
      */
     registerCommands(commands, overrideIfRegistered = false) {
@@ -382,11 +360,18 @@ const commandRegistry = {
      * Removes a command from the program by name.
      *
      * @param {string} name
-     *
      * @returns `this` for chaining
      */
     removeCommand(name) {
-        _removeCommand(name);
+        if (StringUtils.isEmpty(name)) {
+            return;
+        }
+
+        program.commands = program.commands.filter(
+            (registeredCommand) =>
+                !_commandEqualsByName(registeredCommand, name)
+        );
+
         return this;
     },
 };

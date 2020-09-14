@@ -94,7 +94,7 @@ if (isNotImportedModule()) {
  * can build their own custom commands along with the ones that we provide out of the box, or pick
  * and choose specific commands/modules. See the linked repository for an example project.
  *
- * @see https://github.com/brandongregoryscott/and-cli-plugin-example
+ * @see https://github.com/AndcultureCode/AndcultureCode.Cli.PluginExample
  */
 module.exports = program;
 
