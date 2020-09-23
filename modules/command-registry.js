@@ -7,17 +7,24 @@ const {
     StringUtils,
     CollectionUtils,
 } = require("andculturecode-javascript-core");
+const { purple } = require("./formatters");
 const commands = require("./commands");
 const echo = require("./echo");
-const path = require("path");
+const packageConfig = require("./package-config");
 const program = require("commander");
 const shell = require("shelljs");
+const upath = require("upath");
 
 // #endregion Imports
 
 // -----------------------------------------------------------------------------------------
-// #region Variables
+// #region Constants
 // -----------------------------------------------------------------------------------------
+
+/**
+ * Informational prefix to display before aliased commands in the help menu
+ */
+const ALIAS_PREFIX = purple("(alias)");
 
 /**
  * Flattened array of CommandDefinitions from the base project. (see 'commands' module)
@@ -27,6 +34,12 @@ const shell = require("shelljs");
 const BASE_COMMAND_DEFINITIONS = Object.keys(commands).map(
     (key) => commands[key]
 );
+
+// #endregion Constants
+
+// -----------------------------------------------------------------------------------------
+// #region Variables
+// -----------------------------------------------------------------------------------------
 
 /**
  * Boolean flag to determine whether the application is being run directly or as a required package.
@@ -66,6 +79,26 @@ const _getCommand = (commandName) => {
 };
 
 /**
+ * Returns the registered aliases as command definitions, with the prefix text stripped out
+ */
+const _getAliasCommandDefinitions = () => {
+    const aliasCommands = program.commands.filter((command) =>
+        command.description().startsWith(ALIAS_PREFIX)
+    );
+
+    return aliasCommands.map((aliasCommand) => {
+        return {
+            command: aliasCommand.name(),
+            description: aliasCommand
+                .description()
+                // strip out the '(alias)' text for it to be parsed correctly
+                .replace(ALIAS_PREFIX, "")
+                .trim(),
+        };
+    });
+};
+
+/**
  * Returns a path to the executable file for a given command, based on whether the application is
  * being imported or run directly.
  * @param {string} commandName The name of the command to build a file path for.
@@ -74,20 +107,69 @@ const _getExecutablePath = (commandName) => {
     const filename = `${CLI_NAME}-${commandName}.js`;
     if (_isImportedModule != null && _isImportedModule) {
         // Returns './node_modules/and-cli/and-cli-dotnet.js, for example
-        return path.join(".", NODE_MODULES, CLI_NAME, filename);
+        return upath.join(".", NODE_MODULES, CLI_NAME, filename);
     }
 
     // Otherwise, default to files in the current project directory
-    return path.join(".", filename);
+    return upath.join(".", filename);
+};
+
+/**
+ * Pre-processes the argv string array and return the corresponding command if any defined aliases
+ * match the given input
+ */
+const _preprocessArgsForAliases = () => {
+    const aliases = _getAliasCommandDefinitions();
+    if (CollectionUtils.isEmpty(aliases)) {
+        return undefined;
+    }
+
+    // We expect the node binary & entrypoint filename to be the first two process.argv entries,
+    // and anything after that to be a command or option. If we have more or less arguments,
+    // we shouldn't attempt to match against any aliases. Aliases can only be
+    // one word (no spaces), so let's not try to eagerly compare every single argument to the alias list
+    if (CollectionUtils.length(process.argv) !== 3) {
+        return undefined;
+    }
+
+    const lastArg = process.argv.pop();
+
+    // Return the alias command that matches the given input, or undefined
+    return aliases.find((alias) => alias.command === lastArg);
+};
+
+/**
+ * Registers a command, taking into consideration whether the command is a base command or a local command.
+ *
+ * This function assumes the command is valid & ready to be registered (see `_validateAndGetBaseCommand`
+ * and `_validateCommandRegistration` for validation logic)
+ *
+ * @param {CommandDefinition} commandDefinition
+ * @param {boolean} isBaseCommand Flag to determine whether we're registering a base command or a local command
+ */
+const _registerCommand = (commandDefinition, isBaseCommand = false) => {
+    const { command, description } = commandDefinition;
+
+    if (!isBaseCommand) {
+        program.command(command, description);
+        _sortCommandsByName();
+        return;
+    }
+
+    // See `commander.ExecutableCommandOptions`
+    program.command(command, description, {
+        executableFile: _getExecutablePath(command),
+    });
+
+    _sortCommandsByName();
 };
 
 /**
  * Sorts the command list alphabetically by name
  */
 const _sortCommandsByName = () => {
-    program.commands = program.commands.sort(
-        (commandA, commandB) =>
-            commandA.name().toLowerCase() > commandB.name().toLowerCase()
+    program.commands = program.commands.sort((commandA, commandB) =>
+        commandA.name().localeCompare(commandB.name())
     );
 };
 
@@ -155,32 +237,6 @@ const _validateCommandRegistration = (
         `Command '${command}' has already been registered and 'overrideIfRegistered' is set to false. Skipping this command registration.`
     );
     return false;
-};
-
-/**
- * Registers a command, taking into consideration whether the command is a base command or a local command.
- *
- * This function assumes the command is valid & ready to be registered (see `_validateAndGetBaseCommand`
- * and `_validateCommandRegistration` for validation logic)
- *
- * @param {CommandDefinition} commandDefinition
- * @param {boolean} isBaseCommand Flag to determine whether we're registering a base command or a local command
- */
-const _registerCommand = (commandDefinition, isBaseCommand = false) => {
-    const { command, description } = commandDefinition;
-
-    if (!isBaseCommand) {
-        program.command(command, description);
-        _sortCommandsByName();
-        return;
-    }
-
-    // See `commander.ExecutableCommandOptions`
-    program.command(command, description, {
-        executableFile: _getExecutablePath(command),
-    });
-
-    _sortCommandsByName();
 };
 
 /**
@@ -254,6 +310,120 @@ const commandRegistry = {
         _validateInitializationOrExit(isImportedModule);
 
         _isImportedModule = isImportedModule;
+
+        return this;
+    },
+
+    /**
+     * Wrapper around commander's `parse` method to hold additional logic around processing aliases
+     * If you don't want to support aliases, using the regular `program.parse(process.argv)` is fine.
+     *
+     * If no aliases are defined, or no args match defined aliases, it defaults to parsing process.argv
+     */
+    parseWithAliases() {
+        // Check for any user-defined aliases against the passed args before the regular program flow
+        const aliasCommand = _preprocessArgsForAliases();
+
+        // Regular program flow, nothing special to do here.
+        if (aliasCommand == null) {
+            program.parse(process.argv);
+            return;
+        }
+
+        // Found a matching command alias, let the user know what we're doing and split the description
+        // to retrieve our args array.
+        const { command, description } = aliasCommand;
+        echo.message(
+            `Matched alias '${purple(command)}', executing '${purple(
+                description
+            )}'`
+        );
+
+        const transformedArgs = description.split(" ");
+        program.parse(transformedArgs, { from: "user" });
+    },
+
+    /**
+     * Registers an alias for another command or command & options. Expects the `CommandDefinition`
+     * interface to match existing functions, with the `description` field being the
+     * transformed command/command with options.
+     *
+     * @example
+     *  {
+     *      command: "testdb",
+     *      description: "dotnet --cli -- test db migrate",
+     *  }
+     *
+     * @param {CommandDefinition} commandDefinition Command definition where the 'command' field
+     * is the desired alias value, and the 'description' field is the transformed command/option string.
+     * @param {boolean} overrideIfRegistered If true, subsequent registrations of a command
+     * with the same name will override the last. Otherwise, a warning will be displayed and the
+     * original command will remain.
+     * @returns `this` for chaining
+     */
+    registerAlias(commandDefinition, overrideIfRegistered = false) {
+        // Ensure we are able to register the given command based on name + configuration
+        if (
+            !_validateCommandRegistration(
+                commandDefinition,
+                overrideIfRegistered
+            )
+        ) {
+            return this;
+        }
+
+        const {
+            command: alias,
+            description: transformedCommand,
+        } = commandDefinition;
+
+        // Filter out the registered command of the same name incase it is already registered
+        // If it is not already registered, this should have no effect.
+        this.removeCommand(alias);
+        _registerCommand({
+            command: alias,
+            description: `${ALIAS_PREFIX} ${transformedCommand}`,
+        });
+
+        return this;
+    },
+
+    /**
+     * Registers command aliases from the current `package.json`, if any are found.
+     *
+     * To add aliases via the package.json file, add entries in this structure:
+     *
+     * @example
+     * {
+     *     "and-cli": {
+     *          "aliases": {
+     *              "testdb": "dotnet --cli -- test db migrate",
+     *          },
+     *      },
+     *  },
+     *
+     * @param {boolean} overrideIfRegistered If true, subsequent registrations of a command
+     * with the same name will override the last. Otherwise, a warning will be displayed and the
+     * original command will remain.
+     * @returns `this` for chaining
+     */
+    registerAliasesFromConfig(overrideIfRegistered = false) {
+        const { aliases } = packageConfig.getLocalConfigOrDefault();
+        const aliasKeys = Object.keys(aliases);
+
+        if (CollectionUtils.isEmpty(aliasKeys)) {
+            return this;
+        }
+
+        aliasKeys.forEach((key) => {
+            this.registerAlias(
+                {
+                    command: key,
+                    description: aliases[key],
+                },
+                overrideIfRegistered
+            );
+        });
 
         return this;
     },

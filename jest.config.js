@@ -8,6 +8,6 @@ module.exports = {
     coverageDirectory: "coverage",
     restoreMocks: true,
     setupFiles: ["./tests/setup.js"],
-    setupFilesAfterEnv: ["./tests/setup-after-env.js"],
+    setupFilesAfterEnv: ["./tests/setup-after-env.js", "jest-extended"],
     testEnvironment: "node",
 };

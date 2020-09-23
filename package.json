@@ -13,11 +13,10 @@
         "cli"
     ],
     "scripts": {
-        "configure:git": "echo Ensuring git hooksPath is set to .githooks directory; git config core.hooksPath .githooks; chmod +x .githooks/*",
+        "configure:git": "echo Ensuring git hooksPath is set to .githooks directory && git config core.hooksPath .githooks && chmod +x .githooks/*",
         "postpublish": "cross-env-shell \"git add -A && git commit -m \"$npm_package_version\" && git push origin master\"",
-        "preinstall": "npm run configure:git",
         "test": "jest",
-        "test:unit": "jest --coverage \"^((?!and-cli).)*$\"",
+        "test:unit": "jest \"^((?!and-cli).)*$\"",
         "test:integration": "jest --runInBand \"(and-cli)(.)*(.test.js)\"",
         "watch:test": "jest --watch"
     },
@@ -30,9 +29,10 @@
     "homepage": "https://github.com/AndcultureCode/AndcultureCode.Cli#readme",
     "dependencies": {
         "@octokit/rest": "18.0.0",
-        "andculturecode-javascript-core": "0.1.6",
+        "andculturecode-javascript-core": "0.2.0",
         "archiver": "3.1.1",
         "commander": "5.1.0",
+        "find-package-json": "1.2.0",
         "fkill": "6.2.0",
         "ps-list": "6.2.0",
         "readline-promise": "1.0.4",
@@ -46,6 +46,7 @@
         "cross-env": "6.0.3",
         "faker": "4.1.0",
         "jest": "25.3.0",
+        "jest-extended": "0.11.5",
         "nock": "12.0.3",
         "prettier": "1.19.1",
         "pryjs": "1.0.3"
