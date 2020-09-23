@@ -4,12 +4,13 @@
 
 const { CLI_NAME, NODE_MODULES } = require("./constants");
 const commandRegistry = require("./command-registry");
+const commands = require("./commands");
 const echo = require("./echo");
 const faker = require("faker");
-const path = require("path");
+const packageConfig = require("./package-config");
 const program = require("../and-cli");
 const testUtils = require("../tests/test-utils");
-const commands = require("./commands");
+const upath = require("upath");
 
 // #endregion Imports
 
@@ -32,11 +33,22 @@ describe("commandRegistry", () => {
     // #region Setup
     // -----------------------------------------------------------------------------------------
 
+    // Commonly spied functions
+    let echoErrorSpy;
+    let echoWarnSpy;
+    let programCommandSpy;
+    let shellExitSpy;
+
     beforeEach(() => {
         // In order to prevent test flakiness due to runtime order, we need to clear out
         // the cached program instance command array. Each test should have the appropriate setup steps
         // to configure the program commands, if needed.
         program.commands = [];
+
+        echoErrorSpy = jest.spyOn(echo, "error");
+        echoWarnSpy = jest.spyOn(echo, "warn");
+        programCommandSpy = jest.spyOn(program, "command");
+        shellExitSpy = testUtils.spyOnShellExit();
     });
 
     /**
@@ -165,11 +177,7 @@ describe("commandRegistry", () => {
         test.each([undefined, null])(
             "when called with %p, it exits with an error",
             (isImportedModuleValue) => {
-                // Arrange
-                const shellExitSpy = testUtils.spyOnShellExit();
-                const echoErrorSpy = jest.spyOn(echo, "error");
-
-                // Act
+                // Arrange & Act
                 commandRegistry.initialize(isImportedModuleValue);
 
                 // Assert
@@ -180,8 +188,6 @@ describe("commandRegistry", () => {
 
         test("given initialize has been called, when called again, it exits with an error", () => {
             // Arrange
-            const shellExitSpy = testUtils.spyOnShellExit();
-            const echoErrorSpy = jest.spyOn(echo, "error");
             commandRegistry.initialize(faker.random.boolean());
 
             // Act
@@ -196,6 +202,268 @@ describe("commandRegistry", () => {
     // #endregion initialize
 
     // -----------------------------------------------------------------------------------------
+    // #region parseWithAliases
+    // -----------------------------------------------------------------------------------------
+
+    describe("parseWithAliases", () => {
+        let programParseSpy;
+        beforeEach(() => {
+            programParseSpy = jest.spyOn(program, "parse").mockImplementation();
+        });
+
+        describe("given no aliases are registered", () => {
+            test("it calls program.parse with process.argv", () => {
+                // Arrange & Act
+                commandRegistry.parseWithAliases();
+
+                // Assert
+                expect(programParseSpy).toHaveBeenCalledWith(process.argv);
+            });
+        });
+
+        describe("given at least one alias is registered", () => {
+            test("when < 3 args are provided, it calls program.parse with process.argv", () => {
+                // Arrange
+                const commandDefinition = seedRandomCommand();
+                commandRegistry.registerAlias(commandDefinition);
+                process.argv = [];
+                // This is the important setup
+                const argvCount = testUtils.randomNumber(0, 2);
+                for (let i = 0; i < argvCount; i++) {
+                    process.argv.push(testUtils.randomWord());
+                }
+
+                // Act
+                commandRegistry.parseWithAliases();
+
+                // Assert
+                expect(programParseSpy).toHaveBeenCalledWith(process.argv);
+            });
+
+            test("when > 3 args are provided, it calls program.parse with process.argv", () => {
+                // Arrange
+                const commandDefinition = seedRandomCommand();
+                commandRegistry.registerAlias(commandDefinition);
+                process.argv = [];
+                // This is the important setup
+                const argvCount = testUtils.randomNumber(4, 100);
+                for (let i = 0; i < argvCount; i++) {
+                    process.argv.push(testUtils.randomWord());
+                }
+
+                // Act
+                commandRegistry.parseWithAliases();
+
+                // Assert
+                expect(programParseSpy).toHaveBeenCalledWith(process.argv);
+            });
+
+            test("when 3rd arg matching an alias provided, it calls program.parse with transformed args", () => {
+                // Arrange
+                const commandDefinition = seedRandomCommand();
+                const { command: alias } = commandDefinition;
+                const transformedCommand = commandDefinition.description.split(
+                    " "
+                );
+                commandRegistry.registerAlias(commandDefinition);
+                // First two args don't really matter
+                process.argv = [
+                    testUtils.randomWord(),
+                    testUtils.randomWord(),
+                    alias, // This is the important setup
+                ];
+
+                // Act
+                commandRegistry.parseWithAliases();
+
+                // Assert
+                expect(programParseSpy).toHaveBeenCalledWith(
+                    transformedCommand,
+                    { from: "user" }
+                );
+            });
+
+            test("when 3rd arg does not match any alias, it calls program.parse with process.argv", () => {
+                // Arrange
+                const commandDefinition = seedRandomCommand();
+                commandRegistry.registerAlias(commandDefinition);
+                // First two args don't really matter
+                process.argv = [
+                    testUtils.randomWord(),
+                    testUtils.randomWord(),
+                    `${commandDefinition.command}${testUtils.randomWord()}`, // This is the important setup
+                ];
+
+                // Act
+                commandRegistry.parseWithAliases();
+
+                // Assert
+                expect(programParseSpy).toHaveBeenCalledWith(process.argv);
+            });
+        });
+    });
+
+    // #endregion parseWithAliases
+
+    // -----------------------------------------------------------------------------------------
+    // #region registerAlias
+    // -----------------------------------------------------------------------------------------
+
+    describe("registerAlias", () => {
+        describe("given command is registered", () => {
+            test("when called with command name and 'overrideIfRegistered' false, it outputs a warning", () => {
+                // Arrange
+                const commandDefinition = seedRandomCommand();
+                const { command, description } = commandDefinition;
+                const overrideIfRegistered = false; // This is the important setup
+                program.command(command, description);
+
+                // Act
+                commandRegistry.registerAlias(
+                    commandDefinition,
+                    overrideIfRegistered
+                );
+
+                // Assert
+                expect(echoWarnSpy).toHaveBeenCalled();
+            });
+
+            test("when called with command name and 'overrideIfRegistered' true, it calls program.command", () => {
+                // Arrange
+                const commandDefinition = seedRandomCommand();
+                const { command, description } = commandDefinition;
+                const overrideIfRegistered = true; // This is the important setup
+                program.command(command, description);
+
+                // Act
+                commandRegistry.registerAlias(
+                    commandDefinition,
+                    overrideIfRegistered
+                );
+
+                // Assert
+                expect(programCommandSpy).toHaveBeenCalled();
+            });
+        });
+
+        describe("given command is not already registered", () => {
+            test("it calls program.command", () => {
+                // Arrange
+                const commandDefinition = seedRandomCommand();
+                const overrideIfRegistered = faker.random.boolean(); // This shouldn't matter
+
+                // Act
+                commandRegistry.registerAlias(
+                    commandDefinition,
+                    overrideIfRegistered
+                );
+
+                // Assert
+                expect(programCommandSpy).toHaveBeenCalled();
+            });
+        });
+    });
+
+    // #endregion registerAlias
+
+    // -----------------------------------------------------------------------------------------
+    // #region registerAliasesFromConfig
+    // -----------------------------------------------------------------------------------------
+
+    describe("registerAliasesFromConfig", () => {
+        test("given there are no aliases in the config, it returns 'this'", () => {
+            // Arrange
+            jest.spyOn(
+                packageConfig,
+                "getLocalConfigOrDefault"
+            ).mockImplementation(() => {
+                return { aliases: {} };
+            });
+
+            // Act
+            const result = commandRegistry.registerAliasesFromConfig();
+
+            // Assert
+            expect(result).toBe(commandRegistry); // Using toBe matcher for referential equality
+        });
+
+        describe("given command is registered", () => {
+            test("when called with command name and 'overrideIfRegistered' false, it outputs a warning", () => {
+                // Arrange
+                const { command, description } = seedRandomCommand();
+                const overrideIfRegistered = false; // This is the important setup
+                program.command(command, description);
+                jest.spyOn(
+                    packageConfig,
+                    "getLocalConfigOrDefault"
+                ).mockImplementation(() => {
+                    return {
+                        aliases: {
+                            [command]: description,
+                        },
+                    };
+                });
+
+                // Act
+                commandRegistry.registerAliasesFromConfig(overrideIfRegistered);
+
+                // Assert
+                expect(echoWarnSpy).toHaveBeenCalled();
+            });
+
+            test("when called with command name and 'overrideIfRegistered' true, it calls program.command again", () => {
+                // Arrange
+                // Variables need to be prefixed with 'mock' to be referenced in jest.mock calls
+                const { command, description } = seedRandomCommand();
+                const overrideIfRegistered = true; // This is the important setup
+                program.command(command, description);
+                jest.spyOn(
+                    packageConfig,
+                    "getLocalConfigOrDefault"
+                ).mockImplementation(() => {
+                    return {
+                        aliases: {
+                            [command]: description,
+                        },
+                    };
+                });
+
+                // Act
+                commandRegistry.registerAliasesFromConfig(overrideIfRegistered);
+
+                // Assert
+                expect(programCommandSpy).toHaveBeenCalledTimes(2);
+            });
+        });
+
+        describe("given command is not already registered", () => {
+            test("it calls program.command", () => {
+                // Arrange
+                const { command, description } = seedRandomCommand();
+                const overrideIfRegistered = faker.random.boolean(); // This shouldn't matter
+                jest.spyOn(
+                    packageConfig,
+                    "getLocalConfigOrDefault"
+                ).mockImplementation(() => {
+                    return {
+                        aliases: {
+                            [command]: description,
+                        },
+                    };
+                });
+
+                // Act
+                commandRegistry.registerAliasesFromConfig(overrideIfRegistered);
+
+                // Assert
+                expect(programCommandSpy).toHaveBeenCalledTimes(1);
+            });
+        });
+    });
+
+    // #endregion registerAliasesFromConfig
+
+    // -----------------------------------------------------------------------------------------
     // #region registerBaseCommand
     // -----------------------------------------------------------------------------------------
 
@@ -203,11 +471,7 @@ describe("commandRegistry", () => {
         test.each([undefined, null, "", " "])(
             "when called with %p, it exits with an error",
             (name) => {
-                // Arrange
-                const shellExitSpy = testUtils.spyOnShellExit();
-                const echoErrorSpy = jest.spyOn(echo, "error");
-
-                // Act
+                // Arrange & Act
                 commandRegistry.registerBaseCommand(name);
 
                 // Assert
@@ -220,8 +484,6 @@ describe("commandRegistry", () => {
             test("when called with command name, it exits with an error", () => {
                 // Arrange
                 const { command } = seedRandomCommand();
-                const shellExitSpy = testUtils.spyOnShellExit();
-                const echoErrorSpy = jest.spyOn(echo, "error");
 
                 // Act
                 commandRegistry.registerBaseCommand(command);
@@ -240,7 +502,6 @@ describe("commandRegistry", () => {
                 );
                 const overrideIfRegistered = false; // This is the important setup
                 program.command(command, description);
-                const echoWarnSpy = jest.spyOn(echo, "warn");
 
                 // Act
                 commandRegistry.registerBaseCommand(
@@ -252,14 +513,13 @@ describe("commandRegistry", () => {
                 expect(echoWarnSpy).toHaveBeenCalled();
             });
 
-            test("when called with command name and 'overrideIfRegistered' true, it calls program.command", () => {
+            test("when called with command name and 'overrideIfRegistered' true, it calls program.command again", () => {
                 // Arrange
                 const { command, description } = faker.random.arrayElement(
                     BASE_COMMAND_DEFINITIONS
                 );
                 const overrideIfRegistered = true; // This is the important setup
                 program.command(command, description);
-                const programCommandSpy = jest.spyOn(program, "command");
 
                 // Act
                 commandRegistry.registerBaseCommand(
@@ -268,7 +528,7 @@ describe("commandRegistry", () => {
                 );
 
                 // Assert
-                expect(programCommandSpy).toHaveBeenCalled();
+                expect(programCommandSpy).toHaveBeenCalledTimes(2);
             });
         });
 
@@ -280,14 +540,13 @@ describe("commandRegistry", () => {
                         BASE_COMMAND_DEFINITIONS
                     );
                     // The expected file path should point to ./node_modules/and-cli/and-cli-{commandName}.js
-                    const expectedFilePath = path.join(
+                    const expectedFilePath = upath.join(
                         ".",
                         NODE_MODULES,
                         CLI_NAME,
                         `${CLI_NAME}-${command}.js`
                     );
                     commandRegistry.initialize(true); // This is the important setup
-                    const programCommandSpy = jest.spyOn(program, "command");
 
                     // Act
                     commandRegistry.registerBaseCommand(command);
@@ -311,12 +570,11 @@ describe("commandRegistry", () => {
                         BASE_COMMAND_DEFINITIONS
                     );
                     // The expected file path should point to ./and-cli-{commandName}.js
-                    const expectedFilePath = path.join(
+                    const expectedFilePath = upath.join(
                         ".",
                         `${CLI_NAME}-${command}.js`
                     );
                     commandRegistry.initialize(false); // This is the important setup
-                    const programCommandSpy = jest.spyOn(program, "command");
 
                     // Act
                     commandRegistry.registerBaseCommand(command);
@@ -343,10 +601,7 @@ describe("commandRegistry", () => {
 
     describe("registerBaseCommands", () => {
         test("it calls registerBaseCommand for each base command", () => {
-            // Arrange
-            const programCommandSpy = jest.spyOn(program, "command");
-
-            // Act
+            // Arrange & Act
             commandRegistry.registerBaseCommands();
 
             // Assert
@@ -370,7 +625,6 @@ describe("commandRegistry", () => {
                 const { command, description } = commandDefinition;
                 const overrideIfRegistered = false; // This is the important setup
                 program.command(command, description);
-                const echoWarnSpy = jest.spyOn(echo, "warn");
 
                 // Act
                 commandRegistry.registerCommand(
@@ -382,13 +636,12 @@ describe("commandRegistry", () => {
                 expect(echoWarnSpy).toHaveBeenCalled();
             });
 
-            test("when called with command name and 'overrideIfRegistered' true, it calls program.command", () => {
+            test("when called with command name and 'overrideIfRegistered' true, it calls program.command again", () => {
                 // Arrange
                 const commandDefinition = seedRandomCommand();
                 const { command, description } = commandDefinition;
                 const overrideIfRegistered = true; // This is the important setup
                 program.command(command, description);
-                const programCommandSpy = jest.spyOn(program, "command");
 
                 // Act
                 commandRegistry.registerCommand(
@@ -397,10 +650,7 @@ describe("commandRegistry", () => {
                 );
 
                 // Assert
-                expect(programCommandSpy).toHaveBeenCalledWith(
-                    command,
-                    description
-                );
+                expect(programCommandSpy).toHaveBeenCalledTimes(2);
             });
         });
 
@@ -410,7 +660,6 @@ describe("commandRegistry", () => {
                 const commandDefinition = seedRandomCommand();
                 const { command, description } = commandDefinition;
                 const overrideIfRegistered = faker.random.boolean(); // This shouldn't matter
-                const programCommandSpy = jest.spyOn(program, "command");
 
                 // Act
                 commandRegistry.registerCommand(
@@ -458,7 +707,6 @@ describe("commandRegistry", () => {
             for (let i = 0; i < commandCount; i++) {
                 commands.push(seedRandomCommand());
             }
-            const programCommandSpy = jest.spyOn(program, "command");
 
             // Act
             commandRegistry.registerCommands(commands);

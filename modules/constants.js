@@ -28,6 +28,9 @@ module.exports.HELP_OPTIONS = ["-h", "--help"];
 /** Constant to hold the 'node_modules' directory string */
 module.exports.NODE_MODULES = "node_modules";
 
+/** Constant to hold the 'package.json' file string */
+module.exports.PACKAGE_JSON = "package.json";
+
 /** Constant to hold the standard 'unknown command' output from Commander when parsing arguments */
 module.exports.UNKNOWN_COMMAND = "unknown command";
 

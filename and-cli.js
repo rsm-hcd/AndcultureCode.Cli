@@ -5,10 +5,30 @@
 // -----------------------------------------------------------------------------------------
 
 const commandRegistry = require("./modules/command-registry");
+const packageConfig = require("./modules/package-config");
 const program = require("commander");
-const { version } = require("./package.json");
 
 // #endregion Imports
+
+// -----------------------------------------------------------------------------------------
+// #region Variables
+// -----------------------------------------------------------------------------------------
+
+/*
+ * Returns whether or not the application is currently being run as an imported module (ie, another
+ * package/program is importing the CLI to extend its behavior)
+ *
+ * @see https://codewithhugo.com/node-module-entry-required/
+ * @see https://nodejs.org/api/modules.html#modules_accessing_the_main_module
+ */
+const isImportedModule = require.main !== module;
+
+/**
+ * Returns whether or not the application is currently being run directly and not as a required package.
+ */
+const isNotImportedModule = !isImportedModule;
+
+// #endregion Variables
 
 // -----------------------------------------------------------------------------------------
 // #region Functions
@@ -30,46 +50,23 @@ const fixArgumentPosixPathConversion = () => {
     }
 };
 
-/**
- * Returns whether or not the application is currently being run as an imported module (ie, another
- * package/program is importing the CLI to extend its behavior)
- *
- * @see https://codewithhugo.com/node-module-entry-required/
- * @see https://nodejs.org/api/modules.html#modules_accessing_the_main_module
- */
-const isImportedModule = () => {
-    if (require.main === module) {
-        return false;
-    }
-
-    return true;
-};
-
-/**
- * Returns whether or not the application is currently being run directly and not as a required package.
- *
- * @see https://codewithhugo.com/node-module-entry-required/
- * @see https://nodejs.org/api/modules.html#modules_accessing_the_main_module
- */
-const isNotImportedModule = () => !isImportedModule();
-
 // #endregion Functions
 
 // -----------------------------------------------------------------------------------------
 // #region Entrypoint
 // -----------------------------------------------------------------------------------------
 
-program.description("andculture cli");
-program.version(version);
+program.description(packageConfig.getBaseDescription());
+program.version(packageConfig.getBaseVersion());
 
 // Set the flag in the command registry to denote whether the application is currently being run
 // directly or in a package
-commandRegistry.initialize(isImportedModule());
+commandRegistry.initialize(isImportedModule);
 
 // By default, we will only register base commands when being run directly. The consumer
 // application can choose to register the base commands (or not)
-if (isNotImportedModule()) {
-    commandRegistry.registerBaseCommands();
+if (isNotImportedModule) {
+    commandRegistry.registerBaseCommands().registerAliasesFromConfig();
 }
 
 fixArgumentPosixPathConversion();
@@ -77,8 +74,8 @@ fixArgumentPosixPathConversion();
 // Only parse arguments if we're running the application directly. Otherwise, let the consumer CLI application
 // choose when to parse arguments. This allows them the freedom of reconfiguring commands, overriding
 // the description, etc.
-if (isNotImportedModule()) {
-    program.parse(process.argv);
+if (isNotImportedModule) {
+    commandRegistry.parseWithAliases();
 }
 
 // #endregion Entrypoint

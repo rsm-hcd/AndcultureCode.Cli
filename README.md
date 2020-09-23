@@ -118,6 +118,125 @@ For more examples, or to see what the full project structure might look like, se
 
 [`AndcultureCode.Cli.PluginExample`](https://github.com/AndcultureCode/AndcultureCode.Cli.PluginExample)
 
+## Aliasing commands
+
+Existing commands & options can be aliased so they are easier to type or remember. Aliases can be registered in your `package.json` file, or registered in your extended CLI through the `command-registry` module.
+
+### Registering aliases in your package.json file
+
+To add aliases without any additional code, add an `and-cli` section with an `aliases` object underneath. Each key of the `aliases` section will be the alias you want to use (which cannot contain spaces), and the value will be the command and any options that should be run in place of it.
+
+_Note: when defining aliases, the command/option string to be mapped should not contain the CLI name itself. See example below._
+
+```JSON
+{
+    "and-cli": {
+        "aliases": {
+            "d": "dotnet",
+            "dcRb": "dotnet -cRb",
+        }
+    }
+}
+```
+
+If you are extending the `and-cli` with your own commands, you will also need to call `commandRegistry.registerAliasesFromConfig()` to read the aliases from `package.json`.
+
+_Note: Ensure you are calling `commandRegistry.parseWithAliases()`, or the preprocessing to handle the aliases will not run._
+
+```JS
+#!/usr/bin/env node
+
+// -----------------------------------------------------------------------------------------
+// #region Imports
+// -----------------------------------------------------------------------------------------
+
+const commandRegistry = require("and-cli/modules/command-registry");
+const program = require("and-cli");
+
+// #endregion Imports
+
+// -----------------------------------------------------------------------------------------
+// #region Entrypoint
+// -----------------------------------------------------------------------------------------
+
+// Register the base 'dotnet' command and register aliases from the package.json file
+commandRegistry
+    .registerBaseCommand("dotnet")
+    .registerAliasesFromConfig();
+
+// Ensure you call parseWithAliases() in place of program.parse() to preprocess the arguments.
+commandRegistry.parseWithAliases();
+
+// #endregion Entrypoint
+```
+
+### Registering aliases through the command registry
+
+Aliases can be registered just like commands would be with the `commandRegistry.registerAlias()` function.
+
+_Note: Ensure you are calling `commandRegistry.parseWithAliases()`, or the preprocessing to handle the aliases will not run._
+
+```JS
+#!/usr/bin/env node
+
+// -----------------------------------------------------------------------------------------
+// #region Imports
+// -----------------------------------------------------------------------------------------
+
+const commandRegistry = require("and-cli/modules/command-registry");
+const program = require("and-cli");
+
+// #endregion Imports
+
+// -----------------------------------------------------------------------------------------
+// #region Entrypoint
+// -----------------------------------------------------------------------------------------
+
+// Register the base 'dotnet' command and alias some of its options
+commandRegistry
+    .registerBaseCommand("dotnet")
+    .registerAlias({
+        command: "d",
+        description: "dotnet",
+    })
+    .registerAlias({
+        command: "dcRb",
+        description: "dotnet -cRb",
+    });
+
+// Ensure you call parseWithAliases() in place of program.parse() to preprocess the arguments.
+commandRegistry.parseWithAliases();
+
+// #endregion Entrypoint
+```
+
+Regardless of how they are registered, aliases will be specially noted in the help menu of the CLI.
+
+```SH
+Usage: and-cli [options] [command]
+
+andculture cli
+
+Options:
+  -V, --version   output the version number
+  -h, --help      display help for command
+
+Commands:
+  copy            Copy files and/or directories
+  d               (alias) dotnet
+  dcRb            (alias) dotnet -cRb
+  deploy          Deploy various application types
+  dotnet          Run various dotnet commands for the project
+  dotnet-test     Run various dotnet test runner commands for the project
+  github          Commands for interacting with AndcultureCode github resources
+  install         Collection of commands related to installation and configuration of the and-cli
+  migration       Run commands to manage Entity Framework migrations
+  nuget           Manages publishing of nuget dotnet core projects
+  webpack         Run various webpack commands for the project
+  webpack-test    Run various webpack test commands for the project
+  help [command]  display help for command
+```
+
 ## Troubleshooting
 
 ### Leading slash auto-converted to absolute path
