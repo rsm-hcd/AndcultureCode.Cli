@@ -213,11 +213,20 @@ describe("commandRegistry", () => {
 
         describe("given no aliases are registered", () => {
             test("it calls program.parse with process.argv", () => {
-                // Arrange & Act
+                // Arrange
+                const expectedArgv = [
+                    testUtils.randomWord(),
+                    testUtils.randomWord(),
+                    testUtils.randomWord(),
+                ];
+                // Cloning to ensure we have a separate reference to work with
+                process.argv = [...expectedArgv];
+
+                // Act
                 commandRegistry.parseWithAliases();
 
                 // Assert
-                expect(programParseSpy).toHaveBeenCalledWith(process.argv);
+                expect(programParseSpy).toHaveBeenCalledWith(expectedArgv); // The test should fail if something modifies process.argv in-place
             });
         });
 
@@ -226,36 +235,44 @@ describe("commandRegistry", () => {
                 // Arrange
                 const commandDefinition = seedRandomCommand();
                 commandRegistry.registerAlias(commandDefinition);
-                process.argv = [];
+                const expectedArgv = [];
+
                 // This is the important setup
                 const argvCount = testUtils.randomNumber(0, 2);
                 for (let i = 0; i < argvCount; i++) {
-                    process.argv.push(testUtils.randomWord());
+                    expectedArgv.push(testUtils.randomWord());
                 }
+
+                // Cloning to ensure we have a separate reference to work with
+                process.argv = [...expectedArgv];
 
                 // Act
                 commandRegistry.parseWithAliases();
 
                 // Assert
-                expect(programParseSpy).toHaveBeenCalledWith(process.argv);
+                expect(programParseSpy).toHaveBeenCalledWith(expectedArgv); // The test should fail if something modifies process.argv in-place
             });
 
             test("when > 3 args are provided, it calls program.parse with process.argv", () => {
                 // Arrange
                 const commandDefinition = seedRandomCommand();
                 commandRegistry.registerAlias(commandDefinition);
-                process.argv = [];
+                const expectedArgv = [];
+
                 // This is the important setup
                 const argvCount = testUtils.randomNumber(4, 100);
                 for (let i = 0; i < argvCount; i++) {
-                    process.argv.push(testUtils.randomWord());
+                    expectedArgv.push(testUtils.randomWord());
                 }
+
+                // Cloning to ensure we have a separate reference to work with
+                process.argv = [...expectedArgv];
 
                 // Act
                 commandRegistry.parseWithAliases();
 
                 // Assert
-                expect(programParseSpy).toHaveBeenCalledWith(process.argv);
+                expect(programParseSpy).toHaveBeenCalledWith(expectedArgv); // The test should fail if something modifies process.argv in-place
             });
 
             test("when 3rd arg matching an alias provided, it calls program.parse with transformed args", () => {
@@ -288,17 +305,19 @@ describe("commandRegistry", () => {
                 const commandDefinition = seedRandomCommand();
                 commandRegistry.registerAlias(commandDefinition);
                 // First two args don't really matter
-                process.argv = [
+                const expectedArgv = [
                     testUtils.randomWord(),
                     testUtils.randomWord(),
                     `${commandDefinition.command}${testUtils.randomWord()}`, // This is the important setup
                 ];
+                // Cloning to ensure we have a separate reference to work with
+                process.argv = [...expectedArgv];
 
                 // Act
                 commandRegistry.parseWithAliases();
 
                 // Assert
-                expect(programParseSpy).toHaveBeenCalledWith(process.argv);
+                expect(programParseSpy).toHaveBeenCalledWith(expectedArgv); // The test should fail if something modifies process.argv in-place
             });
         });
     });

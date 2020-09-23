@@ -132,7 +132,8 @@ const _preprocessArgsForAliases = () => {
         return undefined;
     }
 
-    const lastArg = process.argv.pop();
+    // Cloning with spread operator to avoid mutating original process.argv reference
+    const lastArg = [...process.argv].pop();
 
     // Return the alias command that matches the given input, or undefined
     return aliases.find((alias) => alias.command === lastArg);
