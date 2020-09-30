@@ -18,7 +18,7 @@ const { purple, green, red, yellow } = formatters;
 // #endregion Variables
 
 // -----------------------------------------------------------------------------------------
-// #region Functions
+// #region Public Functions
 // -----------------------------------------------------------------------------------------
 
 const echo = {
@@ -60,20 +60,20 @@ const echo = {
             this.error(message);
         }
     },
+    header(message) {
+        _header(() => this.message(message));
+    },
     headerError(message) {
-        this.newLine();
-        this.divider();
-        this.newLine();
-        this.error(message);
-        this.newLine();
-        this.divider();
-        this.newLine();
+        _header(() => this.error(message));
+    },
+    headerSuccess(message) {
+        _header(() => this.success(message));
     },
     message(message) {
         shell.echo(`${this.sdkString} ${message}`);
     },
-    newLine() {
-        shell.echo();
+    newLine(includePrefix) {
+        shell.echo(includePrefix ? this.sdkString : "");
     },
     sdkString: purple("[and-cli]"),
     success(message) {
@@ -92,7 +92,27 @@ const echo = {
     },
 };
 
-// #endregion Functions
+// #endregion Public Functions
+
+// -----------------------------------------------------------------------------------------
+// #region Private Functions
+// -----------------------------------------------------------------------------------------
+
+const _header = (bodyCallback) => {
+    echo.newLine();
+    echo.divider();
+    echo.newLine(true);
+
+    if (bodyCallback !== null) {
+        bodyCallback();
+    }
+
+    echo.newLine(true);
+    echo.divider();
+    echo.newLine();
+};
+
+// #endregion Private Functions
 
 // -----------------------------------------------------------------------------------------
 // #region Exports

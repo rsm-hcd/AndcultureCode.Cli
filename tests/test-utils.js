@@ -246,6 +246,17 @@ const testUtils = {
     },
 
     /**
+     * Helper to mock shell response
+     * @param {number} code response code from shell command
+     * @param {*} stdout
+     */
+    mockShellFunction(code = 0, stdout = "") {
+        return jest.fn().mockImplementation(() => {
+            return { code, stdout };
+        });
+    },
+
+    /**
      * Returns a randomized casing (mix of uppercase/lowercase letters) of the provided string.
      *
      * @param {word} string
