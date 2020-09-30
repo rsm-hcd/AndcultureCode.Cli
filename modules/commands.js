@@ -45,6 +45,10 @@ module.exports = {
         command: "webpack-test",
         description: "Run various webpack test commands for the project",
     },
+    workspace: {
+        command: "workspace",
+        description: "Manage AndcultureCode projects workspace",
+    },
 };
 
 // #endregion Exports
