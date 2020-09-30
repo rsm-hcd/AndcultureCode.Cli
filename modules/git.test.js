@@ -21,21 +21,32 @@ describe("git", () => {
 
     describe("clone", () => {
         test.each`
-            repository
+            name
             ${""}
             ${" "}
             ${null}
             ${undefined}
-        `(
-            "when repository is '$repository', returns false",
-            ({ repository }) => {
-                // Arrange & Act
-                const result = git.clone(repository);
+        `("when name is '$name', returns false", ({ name }) => {
+            // Arrange & Act
+            const result = git.clone(name, faker.internet.url());
 
-                // Assert
-                expect(result).toBeFalse();
-            }
-        );
+            // Assert
+            expect(result).toBeFalse();
+        });
+
+        test.each`
+            url
+            ${""}
+            ${" "}
+            ${null}
+            ${undefined}
+        `("when url is '$url', returns false", ({ url }) => {
+            // Arrange & Act
+            const result = git.clone(faker.internet.url(), url);
+
+            // Assert
+            expect(result).toBeFalse();
+        });
 
         test("when repository clone fails, returns false", () => {
             // Arrange
@@ -44,7 +55,9 @@ describe("git", () => {
             );
 
             // Act & Assert
-            expect(git.clone(faker.internet.url())).toBeFalse();
+            expect(
+                git.clone(faker.random.word(), faker.internet.url())
+            ).toBeFalse();
         });
 
         test("when repository clone succeeds, returns true", () => {
@@ -54,7 +67,9 @@ describe("git", () => {
             );
 
             // Act & Assert
-            expect(git.clone(faker.internet.url())).toBeTrue();
+            expect(
+                git.clone(faker.random.word(), faker.internet.url())
+            ).toBeTrue();
         });
     });
 
