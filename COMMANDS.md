@@ -244,3 +244,10 @@ Starts webpack built projects located in our team's conventional 'frontend' fold
 -   `and-cli webpack-test` - Starts interactive frontend tests via `npm run test` in 'frontend' folder
 -   `and-cli webpack-test -c -R` - Optionally cleans and restores npm packages before running test suite
 -   `and-cli webpack-test --ci` - Optionally runs frontend tests synchronously for use in continous integration
+
+## workspace
+
+Series of commands to synchronize a development workspace for easy contributions for AndcultureCode repositories.
+
+-   `and-cli workspace` - Clones all public AndcultureCode organization repositories into current folder
+-   `and-cli workspace --u|usernames <username1,username2,...>` - Additionally clones forks of the AndcultureCode repositories for the supplied user(s)

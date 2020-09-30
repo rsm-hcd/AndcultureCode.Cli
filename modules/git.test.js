@@ -59,21 +59,6 @@ describe("git", () => {
     });
 
     // #endregion clone
-
-    // -----------------------------------------------------------------------------------------
-    // #region description
-    // -----------------------------------------------------------------------------------------
-
-    describe("description", () => {
-        test("returns non null value", () =>
-            expect(git.description()).not.toBeNull());
-        test("returns string", () =>
-            expect(typeof git.description()).toBe("string"));
-        test("returns non-empty string", () =>
-            expect(git.description().length).toBeGreaterThan(0));
-    });
-
-    //#endregion description
 });
 
 // #endregion Tests

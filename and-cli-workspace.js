@@ -8,8 +8,9 @@ require("./command-runner").run(async () => {
     // -----------------------------------------------------------------------------------------
     const echo = require("./modules/echo");
     const formatters = require("./modules/formatters");
-    const fs = require("fs");
+    const git = require("./modules/git");
     const github = require("./modules/github");
+    const js = require("./modules/js");
     const program = require("commander");
     const shell = require("shelljs");
 
@@ -27,7 +28,15 @@ require("./command-runner").run(async () => {
     // #region Functions
     // -----------------------------------------------------------------------------------------
 
-    // TODO: Extract and refactor into git module
+    const cloneByUser = async (username) => {
+        echo.message(
+            `Synchronizing forks of AndcultureCode for '${username}'...`
+        );
+        const userRepos = await github.repositoriesByAndculture(username);
+        const cloneUserResults = cloneRepositories(userRepos, username);
+        echoCloneResults(cloneUserResults);
+    };
+
     const cloneRepositories = (repositories, prefix) => {
         const results = {
             errorCount: 0,
@@ -43,16 +52,12 @@ require("./command-runner").run(async () => {
         results.totalCount = repositories.length;
 
         repositories.forEach((repo) => {
-            const folder =
-                prefix != null ? `${prefix}.${repo.name}` : repo.name;
-
-            if (fs.existsSync(folder)) {
+            if (git.isCloned(repo.name, prefix)) {
                 results.unmodifiedCount++;
                 return;
             }
 
-            if (shell.exec(`git clone ${repo.ssh_url} ${folder}`).code !== 0) {
-                echo.error(`Failed to clone '${repo.name}'. Skipping...`);
+            if (!git.clone(repo.name, repo.ssh_url, prefix)) {
                 results.errorCount++;
                 return;
             }
@@ -81,27 +86,34 @@ require("./command-runner").run(async () => {
         .usage("option")
         .description("Manage AndcultureCode projects workspace")
         .option(
-            "-u, --username <username>",
-            "Github username for which to fork andculture repositories"
+            "-u, --usernames <usernames>",
+            "Comma delimited list of Github usernames for which to clone forked andculture repositories"
         )
         .parse(process.argv);
 
     echo.header("Configuring workspace");
 
-    echo.message("Cloning AndcultureCode repositories...");
+    // Clone top-level AndcultureCode repositories
+    // -------------------------------------------
+    echo.message("Synchronizing AndcultureCode repositories...");
     const repos = await github.repositoriesByAndculture();
     const cloneResults = cloneRepositories(repos);
     echoCloneResults(cloneResults);
 
     echo.newLine();
 
-    const username = program.username;
-    if (username != null) {
-        echo.message(`Cloning forks of AndcultureCode for '${username}'...`);
-        const userRepos = await github.repositoriesByAndculture(username);
-        const cloneUserResults = cloneRepositories(userRepos, username);
-        echoCloneResults(cloneUserResults);
+    // Clone user forks of AndcultureCode repositories
+    // -----------------------------------------------
+    if (program.usernames == null) {
+        shell.exit(0);
     }
+
+    const usernames = program.usernames.split(",");
+
+    await js.asyncForEach(usernames, async (username) => {
+        await cloneByUser(username);
+        echo.newLine();
+    });
 
     // #endregion Entrypoint
 });
