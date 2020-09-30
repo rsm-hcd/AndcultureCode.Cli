@@ -15,13 +15,6 @@ const testUtils = require("../tests/test-utils");
 // -----------------------------------------------------------------------------------------
 
 describe("nugetUpgrade", () => {
-    // Developer note: Now that we have a set of test utility functions, this would be a good candidate
-    // for abstraction
-    const mockShellFn = (code = 0, stdout = "") =>
-        jest.fn().mockImplementation(() => {
-            return { code, stdout };
-        });
-
     let shellExitSpy;
 
     beforeEach(() => {
@@ -38,7 +31,7 @@ describe("nugetUpgrade", () => {
             const mockReturnCode = faker.random.number({ min: 1 });
             const mockDirname = faker.random.word();
             jest.spyOn(shell, "find").mockImplementation(
-                mockShellFn(mockReturnCode)
+                testUtils.mockShellFunction(mockReturnCode)
             );
             jest.spyOn(path, "dirname").mockImplementation(() => mockDirname);
 
@@ -61,7 +54,7 @@ describe("nugetUpgrade", () => {
             // Arrange
             const mockReturnCode = faker.random.number({ min: 1 });
             jest.spyOn(shell, "grep").mockImplementation(
-                mockShellFn(mockReturnCode)
+                testUtils.mockShellFunction(mockReturnCode)
             );
 
             // Act
@@ -73,7 +66,9 @@ describe("nugetUpgrade", () => {
 
         test("when shell.grep returns zero exit code but no files with the package are found, it calls shell.exit with 1 exit code", () => {
             // Arrange
-            jest.spyOn(shell, "grep").mockImplementation(mockShellFn(0));
+            jest.spyOn(shell, "grep").mockImplementation(
+                testUtils.mockShellFunction(0)
+            );
 
             // Act
             nugetUpgrade.getCsprojFilesContainingPackage([]);
@@ -94,7 +89,7 @@ describe("nugetUpgrade", () => {
             // Arrange
             const mockReturnCode = faker.random.number({ min: 1 });
             jest.spyOn(shell, "sed").mockImplementation(
-                mockShellFn(mockReturnCode)
+                testUtils.mockShellFunction(mockReturnCode)
             );
 
             // Act
@@ -106,7 +101,9 @@ describe("nugetUpgrade", () => {
 
         test("when shell.sed returns zero exit code, it returns zero", () => {
             // Arrange
-            jest.spyOn(shell, "sed").mockImplementation(mockShellFn(0));
+            jest.spyOn(shell, "sed").mockImplementation(
+                testUtils.mockShellFunction(0)
+            );
 
             // Act
             const result = nugetUpgrade.replacePackageVersion();

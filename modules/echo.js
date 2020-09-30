@@ -61,13 +61,13 @@ const echo = {
         }
     },
     header(message) {
-        header(() => this.message(message));
+        _header(() => this.message(message));
     },
     headerError(message) {
-        header(() => this.error(message));
+        _header(() => this.error(message));
     },
     headerSuccess(message) {
-        header(() => this.success(message));
+        _header(() => this.success(message));
     },
     message(message) {
         shell.echo(`${this.sdkString} ${message}`);
@@ -98,7 +98,7 @@ const echo = {
 // #region Private Functions
 // -----------------------------------------------------------------------------------------
 
-const header = (bodyCallback) => {
+const _header = (bodyCallback) => {
     echo.newLine();
     echo.divider();
     echo.newLine(true);

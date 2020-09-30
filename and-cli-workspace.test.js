@@ -10,12 +10,12 @@ const { shouldDisplayHelpMenu } = require("./tests/shared-specs");
 // #region Tests
 // -----------------------------------------------------------------------------------------
 
-describe("and-cli-github", () => {
+describe("and-cli-workspace", () => {
     // -----------------------------------------------------------------------------------------
     // #region help
     // -----------------------------------------------------------------------------------------
 
-    shouldDisplayHelpMenu("github");
+    shouldDisplayHelpMenu("workspace");
 
     // #endregion help
 });
