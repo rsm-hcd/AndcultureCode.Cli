@@ -86,6 +86,10 @@ require("./command-runner").run(async () => {
         .usage("option")
         .description("Manage AndcultureCode projects workspace")
         .option(
+            "-f, --fork",
+            "Automatically forks AndcultureCode repositories for authenticated user"
+        )
+        .option(
             "-u, --usernames <usernames>",
             "Comma delimited list of Github usernames for which to clone forked andculture repositories"
         )
@@ -104,16 +108,14 @@ require("./command-runner").run(async () => {
 
     // Clone user forks of AndcultureCode repositories
     // -----------------------------------------------
-    if (program.usernames == null) {
-        shell.exit(0);
+    if (program.usernames != null) {
+        const usernames = program.usernames.split(",");
+
+        await js.asyncForEach(usernames, async (username) => {
+            await cloneByUser(username);
+            echo.newLine();
+        });
     }
-
-    const usernames = program.usernames.split(",");
-
-    await js.asyncForEach(usernames, async (username) => {
-        await cloneByUser(username);
-        echo.newLine();
-    });
 
     // #endregion Entrypoint
 });
