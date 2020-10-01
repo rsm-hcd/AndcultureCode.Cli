@@ -2,11 +2,11 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
+const browser = require("./browser");
 const { createNetrcAuth } = require("octokit-auth-netrc");
-const { Octokit } = require("@octokit/rest");
 const echo = require("./echo");
 const fs = require("fs");
-const open = require("open");
+const { Octokit } = require("@octokit/rest");
 const os = require("os");
 const path = require("path");
 const upath = require("upath");
@@ -89,7 +89,8 @@ const github = {
     async promptForToken() {
         echo.headerError("Github authentication is not currently configured");
         echo.message(`See instructions: ${this.configAuthDocsUrl}`);
-        await open(this.configAuthTokenUrl);
+
+        browser.open(this.configAuthTokenUrl);
 
         this._prompt = userPrompt.getPrompt();
 

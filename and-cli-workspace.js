@@ -113,5 +113,7 @@ require("./command-runner").run(async () => {
         });
     }
 
+    await github.getToken();
+
     // #endregion Entrypoint
 });
