@@ -86,10 +86,6 @@ require("./command-runner").run(async () => {
         .usage("option")
         .description("Manage AndcultureCode projects workspace")
         .option(
-            "-f, --fork",
-            "Automatically forks AndcultureCode repositories for authenticated user"
-        )
-        .option(
             "-u, --usernames <usernames>",
             "Comma delimited list of Github usernames for which to clone forked andculture repositories"
         )
