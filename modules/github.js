@@ -179,9 +179,13 @@ const _filterReposByAndcultureOrg = (repos) =>
     repos.filter((r) => r.name.startsWith(github.andcultureOrg));
 
 const _getTokenFromConfig = async () => {
-    const auth = createNetrcAuth();
-    const result = await auth();
-    return result != null ? result.token : null;
+    try {
+        const auth = createNetrcAuth();
+        const result = await auth();
+        return result != null ? result.token : null;
+    } catch (error) {
+        return null;
+    }
 };
 
 /**
