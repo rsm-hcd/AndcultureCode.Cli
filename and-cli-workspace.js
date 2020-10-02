@@ -98,9 +98,12 @@ require("./command-runner").run(async () => {
             userForks.every((userFork) => !userFork.name.startsWith(repo.name))
         );
 
-        reposToFork.forEach((repoToFork) => {
-            echo.success(`Initiating fork of '${repoToFork.full_name}'...`);
+        await js.asyncForEach(reposToFork, async (repoToFork) => {
+            await github.fork(repoToFork.owner.login, repoToFork.name);
         });
+
+        echo.newLine();
+        echo.success("Successfully created all outstanding forks");
     };
 
     // #endregion Functions

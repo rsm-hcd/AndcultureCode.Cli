@@ -6,11 +6,14 @@ const { createNetrcAuth } = require("octokit-auth-netrc");
 const echo = require("./echo");
 const fs = require("fs");
 const git = require("./git");
+const js = require("./js");
 const { Octokit } = require("@octokit/rest");
 const os = require("os");
 const upath = require("upath");
 const userPrompt = require("./user-prompt");
 const { StringUtils } = require("andculturecode-javascript-core");
+const { fork } = require("child_process");
+const { sleep } = require("./js");
 
 // #endregion Imports
 
@@ -74,6 +77,77 @@ const github = {
 
     description() {
         return `Helpful github operations used at andculture`;
+    },
+
+    /**
+     * Retrieves a repository
+     * @param {string} owner user or organization name owning the repo
+     * @param {string} repoName short name of repository (excluding user/organization)
+     */
+    async getRepo(owner, repoName) {
+        try {
+            const response = await _client().repos.get({
+                owner: owner,
+                repo: repoName,
+            });
+            _throwIfApiError(response);
+
+            return response.data;
+        } catch (e) {
+            return null;
+        }
+    },
+
+    /**
+     * Forks a given repository for the current authenticated user
+     *
+     * While the github API asychronously forks the repo, our wrapper tries its best to wait for it
+     * @param {string} ownerName User or organization that owns the repo being forked
+     * @param {string} repoName The 'short' name of the repo (excludes the owner/user/organization)
+     */
+    async fork(ownerName, repoName) {
+        if (!(await _verifyTokenFor("fork"))) {
+            return null;
+        }
+
+        // Initiate creation of fork with Github
+        let fork = null;
+        try {
+            const response = await _client().repos.createFork({
+                owner: ownerName,
+                repo: repoName,
+            });
+            _throwIfApiError(response);
+            fork = response.data;
+        } catch (e) {
+            echo.error(e);
+            return false;
+        }
+
+        // Poll github to see when it has completed (waits maximum of 5 minutes)
+        echo.message(
+            `Forking '${fork.name}'. Can take up to 5 minutes. Please wait...`
+        );
+
+        const isForkCreated = async (elapsed) => {
+            echo.message(` - Looking for fork (${elapsed / 1000}s)...`);
+
+            if ((await this.getRepo(fork.owner.login, fork.name)) == null) {
+                return false;
+            }
+
+            echo.success(` - Fork of '${fork.name}' created successfully`);
+
+            return true;
+        };
+
+        await js.waitFor(isForkCreated, 10000, 60000, function timeout() {
+            echo.error(
+                "Fork creation timed out, please contact github support"
+            );
+        });
+
+        return false; // never found it!
     },
 
     /**
@@ -272,7 +346,8 @@ const _throwIfApiError = (response, expectData, actionText) => {
     const data = response.data;
     const status = response.status;
 
-    if (status === 200 && (!expectData || data != null)) {
+    // HTTP OK (200), Created (201) or Accepted (202) are considered successful
+    if (status >= 200 && status <= 202 && (!expectData || data != null)) {
         return;
     }
 
