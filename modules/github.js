@@ -8,7 +8,6 @@ const fs = require("fs");
 const git = require("./git");
 const { Octokit } = require("@octokit/rest");
 const os = require("os");
-const path = require("path");
 const upath = require("upath");
 const userPrompt = require("./user-prompt");
 
@@ -28,7 +27,7 @@ const github = {
     andcultureOrg: "AndcultureCode",
     apiRepositoriesRouteParam: "repos",
     apiRootUrl: "https://api.github.com",
-    configAuthConfigPath: upath.toUnix(path.join(os.homedir(), ".netrc")), // Path to octokit-auth-netrc configuration
+    configAuthConfigPath: upath.join(os.homedir(), ".netrc"), // Path to octokit-auth-netrc configuration
     configAuthDocsUrl:
         "https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token",
     configAuthTokenUrl: "https://github.com/settings/tokens/new",

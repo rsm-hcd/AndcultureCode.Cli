@@ -13,6 +13,7 @@ require("./command-runner").run(async () => {
     const js = require("./modules/js");
     const program = require("commander");
     const shell = require("shelljs");
+    const { StringUtils } = require("andculturecode-javascript-core");
 
     // #endregion Imports
 
@@ -104,7 +105,7 @@ require("./command-runner").run(async () => {
 
     // Clone user forks of AndcultureCode repositories
     // -----------------------------------------------
-    if (program.usernames != null) {
+    if (StringUtils.hasValue(program.usernames)) {
         const usernames = program.usernames.split(",");
 
         await js.asyncForEach(usernames, async (username) => {
