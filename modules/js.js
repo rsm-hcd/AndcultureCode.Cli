@@ -25,11 +25,16 @@ const js = {
 
     /**
      * Blocks for a given duration
-     * @param {number} ms number of milli-seconds to wait
+     * @param {number} milliseconds number of milli-seconds to wait
      */
-    sleep(ms) {
+    sleep(milliseconds) {
         return new Promise((resolve) => {
-            setTimeout(resolve, ms);
+            if (milliseconds <= 0) {
+                resolve();
+                return;
+            }
+
+            setTimeout(resolve, milliseconds);
         });
     },
 
