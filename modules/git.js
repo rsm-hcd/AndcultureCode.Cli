@@ -62,6 +62,14 @@ const git = {
         const folder = git.getCloneDirectoryName(repoName, prefix);
         return fs.existsSync(folder);
     },
+
+    /**
+     * Opens the supplied URL in the system's default browser
+     * @param {string} url absolute url
+     */
+    openWebBrowser(url) {
+        shell.exec(`git web--browse ${url}`);
+    },
 };
 
 // #endregion Public Members

@@ -3,6 +3,8 @@
 // -----------------------------------------------------------------------------------------
 
 const faker = require("faker");
+const file = require("./file");
+const fs = require("fs");
 const github = require("./github");
 const nock = require("nock");
 const testUtils = require("../tests/test-utils");
@@ -14,6 +16,69 @@ const testUtils = require("../tests/test-utils");
 // -----------------------------------------------------------------------------------------
 
 describe("github", () => {
+    // -----------------------------------------------------------------------------------------
+    // #region configureToken
+    // -----------------------------------------------------------------------------------------
+
+    describe("configureToken", () => {
+        let testConfigFilePath = null;
+
+        afterEach(() => {
+            if (testConfigFilePath != null) {
+                file.deleteIfExists(testConfigFilePath);
+                testConfigFilePath = null;
+            }
+        });
+
+        test("when config does not exist, creates with supplied token", () => {
+            // Arrange
+            github.configAuthConfigPath = testConfigFilePath = testUtils.randomFile();
+            expect(fs.existsSync(testConfigFilePath)).toBeFalse(
+                `Expected test config file '${testConfigFilePath}' to not exist`
+            );
+
+            const expectedToken = faker.random.uuid();
+
+            // Act
+            github.configureToken(expectedToken);
+
+            // Assert
+            expect(fs.existsSync(testConfigFilePath)).toBeTrue();
+
+            fs.readFile(testConfigFilePath, "utf8", (err, content) => {
+                expect(content).toContain(expectedToken);
+            });
+        });
+
+        test("when config exists, appends supplied token", () => {
+            // Arrange
+            github.configAuthConfigPath = testConfigFilePath = testUtils.randomFile();
+            expect(fs.existsSync(testConfigFilePath)).toBeFalse(
+                `Expected test config file '${testConfigFilePath}' to not exist`
+            );
+
+            const expectedExistingContent = faker.random.words(); // <-------- must still contain this content
+            fs.writeFileSync(testConfigFilePath, expectedExistingContent, {
+                flag: "w",
+            });
+
+            const expectedToken = faker.random.uuid();
+
+            // Act
+            github.configureToken(expectedToken);
+
+            // Assert
+            expect(fs.existsSync(testConfigFilePath)).toBeTrue();
+
+            fs.readFile(testConfigFilePath, "utf8", (err, content) => {
+                expect(content).toContain(expectedToken);
+                expect(content).toContain(expectedExistingContent);
+            });
+        });
+    });
+
+    // #endregion configureToken
+
     // -----------------------------------------------------------------------------------------
     // #region description
     // -----------------------------------------------------------------------------------------
