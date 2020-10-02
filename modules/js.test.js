@@ -138,7 +138,7 @@ describe("js", () => {
 
             // Assert
             expect(callbackCount).toBeGreaterThanOrEqual(
-                2 // give it a little padding so we don't mistakenly error for runtime variability
+                1 // give it a little padding so we don't mistakenly error for runtime variability
             );
             expect(isTimeout).toBeTrue();
         });
