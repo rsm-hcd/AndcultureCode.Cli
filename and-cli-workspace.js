@@ -108,7 +108,7 @@ require("./command-runner").run(async () => {
         const usernames = program.usernames.split(",");
 
         await js.asyncForEach(usernames, async (username) => {
-            await cloneByUser(username);
+            await cloneByUser(username.trim());
             echo.newLine();
         });
     }

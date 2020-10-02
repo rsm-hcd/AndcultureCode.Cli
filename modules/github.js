@@ -2,10 +2,10 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const browser = require("./browser");
 const { createNetrcAuth } = require("octokit-auth-netrc");
 const echo = require("./echo");
 const fs = require("fs");
+const git = require("./git");
 const { Octokit } = require("@octokit/rest");
 const os = require("os");
 const path = require("path");
@@ -44,8 +44,7 @@ const github = {
      * @param {string} token github personal access token
      */
     configureToken(token) {
-        let contents = "\r\nmachine api.github.com\r\n";
-        contents += `  login ${token}\r\n`;
+        const contents = _getConfigContents(token);
 
         if (!fs.existsSync(this.configAuthConfigPath)) {
             fs.writeFileSync(this.configAuthConfigPath, contents, {
@@ -90,7 +89,7 @@ const github = {
         echo.headerError("Github authentication is not currently configured");
         echo.message(`See instructions: ${this.configAuthDocsUrl}`);
 
-        browser.open(this.configAuthTokenUrl);
+        git.openWebBrowser(this.configAuthTokenUrl);
 
         this._prompt = userPrompt.getPrompt();
 
@@ -213,6 +212,11 @@ const _list = async (command, options, filter) => {
 
     return results;
 };
+
+const _getConfigContents = (token) => `
+machine api.github.com
+  login ${token}
+`;
 
 //#endregion Private Functions
 
