@@ -94,6 +94,9 @@ const github = {
 
             return response.data;
         } catch (e) {
+            echo.error(
+                `Error retrieving repository for ${owner}/${repoName} - ${e}`
+            );
             return null;
         }
     },
