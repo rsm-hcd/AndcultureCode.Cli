@@ -10,8 +10,27 @@ const { Octokit } = require("@octokit/rest");
 const os = require("os");
 const upath = require("upath");
 const userPrompt = require("./user-prompt");
+const { StringUtils } = require("andculturecode-javascript-core");
 
 // #endregion Imports
+
+// -----------------------------------------------------------------------------------------
+// #region Constants
+// -----------------------------------------------------------------------------------------
+
+const API_DOMAIN = "api.github.com";
+
+// #endregion Constants
+
+// -----------------------------------------------------------------------------------------
+// #region Private Variables
+// -----------------------------------------------------------------------------------------
+
+let _currentUser = null;
+let _prompt = null;
+let _token = null;
+
+// #endregion Private Variables
 
 // -----------------------------------------------------------------------------------------
 // #region Public Members
@@ -19,20 +38,18 @@ const userPrompt = require("./user-prompt");
 
 const github = {
     // -----------------------------------------------------------------------------------------
-    // #region Properties
+    // #region Public Properties
     // -----------------------------------------------------------------------------------------
 
-    _prompt: null,
-    _token: null,
     andcultureOrg: "AndcultureCode",
     apiRepositoriesRouteParam: "repos",
-    apiRootUrl: "https://api.github.com",
+    apiRootUrl: `https://${API_DOMAIN}`,
     configAuthConfigPath: upath.join(os.homedir(), ".netrc"), // Path to octokit-auth-netrc configuration
     configAuthDocsUrl:
         "https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token",
     configAuthTokenUrl: "https://github.com/settings/tokens/new",
 
-    // #endregion Properties
+    // #endregion Public Properties
 
     // -----------------------------------------------------------------------------------------
     // #region Public Methods
@@ -60,11 +77,34 @@ const github = {
     },
 
     /**
+     * Retrieves user information of the current authenticated user
+     */
+    async getCurrentUser() {
+        if (_currentUser != null) {
+            return _currentUser;
+        }
+
+        if (!(await _verifyTokenFor("get current user"))) {
+            return null;
+        }
+
+        try {
+            const response = await _client().users.getAuthenticated();
+            _throwIfApiError(response, true, "get current user");
+            _currentUser = response.data;
+        } catch (e) {
+            echo.error(e);
+        }
+
+        return _currentUser;
+    },
+
+    /**
      * Retrieves github auth token
      */
     async getToken() {
-        if (this._token != null) {
-            return this._token;
+        if (_token != null) {
+            return _token;
         }
 
         if (!(await this.isTokenConfigured())) {
@@ -72,9 +112,9 @@ const github = {
             this.configureToken(token);
         }
 
-        this._token = await _getTokenFromConfig();
+        _token = await _getTokenFromConfig();
 
-        return this._token;
+        return _token;
     },
 
     async isTokenConfigured() {
@@ -90,9 +130,9 @@ const github = {
 
         git.openWebBrowser(this.configAuthTokenUrl);
 
-        this._prompt = userPrompt.getPrompt();
+        _prompt = userPrompt.getPrompt();
 
-        return await this._prompt.questionAsync(
+        return await _prompt.questionAsync(
             "Please enter personal access token (with repo permissions): "
         );
     },
@@ -171,11 +211,21 @@ const github = {
 
 const _client = () => {
     const options = {};
+
+    if (StringUtils.hasValue(_token)) {
+        options.auth = _token;
+    }
+
     return new Octokit(options);
 };
 
 const _filterReposByAndcultureOrg = (repos) =>
     repos.filter((r) => r.name.startsWith(github.andcultureOrg));
+
+const _getConfigContents = (token) => `
+machine ${API_DOMAIN}
+    login ${token}
+`;
 
 const _getTokenFromConfig = async () => {
     try {
@@ -212,10 +262,42 @@ const _list = async (command, options, filter) => {
     return results;
 };
 
-const _getConfigContents = (token) => `
-machine api.github.com
-  login ${token}
-`;
+/**
+ * Throws an error if provided github api response isn't successful
+ * @param {OctokitResponse} response API response object
+ * @param {boolean} expectData In addition to a successful response, we expect data on the result
+ * @param {string} actionText text explaining what authentication required action is being attempted
+ */
+const _throwIfApiError = (response, expectData, actionText) => {
+    const data = response.data;
+    const status = response.status;
+
+    if (status === 200 && (!expectData || data != null)) {
+        return;
+    }
+
+    throw new Error(
+        `Failed to ${actionText} - Status: ${status}, Data: ${JSON.stringify(
+            data
+        )}`
+    );
+};
+
+/**
+ * Attempts to retrieve authentication token if it isn't configured
+ * @param {string} actionText text explaining what authentication required action is being attempted
+ */
+const _verifyTokenFor = async (actionText) => {
+    const token = await github.getToken();
+
+    if (StringUtils.hasValue(token)) {
+        return true;
+    }
+
+    echo.error(`Failed to ${actionText} - authentication is not configured`);
+
+    return null;
+};
 
 //#endregion Private Functions
 

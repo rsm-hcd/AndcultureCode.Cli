@@ -29,13 +29,22 @@ require("./command-runner").run(async () => {
     // #region Functions
     // -----------------------------------------------------------------------------------------
 
-    const cloneByUser = async (username) => {
+    const cloneForUser = async (username) => {
         echo.message(
             `Synchronizing forks of AndcultureCode for '${username}'...`
         );
         const userRepos = await github.repositoriesByAndculture(username);
         const cloneUserResults = cloneRepositories(userRepos, username);
         echoCloneResults(cloneUserResults);
+    };
+
+    const cloneForUsers = async (usernames) => {
+        usernames = usernames.split(",");
+
+        await js.asyncForEach(usernames, async (username) => {
+            await cloneForUser(username.trim());
+            echo.newLine();
+        });
     };
 
     const cloneRepositories = (repositories, prefix) => {
@@ -77,6 +86,23 @@ require("./command-runner").run(async () => {
         echo.message(` - Total: ${cloneResults.totalCount}`);
     };
 
+    const forkRepositories = async () => {
+        const user = await github.getCurrentUser();
+        const repos = await github.repositoriesByAndculture();
+        const userRepos = await github.repositoriesByAndculture(user.login);
+        const userForks = userRepos.filter((userRepo) => userRepo.fork);
+
+        // Find user's forks that do NOT start with the top-level repos name
+        // NOTE: unfortunately there is not a more concrete way to identify a fork (ie. full_name equality checking)
+        const reposToFork = repos.filter((repo) =>
+            userForks.every((userFork) => !userFork.name.startsWith(repo.name))
+        );
+
+        reposToFork.forEach((repoToFork) => {
+            echo.success(`Initiating fork of '${repoToFork.full_name}'...`);
+        });
+    };
+
     // #endregion Functions
 
     // -----------------------------------------------------------------------------------------
@@ -86,6 +112,10 @@ require("./command-runner").run(async () => {
     program
         .usage("option")
         .description("Manage AndcultureCode projects workspace")
+        .option(
+            "-f, --fork",
+            "Automatically creates any missing forks of AndcultureCode repositories for the current user"
+        )
         .option(
             "-u, --usernames <usernames>",
             "Comma delimited list of Github usernames for which to clone forked andculture repositories"
@@ -106,12 +136,13 @@ require("./command-runner").run(async () => {
     // Clone user forks of AndcultureCode repositories
     // -----------------------------------------------
     if (StringUtils.hasValue(program.usernames)) {
-        const usernames = program.usernames.split(",");
+        await cloneForUsers(program.usernames);
+    }
 
-        await js.asyncForEach(usernames, async (username) => {
-            await cloneByUser(username.trim());
-            echo.newLine();
-        });
+    // Initiate forks for authenticated user
+    // -------------------------------------
+    if (program.fork != null) {
+        await forkRepositories();
     }
 
     // #endregion Entrypoint
