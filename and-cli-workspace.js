@@ -35,6 +35,9 @@ require("./command-runner").run(async () => {
         );
         const userRepos = await github.repositoriesByAndculture(username);
         const cloneUserResults = cloneRepositories(userRepos, username);
+
+        echo.newLine();
+        echo.message("Results");
         echoCloneResults(cloneUserResults);
     };
 
@@ -73,10 +76,36 @@ require("./command-runner").run(async () => {
             }
 
             echo.success(`Cloned '${repo.full_name}'`);
+
+            configureNewClone(repo, prefix);
+
             results.successCount++;
         });
 
         return results;
+    };
+
+    const configureNewClone = (repo, prefix) => {
+        echo.message(` - Configuring ${repo.full_name}...`);
+
+        // Additional configuration if its a clone of a fork
+        if (!repo.fork) {
+            return;
+        }
+
+        const folder = git.getCloneDirectoryName(repo.name, prefix);
+        shell.cd(folder);
+
+        const addUpgradeResult = git.addRemote(
+            "upstream",
+            `git://github.com/AndcultureCode/${repo.name}.git`
+        );
+
+        if (addUpgradeResult) {
+            echo.message(` - Configured upstream for '${repo.full_name}'`);
+        }
+
+        shell.cd("..");
     };
 
     const echoCloneResults = (cloneResults) => {
