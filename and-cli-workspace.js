@@ -98,6 +98,11 @@ require("./command-runner").run(async () => {
             userForks.every((userFork) => !userFork.name.startsWith(repo.name))
         );
 
+        if (reposToFork.length === 0) {
+            echo.message(" - No new repositories to fork.");
+            return;
+        }
+
         await js.asyncForEach(reposToFork, async (repoToFork) => {
             await github.fork(repoToFork.owner.login, repoToFork.name);
         });
@@ -127,25 +132,27 @@ require("./command-runner").run(async () => {
 
     echo.header("Configuring workspace");
 
+    // Initiate forks for authenticated user
+    // -------------------------------------
+    if (program.fork != null) {
+        echo.message("Forking any outstanding AndcultureCode repositories...");
+        await forkRepositories();
+        echo.newLine();
+    }
+
     // Clone top-level AndcultureCode repositories
     // -------------------------------------------
     echo.message("Synchronizing AndcultureCode repositories...");
     const repos = await github.repositoriesByAndculture();
     const cloneResults = cloneRepositories(repos);
     echoCloneResults(cloneResults);
-
     echo.newLine();
 
     // Clone user forks of AndcultureCode repositories
     // -----------------------------------------------
     if (StringUtils.hasValue(program.usernames)) {
         await cloneForUsers(program.usernames);
-    }
-
-    // Initiate forks for authenticated user
-    // -------------------------------------
-    if (program.fork != null) {
-        await forkRepositories();
+        echo.newLine();
     }
 
     // #endregion Entrypoint
