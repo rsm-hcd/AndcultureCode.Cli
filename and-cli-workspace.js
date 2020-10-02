@@ -94,12 +94,12 @@ require("./command-runner").run(async () => {
         const folder = git.getCloneDirectoryName(repo.name, prefix);
         shell.cd(folder);
 
-        const addUpgradeResult = git.addRemote(
+        const addUpstreamResult = git.addRemote(
             "upstream",
             `git://github.com/AndcultureCode/${repo.name}.git`
         );
 
-        if (addUpgradeResult) {
+        if (addUpstreamResult) {
             echo.message(` - Configured upstream for '${repo.full_name}'`);
         }
 

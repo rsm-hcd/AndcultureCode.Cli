@@ -2,6 +2,7 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
+const { CoreUtils } = require("andculturecode-javascript-core");
 const echo = require("./echo");
 const fs = require("fs");
 
@@ -21,21 +22,6 @@ const js = {
         for (let index = 0; index < array.length; index++) {
             await callback(array[index], index, array);
         }
-    },
-
-    /**
-     * Blocks for a given duration
-     * @param {number} milliseconds number of milli-seconds to wait
-     */
-    sleep(milliseconds) {
-        return new Promise((resolve) => {
-            if (milliseconds <= 0) {
-                resolve();
-                return;
-            }
-
-            setTimeout(resolve, milliseconds);
-        });
     },
 
     /**
@@ -70,7 +56,7 @@ const js = {
                 return;
             }
 
-            await this.sleep(interval);
+            await CoreUtils.sleep(interval);
 
             elapsedTime = new Date() - startTime;
             if (elapsedTime < duration) {

@@ -3,17 +3,15 @@
 // -----------------------------------------------------------------------------------------
 
 const { createNetrcAuth } = require("octokit-auth-netrc");
+const { Octokit } = require("@octokit/rest");
+const { StringUtils } = require("andculturecode-javascript-core");
 const echo = require("./echo");
 const fs = require("fs");
 const git = require("./git");
 const js = require("./js");
-const { Octokit } = require("@octokit/rest");
 const os = require("os");
 const upath = require("upath");
 const userPrompt = require("./user-prompt");
-const { StringUtils } = require("andculturecode-javascript-core");
-const { fork } = require("child_process");
-const { sleep } = require("./js");
 
 // #endregion Imports
 

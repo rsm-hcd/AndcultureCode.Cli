@@ -16,39 +16,6 @@ const testUtils = require("../tests/test-utils");
 
 describe("js", () => {
     // -----------------------------------------------------------------------------------------
-    // #region sleep
-    // -----------------------------------------------------------------------------------------
-
-    describe("sleep", () => {
-        test("when milliseconds less than or equal to 0, resolves immediately", async () => {
-            // Arrange
-            const startTime = new Date();
-
-            // Act
-            await js.sleep(faker.random.number({ min: -500, max: 0 }));
-
-            // Assert
-            const elapsed = new Date() - startTime;
-            expect(elapsed).toBeLessThanOrEqual(10); // pad timing a tad so avoid failures for generally slower execution
-        });
-
-        test("execution is paused for milliseconds provided", async () => {
-            // Arrange
-            const expectedDuration = faker.random.number({ min: 1, max: 500 });
-            const startTime = new Date();
-
-            // Act
-            await js.sleep(expectedDuration);
-
-            // Assert
-            const elapsed = new Date() - startTime;
-            expect(elapsed).toBeGreaterThanOrEqual(expectedDuration);
-        });
-    });
-
-    // #endregion sleep
-
-    // -----------------------------------------------------------------------------------------
     // #region waitFor
     // -----------------------------------------------------------------------------------------
 
