@@ -36,8 +36,6 @@ require("./command-runner").run(async () => {
         const userRepos = await github.repositoriesByAndculture(username);
         const cloneUserResults = cloneRepositories(userRepos, username);
 
-        echo.newLine();
-        echo.message("Results");
         echoCloneResults(cloneUserResults);
     };
 
@@ -109,6 +107,8 @@ require("./command-runner").run(async () => {
     };
 
     const echoCloneResults = (cloneResults) => {
+        echo.newLine();
+        echo.message("Results");
         echo.success(` - Successful: ${cloneResults.successCount}`);
         echo.message(yellow(` - Unmodified: ${cloneResults.unmodifiedCount}`));
         echo.message(red(` - Errored: ${cloneResults.errorCount}`));
