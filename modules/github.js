@@ -3,10 +3,12 @@
 // -----------------------------------------------------------------------------------------
 
 const { createNetrcAuth } = require("octokit-auth-netrc");
+const { Octokit } = require("@octokit/rest");
+const { StringUtils } = require("andculturecode-javascript-core");
 const echo = require("./echo");
 const fs = require("fs");
 const git = require("./git");
-const { Octokit } = require("@octokit/rest");
+const js = require("./js");
 const os = require("os");
 const upath = require("upath");
 const userPrompt = require("./user-prompt");
@@ -14,25 +16,41 @@ const userPrompt = require("./user-prompt");
 // #endregion Imports
 
 // -----------------------------------------------------------------------------------------
+// #region Constants
+// -----------------------------------------------------------------------------------------
+
+const API_DOMAIN = "api.github.com";
+
+// #endregion Constants
+
+// -----------------------------------------------------------------------------------------
+// #region Private Variables
+// -----------------------------------------------------------------------------------------
+
+let _currentUser = null;
+let _prompt = null;
+let _token = null;
+
+// #endregion Private Variables
+
+// -----------------------------------------------------------------------------------------
 // #region Public Members
 // -----------------------------------------------------------------------------------------
 
 const github = {
     // -----------------------------------------------------------------------------------------
-    // #region Properties
+    // #region Public Properties
     // -----------------------------------------------------------------------------------------
 
-    _prompt: null,
-    _token: null,
     andcultureOrg: "AndcultureCode",
     apiRepositoriesRouteParam: "repos",
-    apiRootUrl: "https://api.github.com",
+    apiRootUrl: `https://${API_DOMAIN}`,
     configAuthConfigPath: upath.join(os.homedir(), ".netrc"), // Path to octokit-auth-netrc configuration
     configAuthDocsUrl:
         "https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token",
     configAuthTokenUrl: "https://github.com/settings/tokens/new",
 
-    // #endregion Properties
+    // #endregion Public Properties
 
     // -----------------------------------------------------------------------------------------
     // #region Public Methods
@@ -60,11 +78,108 @@ const github = {
     },
 
     /**
+     * Retrieves a repository
+     * @param {string} owner user or organization name owning the repo
+     * @param {string} repoName short name of repository (excluding user/organization)
+     */
+    async getRepo(owner, repoName) {
+        try {
+            const response = await _client().repos.get({
+                owner: owner,
+                repo: repoName,
+            });
+            _throwIfApiError(response);
+
+            return response.data;
+        } catch (e) {
+            echo.error(
+                `Error retrieving repository for ${owner}/${repoName} - ${e}`
+            );
+            return null;
+        }
+    },
+
+    /**
+     * Forks a given repository for the current authenticated user
+     *
+     * While the github API asychronously forks the repo, our wrapper tries its best to wait for it
+     * @param {string} ownerName User or organization that owns the repo being forked
+     * @param {string} repoName The 'short' name of the repo (excludes the owner/user/organization)
+     */
+    async fork(ownerName, repoName) {
+        if (!(await _verifyTokenFor("fork"))) {
+            return null;
+        }
+
+        // Initiate creation of fork with Github
+        let fork = null;
+        try {
+            const response = await _client().repos.createFork({
+                owner: ownerName,
+                repo: repoName,
+            });
+            _throwIfApiError(response);
+            fork = response.data;
+        } catch (e) {
+            echo.error(e);
+            return false;
+        }
+
+        // Poll github to see when it has completed (waits maximum of 5 minutes)
+        echo.message(
+            `Forking '${fork.name}'. Can take up to 5 minutes. Please wait...`
+        );
+
+        const isForkCreated = async (elapsed) => {
+            echo.message(` - Looking for fork (${elapsed / 1000}s)...`);
+
+            if ((await this.getRepo(fork.owner.login, fork.name)) == null) {
+                return false;
+            }
+
+            echo.success(` - Fork of '${fork.name}' created successfully`);
+
+            return true;
+        };
+
+        await js.waitFor(isForkCreated, 10000, 60000, function timeout() {
+            echo.error(
+                "Fork creation timed out, please contact github support"
+            );
+        });
+
+        return false; // never found it!
+    },
+
+    /**
+     * Retrieves user information of the current authenticated user
+     */
+    async getCurrentUser() {
+        if (_currentUser != null) {
+            return _currentUser;
+        }
+
+        if (!(await _verifyTokenFor("get current user"))) {
+            return null;
+        }
+
+        try {
+            const response = await _client().users.getAuthenticated();
+            _throwIfApiError(response, true, "get current user");
+            _currentUser = response.data;
+        } catch (e) {
+            echo.error(e);
+        }
+
+        return _currentUser;
+    },
+
+    /**
      * Retrieves github auth token
      */
     async getToken() {
-        if (this._token != null) {
-            return this._token;
+        if (_token != null) {
+            return _token;
         }
 
         if (!(await this.isTokenConfigured())) {
@@ -72,9 +187,9 @@ const github = {
             this.configureToken(token);
         }
 
-        this._token = await _getTokenFromConfig();
+        _token = await _getTokenFromConfig();
 
-        return this._token;
+        return _token;
     },
 
     async isTokenConfigured() {
@@ -90,9 +205,9 @@ const github = {
 
         git.openWebBrowser(this.configAuthTokenUrl);
 
-        this._prompt = userPrompt.getPrompt();
+        _prompt = userPrompt.getPrompt();
 
-        return await this._prompt.questionAsync(
+        return await _prompt.questionAsync(
             "Please enter personal access token (with repo permissions): "
         );
     },
@@ -171,11 +286,21 @@ const github = {
 
 const _client = () => {
     const options = {};
+
+    if (StringUtils.hasValue(_token)) {
+        options.auth = _token;
+    }
+
     return new Octokit(options);
 };
 
 const _filterReposByAndcultureOrg = (repos) =>
     repos.filter((r) => r.name.startsWith(github.andcultureOrg));
+
+const _getConfigContents = (token) => `
+machine ${API_DOMAIN}
+    login ${token}
+`;
 
 const _getTokenFromConfig = async () => {
     try {
@@ -212,10 +337,43 @@ const _list = async (command, options, filter) => {
     return results;
 };
 
-const _getConfigContents = (token) => `
-machine api.github.com
-  login ${token}
-`;
+/**
+ * Throws an error if provided github api response isn't successful
+ * @param {OctokitResponse} response API response object
+ * @param {boolean} expectData In addition to a successful response, we expect data on the result
+ * @param {string} actionText text explaining what authentication required action is being attempted
+ */
+const _throwIfApiError = (response, expectData, actionText) => {
+    const data = response.data;
+    const status = response.status;
+
+    // HTTP OK (200), Created (201) or Accepted (202) are considered successful
+    if (status >= 200 && status <= 202 && (!expectData || data != null)) {
+        return;
+    }
+
+    throw new Error(
+        `Failed to ${actionText} - Status: ${status}, Data: ${JSON.stringify(
+            data
+        )}`
+    );
+};
+
+/**
+ * Attempts to retrieve authentication token if it isn't configured
+ * @param {string} actionText text explaining what authentication required action is being attempted
+ */
+const _verifyTokenFor = async (actionText) => {
+    const token = await github.getToken();
+
+    if (StringUtils.hasValue(token)) {
+        return true;
+    }
+
+    echo.error(`Failed to ${actionText} - authentication is not configured`);
+
+    return null;
+};
 
 //#endregion Private Functions
 

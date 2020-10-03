@@ -14,6 +14,23 @@ const shell = require("shelljs");
 
 const git = {
     /**
+     * Configures a new remote when run in root of git repository
+     * @param {string} name local identifier for a new remote
+     * @param {string} url absolute url corresponding to remote destination
+     */
+    addRemote(name, url) {
+        if (!this.isRepositoryRoot()) {
+            echo.error(
+                `Cannot add remote '${name}'. Current directory '${shell.pwd()} is not the root of a git repository.`
+            );
+            return false;
+        }
+
+        const command = `git remote add ${name} ${url}`;
+        return shell.exec(command).code === 0;
+    },
+
+    /**
      * Clone a git repository
      * @param {string} name Name of repository being cloned
      * @param {string} url Absolute HTTPS or SSH repository URL
@@ -61,6 +78,15 @@ const git = {
     isCloned(repoName, prefix) {
         const folder = git.getCloneDirectoryName(repoName, prefix);
         return fs.existsSync(folder);
+    },
+
+    /**
+     * Verifies if we are in a git repo
+     */
+    isRepositoryRoot() {
+        // not verifying integrity at this time
+        // consider `git rev-parse --is-inside-work-tree at a future time
+        return fs.existsSync(".git");
     },
 
     /**

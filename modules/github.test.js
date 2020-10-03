@@ -95,6 +95,48 @@ describe("github", () => {
     //#endregion description
 
     // -----------------------------------------------------------------------------------------
+    // #region getRepo
+    // -----------------------------------------------------------------------------------------
+
+    describe("getRepo", () => {
+        test("given username does not exist, returns null", async () => {
+            // Arrange
+            const invalidUser = `AndcultureCode${faker.random.uuid()}`;
+
+            // Act & Assert
+            expect(
+                await github.getRepo(invalidUser, "AndcultureCode.Cli")
+            ).toBeNull();
+        });
+
+        test("given repo does not exist, returns null", async () => {
+            // Arrange
+            const invalidRepo = `AndcultureCode.Cli${faker.random.uuid()}`;
+
+            // Act & Assert
+            expect(
+                await github.getRepo("AndcultureCode", invalidRepo)
+            ).toBeNull();
+        });
+
+        test("given username and repo exists, returns repo", async () => {
+            // Arrange
+            const expectedUsername = "AndcultureCode";
+            const expectedRepo = "AndcultureCode.Cli";
+
+            // Act
+            const result = await github.getRepo(expectedUsername, expectedRepo);
+
+            // Assert
+            expect(result).not.toBeNull();
+            expect(result.name).toBe(expectedRepo);
+            expect(result.owner.login).toBe(expectedUsername);
+        });
+    });
+
+    // #endregion getRepo
+
+    // -----------------------------------------------------------------------------------------
     // #region repositories
     // -----------------------------------------------------------------------------------------
 
