@@ -4,7 +4,10 @@
 
 const { createNetrcAuth } = require("octokit-auth-netrc");
 const { Octokit } = require("@octokit/rest");
-const { StringUtils } = require("andculturecode-javascript-core");
+const {
+    StringUtils,
+    CollectionUtils,
+} = require("andculturecode-javascript-core");
 const echo = require("./echo");
 const fs = require("fs");
 const git = require("./git");
@@ -55,6 +58,49 @@ const github = {
     // -----------------------------------------------------------------------------------------
     // #region Public Methods
     // -----------------------------------------------------------------------------------------
+
+    async addTopicToRepository(topic, repoName) {
+        if (StringUtils.isEmpty(topic)) {
+            echo.error("Topic name must be provided");
+            return;
+        }
+
+        const existingTopics = await this.topicsForRepository(
+            this.andcultureOrg,
+            repoName
+        );
+        if (
+            existingTopics.find(
+                (existingTopic) =>
+                    existingTopic.toLocaleLowerCase() ===
+                    topic.toLocaleLowercase()
+            )
+        ) {
+            echo.message(`Topic ${topic} is already assigned to ${repoName}.`);
+            return;
+        }
+
+        const updatedTopics = [...existingTopics, topic];
+        try {
+            const updateTopicsResponse = await _client().repos.replaceAllTopics(
+                {
+                    owner: this.andcultureOrg,
+                    repo: repoName,
+                    names: updatedTopics,
+                }
+            );
+            _throwIfApiError(updateTopicsResponse);
+            console.log(
+                "updateTopicsResponse.data:",
+                updateTopicsResponse.data
+            );
+        } catch (error) {
+            echo.error(
+                `Failed to update topics for repo ${repoName}: ${error}`
+            );
+            return;
+        }
+    },
 
     /**
      * Sets login token for github api
@@ -270,6 +316,30 @@ const github = {
         } catch (error) {
             echo.error(
                 `There was an error listing repositories by organization ${org}: ${error}`
+            );
+            return null;
+        }
+    },
+
+    async topicsForRepository(ownerName, repoName) {
+        try {
+            const response = await _client().repos.getAllTopics({
+                owner: ownerName,
+                repo: repoName,
+            });
+            _throwIfApiError(response);
+
+            if (
+                response.data == null ||
+                CollectionUtils.isEmpty(response.data.names)
+            ) {
+                return [];
+            }
+
+            return response.data.names;
+        } catch (error) {
+            echo.error(
+                `There was an error listing topics for repository ${repoName} by owner ${ownerName}: ${error}`
             );
             return null;
         }

@@ -16,6 +16,8 @@ require("./command-runner").run(async () => {
     program
         .usage("option")
         .description(github.description())
+        .option("-t, --get-topics <repo>", "Repository name to list topics for")
+        .option("-r, --repos", "Lists all andculture repos")
         .option(
             "-u, --username <username>",
             "Github username for which to list andculture repositories"
@@ -23,8 +25,10 @@ require("./command-runner").run(async () => {
         .parse(process.argv);
 
     // Configure github module based on passed in args/options
-    echo.success("AndcultureCode Repositories");
-    echo.byProperty(await github.repositoriesByAndculture(), "url");
+    if (program.repos != null) {
+        echo.success("AndcultureCode Repositories");
+        echo.byProperty(await github.repositoriesByAndculture(), "url");
+    }
 
     if (program.username != null) {
         echo.success(`${program.username} Repositories`);
@@ -32,6 +36,16 @@ require("./command-runner").run(async () => {
             await github.repositoriesByAndculture(program.username),
             "url"
         );
+    }
+
+    if (program.getTopics != null) {
+        const repoName = program.getTopics;
+        echo.message(`Topics for ${repoName}`);
+        const topicsResult = await github.topicsForRepository(
+            "andculturecode",
+            repoName
+        );
+        echo.messages(topicsResult);
     }
 
     // #endregion Entrypoint

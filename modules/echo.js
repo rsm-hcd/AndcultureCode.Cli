@@ -14,6 +14,7 @@ const shell = require("shelljs");
 
 const columnLength = 65;
 const { purple, green, red, yellow } = formatters;
+const prefix = purple(`[${constants.CLI_NAME}]`);
 
 // #endregion Variables
 
@@ -42,17 +43,17 @@ const echo = {
     center(message) {
         const halfLength = (columnLength - message.length) / 2;
         if (halfLength < 0) {
-            shell.echo(`${this.sdkString} ${message}`);
+            shell.echo(`${prefix} ${message}`);
             return;
         }
-        shell.echo(`${this.sdkString} ${" ".repeat(halfLength)}${message}`);
+        shell.echo(`${prefix} ${" ".repeat(halfLength)}${message}`);
     },
     divider() {
-        shell.echo(`${this.sdkString} ${"-".repeat(columnLength)}`);
+        shell.echo(`${prefix} ${"-".repeat(columnLength)}`);
     },
     error(message) {
         shell.echo(
-            `${this.sdkString} ${red(constants.ERROR_OUTPUT_STRING)} ${message}`
+            `${prefix} ${red(constants.ERROR_OUTPUT_STRING)} ${message}`
         );
     },
     errors(messages) {
@@ -69,15 +70,18 @@ const echo = {
     headerSuccess(message) {
         _header(() => this.success(message));
     },
-    message(message) {
-        shell.echo(`${this.sdkString} ${message}`);
+    message(message, includePrefix = true) {
+        shell.echo(includePrefix ? `${prefix} ${message}` : message);
+    },
+    messages(messages, includePrefix = true) {
+        messages.forEach((message) => this.message(message, includePrefix));
     },
     newLine(includePrefix) {
-        shell.echo(includePrefix ? this.sdkString : "");
+        shell.echo(includePrefix ? prefix : "");
     },
     sdkString: purple("[and-cli]"),
     success(message) {
-        message = `${this.sdkString} ${green(message)}`;
+        message = `${prefix} ${green(message)}`;
 
         shell.echo(message);
 
@@ -85,9 +89,7 @@ const echo = {
     },
     warn(message) {
         shell.echo(
-            `${this.sdkString} ${yellow(
-                constants.WARN_OUTPUT_STRING
-            )} ${message}`
+            `${prefix} ${yellow(constants.WARN_OUTPUT_STRING)} ${message}`
         );
     },
 };
