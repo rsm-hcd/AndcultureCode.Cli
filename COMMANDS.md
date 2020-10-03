@@ -249,7 +249,7 @@ Starts webpack built projects located in our team's conventional 'frontend' fold
 
 Series of commands to synchronize a development workspace for easy contributions for AndcultureCode repositories.
 
--   `and-cli workspace` - Clones all public AndcultureCode organization repositories into current folder
+-   `and-cli workspace -c|--clone` - Clones all public AndcultureCode organization repositories into current folder
 -   `and-cli workspace -u|--usernames <username1,username2,...>` - Additionally clones forks of the AndcultureCode repositories for the supplied user(s)
 -   `and-cli workspace -f|--fork` - Will create forks of AndcultureCode repos for currently authenticated github user
 -   `and-cli workspace --fork --usernames yourusername` - Combining `usernames` and `fork` flag, you can have your full workspace forked and those forks automatically cloned all in one pass.
