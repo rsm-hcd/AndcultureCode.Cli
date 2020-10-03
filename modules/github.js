@@ -91,7 +91,7 @@ const github = {
             return false;
         }
 
-        const updateFunction = (existingTopics) => [topic, ...existingTopics];
+        const updateFunction = (existingTopics) => [...existingTopics, topic];
         const updateTopicsResult = await _updateTopicsForRepo(
             updateFunction,
             owner,
@@ -291,9 +291,63 @@ const github = {
         }
     },
 
-    async removeTopicFromRepositories(topic) {},
+    /**
+     * Removes a topic from all AndcultureCode repositories
+     *
+     * @param {string} topic Topic to be removed
+     */
+    async removeTopicFromAllRepositories(topic) {
+        const andcultureRepos = await this.repositoriesByAndculture();
+        const repoNames = andcultureRepos.map((e) => e.name);
+        await js.asyncForEach(repoNames, async (repo) => {
+            await this.removeTopicFromRepository(
+                topic,
+                this.andcultureOrg,
+                repo
+            );
+        });
+    },
 
-    async removeTopicFromRepository(topic, repoName) {},
+    /**
+     * Removes a topic from a given repository
+     *
+     * @param {string} topic Topic to be removed
+     * @param {string} owner user or organization name owning the repo
+     * @param {string} repoName short name of repository (excluding user/organization)
+     */
+    async removeTopicFromRepository(topic, owner, repoName) {
+        if (
+            StringUtils.isEmpty(topic) ||
+            StringUtils.isEmpty(owner) ||
+            StringUtils.isEmpty(repoName)
+        ) {
+            echo.error(
+                "Topic name, owner, and repository name must be provided"
+            );
+            return false;
+        }
+
+        const updateFunction = (existingTopics) =>
+            existingTopics.filter((existingTopic) => existingTopic !== topic);
+        const updateTopicsResult = await _updateTopicsForRepo(
+            updateFunction,
+            owner,
+            repoName
+        );
+
+        if (updateTopicsResult == null) {
+            echo.error(
+                `Failed to remove topic ${topic} from ${owner}/${repoName}`
+            );
+            return false;
+        }
+
+        echo.success(
+            `Updated topics for ${repoName}: ${updateTopicsResult.join(", ")}`
+        );
+
+        return true;
+    },
 
     /**
      * Lists all andculture organization repositories

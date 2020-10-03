@@ -1,8 +1,11 @@
 #!/usr/bin/env node
+
 require("./command-runner").run(async () => {
     // -----------------------------------------------------------------------------------------
     // #region Imports
     // -----------------------------------------------------------------------------------------
+
+    const { StringUtils } = require("andculturecode-javascript-core");
     const echo = require("./modules/echo");
     const github = require("./modules/github");
     const program = require("commander");
@@ -16,13 +19,14 @@ require("./command-runner").run(async () => {
     program
         .usage("option")
         .description(github.description())
-        .option("-a, --add-topic <topic>", "Add topic to specified repository")
+        .option("--add-topic <topic>", "Add topic to specified repository")
         .option("-l, --list-repos", "Lists all andculture repos")
+        .option("--remove-topic <topic>", "Add topic to specified repository")
         .option(
             "-r, --repo <repo>",
-            "Repository name to act on (used in conjunction with -a or -t, for example)"
+            "Repository name to act on (used in conjunction with --add-topic or --get-topics, for example)"
         )
-        .option("-t, --get-topics", "List topics for a given repo")
+        .option("--get-topics", "List topics for a given repo")
         .option(
             "-u, --username <username>",
             "Github username for which to list andculture repositories"
@@ -49,25 +53,39 @@ require("./command-runner").run(async () => {
         const repoName = program.repo;
         echo.message(`Topics for ${repoName}`);
         const topicsResult = await github.topicsForRepository(
-            "andculturecode",
-            repoName
-        );
-        echo.messages(topicsResult);
-    }
-
-    if (program.addTopic != null && program.repo != null) {
-        const topic = program.addTopic;
-        const repoName = program.repo;
-        await github.addTopicToRepository(
-            topic,
             github.andcultureOrg,
             repoName
         );
+        echo.messages(topicsResult);
+        return;
     }
 
-    if (program.addTopic != null && program.repo == null) {
-        const topic = program.addTopic;
-        await github.addTopicToAllRepositories(topic);
+    if (program.addTopic != null) {
+        if (StringUtils.isEmpty(program.repo)) {
+            await github.addTopicToAllRepositories(program.addTopic);
+            return;
+        }
+
+        await github.addTopicToRepository(
+            program.addTopic,
+            github.andcultureOrg,
+            program.repo
+        );
+        return;
+    }
+
+    if (program.removeTopic != null) {
+        if (StringUtils.isEmpty(program.repo)) {
+            await github.removeTopicFromAllRepositories(program.removeTopic);
+            return;
+        }
+
+        await github.removeTopicFromRepository(
+            program.removeTopic,
+            github.andcultureOrg,
+            program.repo
+        );
+        return;
     }
 
     // If no options are passed in, output help
