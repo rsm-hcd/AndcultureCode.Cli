@@ -59,65 +59,55 @@ const github = {
     // #region Public Methods
     // -----------------------------------------------------------------------------------------
 
+    /**
+     * Adds a topic to all AndcultureCode repositories
+     *
+     * @param {string} topic Topic to be added
+     */
     async addTopicToAllRepositories(topic) {
         const andcultureRepos = await this.repositoriesByAndculture();
         const repoNames = andcultureRepos.map((e) => e.name);
         await js.asyncForEach(repoNames, async (repo) => {
-            const updatedTopics = await this.addTopicToRepository(topic, repo);
-
-            if (CollectionUtils.isEmpty(updatedTopics)) {
-                return;
-            }
-
-            echo.message(
-                `Updated topics for ${repo}: ${updatedTopics.join(", ")}`
-            );
+            await this.addTopicToRepository(topic, this.andcultureOrg, repo);
         });
     },
 
-    async addTopicToRepository(topic, repoName) {
-        if (StringUtils.isEmpty(topic)) {
-            echo.error("Topic name must be provided");
-            return;
+    /**
+     * Adds a topic to given repository
+     *
+     * @param {string} topic Topic to be added
+     * @param {string} owner user or organization name owning the repo
+     * @param {string} repoName short name of repository (excluding user/organization)
+     */
+    async addTopicToRepository(topic, owner, repoName) {
+        if (
+            StringUtils.isEmpty(topic) ||
+            StringUtils.isEmpty(owner) ||
+            StringUtils.isEmpty(repoName)
+        ) {
+            echo.error(
+                "Topic name, owner, and repository name must be provided"
+            );
+            return false;
         }
 
-        if (!(await _verifyTokenFor("update topics"))) {
-            return;
-        }
-
-        const existingTopics = await this.topicsForRepository(
-            this.andcultureOrg,
+        const updateFunction = (existingTopics) => [topic, ...existingTopics];
+        const updateTopicsResult = await _updateTopicsForRepo(
+            updateFunction,
+            owner,
             repoName
         );
 
-        if (existingTopics.find((existingTopic) => existingTopic === topic)) {
-            echo.message(`Topic ${topic} is already assigned to ${repoName}.`);
-            return;
+        if (updateTopicsResult == null) {
+            echo.error(`Failed to add topic ${topic} to ${owner}/${repoName}`);
+            return false;
         }
 
-        const updatedTopics = [...existingTopics, topic];
-        try {
-            const response = await _client().repos.replaceAllTopics({
-                owner: this.andcultureOrg,
-                repo: repoName,
-                names: updatedTopics,
-            });
+        echo.success(
+            `Updated topics for ${repoName}: ${updateTopicsResult.join(", ")}`
+        );
 
-            _throwIfApiError(response);
-            if (
-                response.data == null ||
-                CollectionUtils.isEmpty(response.data.names)
-            ) {
-                return [];
-            }
-
-            return response.data.names;
-        } catch (error) {
-            echo.error(
-                `Failed to update topics for repo ${repoName}: ${error}`
-            );
-            return [];
-        }
+        return true;
     },
 
     /**
@@ -301,6 +291,10 @@ const github = {
         }
     },
 
+    async removeTopicFromRepositories(topic) {},
+
+    async removeTopicFromRepository(topic, repoName) {},
+
     /**
      * Lists all andculture organization repositories
      * @param {string} username optional username of user account. if null, returns master andculture organization repositories
@@ -339,27 +333,36 @@ const github = {
         }
     },
 
-    async topicsForRepository(ownerName, repoName) {
+    /**
+     * Returns the topics for a specific repository
+     *
+     * @param {string} ownerName User or organization that owns the repo
+     * @param {string} repoName The 'short' name of the repo (excludes the owner/user/organization)
+     * @returns {string[]} Array of topics related to the repository
+     */
+    async topicsForRepository(owner, repoName) {
+        const actionText = "list topics";
+        if (StringUtils.isEmpty(owner) || StringUtils.isEmpty(repoName)) {
+            echo.error(
+                `Owner and repository name are required to ${actionText}.`
+            );
+            return;
+        }
+
         try {
             const response = await _client().repos.getAllTopics({
-                owner: ownerName,
+                owner: owner,
                 repo: repoName,
             });
-            _throwIfApiError(response);
 
-            if (
-                response.data == null ||
-                CollectionUtils.isEmpty(response.data.names)
-            ) {
-                return [];
-            }
+            _throwIfApiError(response, true, actionText);
 
             return response.data.names;
         } catch (error) {
             echo.error(
-                `There was an error listing topics for repository ${repoName} by owner ${ownerName}: ${error}`
+                `There was an error attempting to ${actionText} for repository ${repoName} by owner ${owner}: ${error}`
             );
-            return null;
+            return;
         }
     },
 
@@ -445,6 +448,42 @@ const _throwIfApiError = (response, expectData, actionText) => {
             data
         )}`
     );
+};
+
+/**
+ * Updates the set of topics for a given repository based on the given updater function.
+ *
+ * @param {(existingTopics: string[]) => string[]} updateFunc Manipulation function to be run on the
+ * existing topic list for a repo.
+ * @param {string} owner user or organization name owning the repo
+ * @param {string} repoName short name of repository (excluding user/organization)
+ */
+const _updateTopicsForRepo = async (updateFunc, owner, repoName) => {
+    const actionText = "update topics";
+    if (!(await _verifyTokenFor(actionText))) {
+        return;
+    }
+
+    const existingTopics = await github.topicsForRepository(owner, repoName);
+    if (existingTopics == null) {
+        return;
+    }
+
+    const updatedTopics = updateFunc(existingTopics);
+    try {
+        const response = await _client().repos.replaceAllTopics({
+            owner: owner,
+            repo: repoName,
+            names: updatedTopics,
+        });
+
+        _throwIfApiError(response, true, actionText);
+
+        return response.data.names;
+    } catch (error) {
+        echo.error(`Failed to ${actionText} for repo ${repoName}: ${error}`);
+        return null;
+    }
 };
 
 /**

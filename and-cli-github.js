@@ -58,12 +58,21 @@ require("./command-runner").run(async () => {
     if (program.addTopic != null && program.repo != null) {
         const topic = program.addTopic;
         const repoName = program.repo;
-        await github.addTopicToRepository(topic, repoName);
+        await github.addTopicToRepository(
+            topic,
+            github.andcultureOrg,
+            repoName
+        );
     }
 
     if (program.addTopic != null && program.repo == null) {
         const topic = program.addTopic;
         await github.addTopicToAllRepositories(topic);
+    }
+
+    // If no options are passed in, output help
+    if (process.argv.slice(2).length === 0) {
+        program.outputHelp();
     }
 
     // #endregion Entrypoint
