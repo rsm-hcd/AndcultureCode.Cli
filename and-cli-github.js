@@ -20,13 +20,16 @@ require("./command-runner").run(async () => {
         .usage("option")
         .description(github.description())
         .option("--add-topic <topic>", "Add topic to specified repository")
+        .option("--get-topics", "List topics for a given repo")
         .option("-l, --list-repos", "Lists all andculture repos")
-        .option("--remove-topic <topic>", "Add topic to specified repository")
+        .option(
+            "--remove-topic <topic>",
+            "Remove topic from specified repository"
+        )
         .option(
             "-r, --repo <repo>",
             "Repository name to act on (used in conjunction with --add-topic or --get-topics, for example)"
         )
-        .option("--get-topics", "List topics for a given repo")
         .option(
             "-u, --username <username>",
             "Github username for which to list andculture repositories"

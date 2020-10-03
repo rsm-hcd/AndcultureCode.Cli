@@ -13,6 +13,7 @@ const fs = require("fs");
 const git = require("./git");
 const js = require("./js");
 const os = require("os");
+const shell = require("shelljs");
 const upath = require("upath");
 const userPrompt = require("./user-prompt");
 
@@ -80,34 +81,19 @@ const github = {
      * @param {string} repoName short name of repository (excluding user/organization)
      */
     async addTopicToRepository(topic, owner, repoName) {
-        if (
-            StringUtils.isEmpty(topic) ||
-            StringUtils.isEmpty(owner) ||
-            StringUtils.isEmpty(repoName)
-        ) {
-            echo.error(
-                "Topic name, owner, and repository name must be provided"
-            );
+        if (!_validateTopicInputOrExit(topic, owner, repoName)) {
             return false;
         }
 
         const updateFunction = (existingTopics) => [...existingTopics, topic];
-        const updateTopicsResult = await _updateTopicsForRepo(
+
+        const updateResult = await _updateTopicsForRepo(
             updateFunction,
             owner,
             repoName
         );
 
-        if (updateTopicsResult == null) {
-            echo.error(`Failed to add topic ${topic} to ${owner}/${repoName}`);
-            return false;
-        }
-
-        echo.success(
-            `Updated topics for ${repoName}: ${updateTopicsResult.join(", ")}`
-        );
-
-        return true;
+        return _outputUpdateTopicResult("add", topic, repoName, updateResult);
     },
 
     /**
@@ -316,37 +302,25 @@ const github = {
      * @param {string} repoName short name of repository (excluding user/organization)
      */
     async removeTopicFromRepository(topic, owner, repoName) {
-        if (
-            StringUtils.isEmpty(topic) ||
-            StringUtils.isEmpty(owner) ||
-            StringUtils.isEmpty(repoName)
-        ) {
-            echo.error(
-                "Topic name, owner, and repository name must be provided"
-            );
+        if (!_validateTopicInputOrExit(topic, owner, repoName)) {
             return false;
         }
 
         const updateFunction = (existingTopics) =>
             existingTopics.filter((existingTopic) => existingTopic !== topic);
-        const updateTopicsResult = await _updateTopicsForRepo(
+
+        const updateResult = await _updateTopicsForRepo(
             updateFunction,
             owner,
             repoName
         );
 
-        if (updateTopicsResult == null) {
-            echo.error(
-                `Failed to remove topic ${topic} from ${owner}/${repoName}`
-            );
-            return false;
-        }
-
-        echo.success(
-            `Updated topics for ${repoName}: ${updateTopicsResult.join(", ")}`
+        return _outputUpdateTopicResult(
+            "remove",
+            topic,
+            repoName,
+            updateResult
         );
-
-        return true;
     },
 
     /**
@@ -392,7 +366,7 @@ const github = {
      *
      * @param {string} ownerName User or organization that owns the repo
      * @param {string} repoName The 'short' name of the repo (excludes the owner/user/organization)
-     * @returns {string[]} Array of topics related to the repository
+     * @returns {string[] | undefined} Array of topics related to the repository
      */
     async topicsForRepository(owner, repoName) {
         const actionText = "list topics";
@@ -483,6 +457,26 @@ const _list = async (command, options, filter) => {
 };
 
 /**
+ * Outputs information for a topic update operation
+ *
+ * @param {string} actionText Action being performed (ie, 'add' or 'remove')
+ * @param {string} topic Topic to be updated
+ * @param {string} repoName short name of repository (excluding user/organization)
+ * @param {string[] | undefined} result Result to check for a successful operation
+ */
+const _outputUpdateTopicResult = (actionText, topic, repoName, result) => {
+    if (result == null) {
+        echo.error(`Failed to ${actionText} topic '${topic}' for ${repoName}`);
+        return false;
+    }
+
+    echo.success(`Updated topics for ${repoName}`);
+    echo.message(`  ${result.join(", ")}`);
+
+    return true;
+};
+
+/**
  * Throws an error if provided github api response isn't successful
  * @param {OctokitResponse} response API response object
  * @param {boolean} expectData In addition to a successful response, we expect data on the result
@@ -541,6 +535,27 @@ const _updateTopicsForRepo = async (updateFunc, owner, repoName) => {
 };
 
 /**
+ * Validates user input for updating topics
+ *
+ * @param {string} topic Topic to be updated
+ * @param {string} owner user or organization name owning the repo
+ * @param {string} repoName short name of repository (excluding user/organization)
+ */
+const _validateTopicInputOrExit = (topic, owner, repoName) => {
+    if (
+        StringUtils.hasValue(topic) &&
+        StringUtils.hasValue(owner) &&
+        StringUtils.hasValue(repoName)
+    ) {
+        return true;
+    }
+
+    echo.error("Topic, owner, and repository name must be provided");
+    shell.exit(1);
+    return false;
+};
+
+/**
  * Attempts to retrieve authentication token if it isn't configured
  * @param {string} actionText text explaining what authentication required action is being attempted
  */
@@ -556,7 +571,7 @@ const _verifyTokenFor = async (actionText) => {
     return null;
 };
 
-//#endregion Private Functions
+// #endregion Private Functions
 
 // -----------------------------------------------------------------------------------------
 // #region Exports
