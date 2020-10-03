@@ -16,8 +16,13 @@ require("./command-runner").run(async () => {
     program
         .usage("option")
         .description(github.description())
-        .option("-t, --get-topics <repo>", "Repository name to list topics for")
-        .option("-r, --repos", "Lists all andculture repos")
+        .option("-a, --add-topic <topic>", "Add topic to specified repository")
+        .option("-l, --list-repos", "Lists all andculture repos")
+        .option(
+            "-r, --repo <repo>",
+            "Repository name to act on (used in conjunction with -a or -t, for example)"
+        )
+        .option("-t, --get-topics", "List topics for a given repo")
         .option(
             "-u, --username <username>",
             "Github username for which to list andculture repositories"
@@ -25,9 +30,10 @@ require("./command-runner").run(async () => {
         .parse(process.argv);
 
     // Configure github module based on passed in args/options
-    if (program.repos != null) {
+    if (program.listRepos != null) {
         echo.success("AndcultureCode Repositories");
         echo.byProperty(await github.repositoriesByAndculture(), "url");
+        return;
     }
 
     if (program.username != null) {
@@ -36,16 +42,28 @@ require("./command-runner").run(async () => {
             await github.repositoriesByAndculture(program.username),
             "url"
         );
+        return;
     }
 
-    if (program.getTopics != null) {
-        const repoName = program.getTopics;
+    if (program.getTopics != null && program.repo != null) {
+        const repoName = program.repo;
         echo.message(`Topics for ${repoName}`);
         const topicsResult = await github.topicsForRepository(
             "andculturecode",
             repoName
         );
         echo.messages(topicsResult);
+    }
+
+    if (program.addTopic != null && program.repo != null) {
+        const topic = program.addTopic;
+        const repoName = program.repo;
+        await github.addTopicToRepository(topic, repoName);
+    }
+
+    if (program.addTopic != null && program.repo == null) {
+        const topic = program.addTopic;
+        await github.addTopicToAllRepositories(topic);
     }
 
     // #endregion Entrypoint

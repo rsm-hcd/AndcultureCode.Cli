@@ -59,9 +59,29 @@ const github = {
     // #region Public Methods
     // -----------------------------------------------------------------------------------------
 
+    async addTopicToAllRepositories(topic) {
+        const andcultureRepos = await this.repositoriesByAndculture();
+        const repoNames = andcultureRepos.map((e) => e.name);
+        await js.asyncForEach(repoNames, async (repo) => {
+            const updatedTopics = await this.addTopicToRepository(topic, repo);
+
+            if (CollectionUtils.isEmpty(updatedTopics)) {
+                return;
+            }
+
+            echo.message(
+                `Updated topics for ${repo}: ${updatedTopics.join(", ")}`
+            );
+        });
+    },
+
     async addTopicToRepository(topic, repoName) {
         if (StringUtils.isEmpty(topic)) {
             echo.error("Topic name must be provided");
+            return;
+        }
+
+        if (!(await _verifyTokenFor("update topics"))) {
             return;
         }
 
@@ -69,36 +89,34 @@ const github = {
             this.andcultureOrg,
             repoName
         );
-        if (
-            existingTopics.find(
-                (existingTopic) =>
-                    existingTopic.toLocaleLowerCase() ===
-                    topic.toLocaleLowercase()
-            )
-        ) {
+
+        if (existingTopics.find((existingTopic) => existingTopic === topic)) {
             echo.message(`Topic ${topic} is already assigned to ${repoName}.`);
             return;
         }
 
         const updatedTopics = [...existingTopics, topic];
         try {
-            const updateTopicsResponse = await _client().repos.replaceAllTopics(
-                {
-                    owner: this.andcultureOrg,
-                    repo: repoName,
-                    names: updatedTopics,
-                }
-            );
-            _throwIfApiError(updateTopicsResponse);
-            console.log(
-                "updateTopicsResponse.data:",
-                updateTopicsResponse.data
-            );
+            const response = await _client().repos.replaceAllTopics({
+                owner: this.andcultureOrg,
+                repo: repoName,
+                names: updatedTopics,
+            });
+
+            _throwIfApiError(response);
+            if (
+                response.data == null ||
+                CollectionUtils.isEmpty(response.data.names)
+            ) {
+                return [];
+            }
+
+            return response.data.names;
         } catch (error) {
             echo.error(
                 `Failed to update topics for repo ${repoName}: ${error}`
             );
-            return;
+            return [];
         }
     },
 
