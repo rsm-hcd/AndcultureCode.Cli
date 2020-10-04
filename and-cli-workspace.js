@@ -150,6 +150,10 @@ require("./command-runner").run(async () => {
         .usage("option")
         .description("Manage AndcultureCode projects workspace")
         .option(
+            "-c, --clone",
+            "Automatically clone all AndcultureCode organization repositories"
+        )
+        .option(
             "-f, --fork",
             "Automatically creates any missing forks of AndcultureCode repositories for the current user"
         )
@@ -159,11 +163,22 @@ require("./command-runner").run(async () => {
         )
         .parse(process.argv);
 
+    // If no flags provided, short-circuit
+    // -----------------------------------
+    if (js.hasNoArguments()) {
+        echo.headerError("At least one flag is required. See options below...");
+        program.help();
+    }
+
+    const cloneEnabled = program.clone != null;
+    const forkEnabled = program.fork != null;
+    const usernamesProvided = StringUtils.hasValue(program.usernames);
+
     echo.header("Configuring workspace");
 
     // Initiate forks for authenticated user
     // -------------------------------------
-    if (program.fork != null) {
+    if (forkEnabled) {
         echo.message("Forking any outstanding AndcultureCode repositories...");
         await forkRepositories();
         echo.newLine();
@@ -171,15 +186,17 @@ require("./command-runner").run(async () => {
 
     // Clone top-level AndcultureCode repositories
     // -------------------------------------------
-    echo.message("Synchronizing AndcultureCode repositories...");
-    const repos = await github.repositoriesByAndculture();
-    const cloneResults = cloneRepositories(repos);
-    echoCloneResults(cloneResults);
-    echo.newLine();
+    if (cloneEnabled) {
+        echo.message("Synchronizing AndcultureCode repositories...");
+        const repos = await github.repositoriesByAndculture();
+        const cloneResults = cloneRepositories(repos);
+        echoCloneResults(cloneResults);
+        echo.newLine();
+    }
 
     // Clone user forks of AndcultureCode repositories
     // -----------------------------------------------
-    if (StringUtils.hasValue(program.usernames)) {
+    if (usernamesProvided) {
         await cloneForUsers(program.usernames);
         echo.newLine();
     }
