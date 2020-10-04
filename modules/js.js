@@ -25,6 +25,13 @@ const js = {
     },
 
     /**
+     * Is the current command without arguments?
+     */
+    hasNoArguments() {
+        return process.argv.slice(2).length === 0;
+    },
+
+    /**
      * Invokes provided callback at the supplied interval until a duration is met
      *
      * The callback will be invoked immediately.
