@@ -163,17 +163,16 @@ require("./command-runner").run(async () => {
         )
         .parse(process.argv);
 
+    // If no flags provided, short-circuit
+    // -----------------------------------
+    if (js.hasNoArguments()) {
+        echo.headerError("Atleast one flag is required. See options below...");
+        program.help();
+    }
+
     const cloneEnabled = program.clone != null;
     const forkEnabled = program.fork != null;
     const usernamesProvided = StringUtils.hasValue(program.usernames);
-
-    // If no flags provided, explain options
-    // -------------------------------------
-    if (!cloneEnabled && !forkEnabled && !usernamesProvided) {
-        echo.headerError("Atleast one flag is required. See options below...");
-        program.help();
-        shell.exit(0);
-    }
 
     echo.header("Configuring workspace");
 
