@@ -166,7 +166,7 @@ require("./command-runner").run(async () => {
     // If no flags provided, short-circuit
     // -----------------------------------
     if (js.hasNoArguments()) {
-        echo.headerError("Atleast one flag is required. See options below...");
+        echo.headerError("At least one flag is required. See options below...");
         program.help();
     }
 
