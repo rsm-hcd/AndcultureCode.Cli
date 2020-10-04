@@ -4,11 +4,9 @@
 
 const { createNetrcAuth } = require("octokit-auth-netrc");
 const { Octokit } = require("@octokit/rest");
-const {
-    StringUtils,
-    CollectionUtils,
-} = require("andculturecode-javascript-core");
+const { StringUtils } = require("andculturecode-javascript-core");
 const echo = require("./echo");
+const formatters = require("./formatters");
 const fs = require("fs");
 const git = require("./git");
 const js = require("./js");
@@ -23,6 +21,7 @@ const userPrompt = require("./user-prompt");
 // #region Constants
 // -----------------------------------------------------------------------------------------
 
+const { yellow } = formatters;
 const API_DOMAIN = "api.github.com";
 
 // #endregion Constants
@@ -68,6 +67,13 @@ const github = {
     async addTopicToAllRepositories(topic) {
         const andcultureRepos = await this.repositoriesByAndculture();
         const repoNames = andcultureRepos.map((e) => e.name);
+
+        // Safe guard against accidental command runs
+        await _promptUpdateAllRepos(
+            `add the topic '${topic}'`,
+            repoNames.length
+        );
+
         await js.asyncForEach(repoNames, async (repo) => {
             await this.addTopicToRepository(topic, this.andcultureOrg, repo);
         });
@@ -93,7 +99,13 @@ const github = {
             repoName
         );
 
-        return _outputUpdateTopicResult("add", topic, repoName, updateResult);
+        // If nothing came back from the update, an error message should already have been displayed.
+        if (updateResult == null) {
+            return false;
+        }
+
+        _outputUpdateTopicResult(repoName, updateResult);
+        return true;
     },
 
     /**
@@ -285,6 +297,13 @@ const github = {
     async removeTopicFromAllRepositories(topic) {
         const andcultureRepos = await this.repositoriesByAndculture();
         const repoNames = andcultureRepos.map((e) => e.name);
+
+        // Safe guard against accidental command runs
+        await _promptUpdateAllRepos(
+            `remove the topic '${topic}'`,
+            repoNames.length
+        );
+
         await js.asyncForEach(repoNames, async (repo) => {
             await this.removeTopicFromRepository(
                 topic,
@@ -315,12 +334,13 @@ const github = {
             repoName
         );
 
-        return _outputUpdateTopicResult(
-            "remove",
-            topic,
-            repoName,
-            updateResult
-        );
+        // If nothing came back from the update, an error message should already have been displayed.
+        if (updateResult == null) {
+            return false;
+        }
+
+        _outputUpdateTopicResult(repoName, updateResult);
+        return true;
     },
 
     /**
@@ -459,22 +479,26 @@ const _list = async (command, options, filter) => {
 /**
  * Outputs information for a topic update operation
  *
- * @param {string} actionText Action being performed (ie, 'add' or 'remove')
- * @param {string} topic Topic to be updated
  * @param {string} repoName short name of repository (excluding user/organization)
- * @param {string[] | undefined} result Result to check for a successful operation
+ * @param {string[]} result Result to concatenate topic names from
  */
-const _outputUpdateTopicResult = (actionText, topic, repoName, result) => {
-    if (result == null) {
-        echo.error(`Failed to ${actionText} topic '${topic}' for ${repoName}`);
-        return false;
-    }
-
+const _outputUpdateTopicResult = (repoName, result) => {
     echo.success(`Updated topics for ${repoName}`);
-    echo.message(`  ${result.join(", ")}`);
-
-    return true;
+    echo.message(result.join(", "));
 };
+
+/**
+ * Prompts the user to confirm an action affecting multiple repositories to prevent accidental changes
+ *
+ * @param {string} actionText Text representing the action to be performed on all repos
+ * @param {number} repoCount Number of repos that will be affected by the change
+ */
+const _promptUpdateAllRepos = (actionText, repoCount) =>
+    userPrompt.confirmOrExit(
+        `Are you sure you want to ${actionText} for ${yellow(repoCount)} ${
+            github.andcultureOrg
+        } repos?`
+    );
 
 /**
  * Throws an error if provided github api response isn't successful

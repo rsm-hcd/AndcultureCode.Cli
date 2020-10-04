@@ -24,8 +24,8 @@ const prompt = {
     /**
      * Prompts the user for confirmation, and exits if the user does not type y or Y.
      *
-     * @param {*} question Question to pose to the user
-     * @param {number} [exitStatus=0] Exit status to pass to shelljs if confirmation unsccessful
+     * @param {string} question Question to pose to the user
+     * @param {number} [exitStatus=0] Exit status to pass to shelljs if confirmation unsuccessful
      */
     async confirmOrExit(question, exitStatus = 0) {
         const prompt = this.getPrompt();
@@ -44,7 +44,7 @@ const prompt = {
      *
      */
     getPrompt() {
-        if (cachedPrompt !== undefined) {
+        if (cachedPrompt != null) {
             return cachedPrompt;
         }
 

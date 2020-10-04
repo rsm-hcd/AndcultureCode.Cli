@@ -8,6 +8,7 @@ require("./command-runner").run(async () => {
     const { StringUtils } = require("andculturecode-javascript-core");
     const echo = require("./modules/echo");
     const github = require("./modules/github");
+    const js = require("./modules/js");
     const program = require("commander");
 
     // #endregion Imports
@@ -19,16 +20,22 @@ require("./command-runner").run(async () => {
     program
         .usage("option")
         .description(github.description())
-        .option("--add-topic <topic>", "Add topic to specified repository")
-        .option("--get-topics", "List topics for a given repo")
-        .option("-l, --list-repos", "Lists all andculture repos")
+        .option(
+            "--add-topic <topic>",
+            "Add topic to specified repository, or all AndcultureCode repositories if no repo provided"
+        )
+        .option(
+            "--list-topics",
+            "List topics for a given repo (used in conjunction with --repo)"
+        )
+        .option("--list-repos", "Lists all andculture repos")
         .option(
             "--remove-topic <topic>",
-            "Remove topic from specified repository"
+            "Remove topic from specified repository, or all AndcultureCode repositories if no repo provided"
         )
         .option(
             "-r, --repo <repo>",
-            "Repository name to act on (used in conjunction with --add-topic or --get-topics, for example)"
+            "Repository name to act on (used in conjunction with --add-topic or --list-topics, for example)."
         )
         .option(
             "-u, --username <username>",
@@ -36,14 +43,36 @@ require("./command-runner").run(async () => {
         )
         .parse(process.argv);
 
+    // If no options are passed in, output help and exit
+    if (js.hasNoArguments()) {
+        program.help();
+    }
+
     // Configure github module based on passed in args/options
-    if (program.listRepos != null) {
+    const listAndcultureRepos = program.listRepos != null;
+    const listReposByUser = program.username != null;
+    const listTopicsByRepo =
+        program.listTopics != null && StringUtils.hasValue(program.repo);
+    const addTopicToAllRepos =
+        StringUtils.hasValue(program.addTopic) &&
+        StringUtils.isEmpty(program.repo);
+    const addTopicToRepo =
+        StringUtils.hasValue(program.addTopic) &&
+        StringUtils.hasValue(program.repo);
+    const removeTopicFromAllRepos =
+        StringUtils.hasValue(program.removeTopic) &&
+        StringUtils.isEmpty(program.repo);
+    const removeTopicFromRepo =
+        StringUtils.hasValue(program.removeTopic) &&
+        StringUtils.hasValue(program.repo);
+
+    if (listAndcultureRepos) {
         echo.success("AndcultureCode Repositories");
         echo.byProperty(await github.repositoriesByAndculture(), "url");
         return;
     }
 
-    if (program.username != null) {
+    if (listReposByUser) {
         echo.success(`${program.username} Repositories`);
         echo.byProperty(
             await github.repositoriesByAndculture(program.username),
@@ -52,23 +81,23 @@ require("./command-runner").run(async () => {
         return;
     }
 
-    if (program.getTopics != null && program.repo != null) {
+    if (listTopicsByRepo) {
         const repoName = program.repo;
-        echo.message(`Topics for ${repoName}`);
+        echo.success(`Topics for ${repoName}`);
         const topicsResult = await github.topicsForRepository(
             github.andcultureOrg,
             repoName
         );
-        echo.messages(topicsResult);
+        echo.message(topicsResult.join(", "));
         return;
     }
 
-    if (program.addTopic != null) {
-        if (StringUtils.isEmpty(program.repo)) {
-            await github.addTopicToAllRepositories(program.addTopic);
-            return;
-        }
+    if (addTopicToAllRepos) {
+        await github.addTopicToAllRepositories(program.addTopic);
+        return;
+    }
 
+    if (addTopicToRepo) {
         await github.addTopicToRepository(
             program.addTopic,
             github.andcultureOrg,
@@ -77,12 +106,12 @@ require("./command-runner").run(async () => {
         return;
     }
 
-    if (program.removeTopic != null) {
-        if (StringUtils.isEmpty(program.repo)) {
-            await github.removeTopicFromAllRepositories(program.removeTopic);
-            return;
-        }
+    if (removeTopicFromAllRepos) {
+        await github.removeTopicFromAllRepositories(program.removeTopic);
+        return;
+    }
 
+    if (removeTopicFromRepo) {
         await github.removeTopicFromRepository(
             program.removeTopic,
             github.andcultureOrg,
@@ -91,10 +120,8 @@ require("./command-runner").run(async () => {
         return;
     }
 
-    // If no options are passed in, output help
-    if (process.argv.slice(2).length === 0) {
-        program.outputHelp();
-    }
+    // If no valid combination of options were passed in, output help and exit
+    program.help();
 
     // #endregion Entrypoint
 });
