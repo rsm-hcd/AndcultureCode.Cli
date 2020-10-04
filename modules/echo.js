@@ -12,8 +12,8 @@ const shell = require("shelljs");
 // #region Variables
 // -----------------------------------------------------------------------------------------
 
-const columnLength = 65;
 const { purple, green, red, yellow } = formatters;
+const columnLength = 65;
 const prefix = purple(`[${constants.CLI_NAME}]`);
 
 // #endregion Variables
@@ -70,16 +70,12 @@ const echo = {
     headerSuccess(message) {
         _header(() => this.success(message));
     },
-    message(message, includePrefix = true) {
-        shell.echo(includePrefix ? `${prefix} ${message}` : message);
-    },
-    messages(messages, includePrefix = true) {
-        messages.forEach((message) => this.message(message, includePrefix));
+    message(message) {
+        shell.echo(`${prefix} ${message}`);
     },
     newLine(includePrefix) {
         shell.echo(includePrefix ? prefix : "");
     },
-    sdkString: purple("[and-cli]"),
     success(message) {
         message = `${prefix} ${green(message)}`;
 
