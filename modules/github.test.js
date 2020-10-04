@@ -8,6 +8,7 @@ const fs = require("fs");
 const github = require("./github");
 const nock = require("nock");
 const testUtils = require("../tests/test-utils");
+const echo = require("./echo");
 
 // #endregion Imports
 
@@ -16,6 +17,22 @@ const testUtils = require("../tests/test-utils");
 // -----------------------------------------------------------------------------------------
 
 describe("github", () => {
+    // -----------------------------------------------------------------------------------------
+    // #region addTopicToAllRepositories
+    // -----------------------------------------------------------------------------------------
+
+    describe("addTopicToAllRepositories", () => {});
+
+    // #endregion addTopicToAllRepositories
+
+    // -----------------------------------------------------------------------------------------
+    // #region addTopicToRepository
+    // -----------------------------------------------------------------------------------------
+
+    describe("addTopicToRepository", () => {});
+
+    // #endregion addTopicToRepository
+
     // -----------------------------------------------------------------------------------------
     // #region configureToken
     // -----------------------------------------------------------------------------------------
@@ -321,6 +338,160 @@ describe("github", () => {
     });
 
     // #endregion repositoriesByAndculture
+
+    // -----------------------------------------------------------------------------------------
+    // #region topicsForRepository
+    // -----------------------------------------------------------------------------------------
+
+    describe("topicsForRepository", () => {
+        test.each([undefined, null, "", " "])(
+            "given owner is %p, it outputs an error and returns undefined",
+            async (owner) => {
+                // Arrange
+                const repoName = testUtils.randomWord();
+                const echoErrorSpy = jest.spyOn(echo, "error");
+
+                // Act
+                const result = await github.topicsForRepository(
+                    owner,
+                    repoName
+                );
+
+                // Assert
+                expect(echoErrorSpy).toHaveBeenCalled();
+                expect(result).toBeUndefined();
+            }
+        );
+
+        test.each([undefined, null, "", " "])(
+            "given repoName is %p, it outputs an error and returns undefined",
+            async (repoName) => {
+                // Arrange
+                const owner = testUtils.randomWord();
+                const echoErrorSpy = jest.spyOn(echo, "error");
+
+                // Act
+                const result = await github.topicsForRepository(
+                    owner,
+                    repoName
+                );
+
+                // Assert
+                expect(echoErrorSpy).toHaveBeenCalled();
+                expect(result).toBeUndefined();
+            }
+        );
+
+        test("given an owner and repoName, it returns an array of topic names", async () => {
+            // Arrange
+            const owner = testUtils.randomWord();
+            const repoName = testUtils.randomWord();
+            const expectedTopics = [
+                testUtils.randomWord(),
+                testUtils.randomWord(),
+            ];
+            const mockTopicRoute = [
+                github.apiRepositoriesRouteParam,
+                owner,
+                repoName,
+                "topics",
+            ].join("/");
+
+            nock(github.apiRootUrl)
+                .get(new RegExp(mockTopicRoute))
+                .reply(200, { names: expectedTopics });
+
+            // Act
+            const result = await github.topicsForRepository(owner, repoName);
+
+            // Assert
+            expect(result).toStrictEqual(expectedTopics);
+        });
+
+        test("given an owner and repoName, when response.data is null, it outputs an error and returns undefined", async () => {
+            // Arrange
+            const owner = testUtils.randomWord();
+            const repoName = testUtils.randomWord();
+            const echoErrorSpy = jest.spyOn(echo, "error");
+            const responseData = null; // This is the important setup
+
+            const mockTopicRoute = [
+                github.apiRepositoriesRouteParam,
+                owner,
+                repoName,
+                "topics",
+            ].join("/");
+
+            nock(github.apiRootUrl)
+                .get(new RegExp(mockTopicRoute))
+                .reply(200, responseData);
+
+            // Act
+            const result = await github.topicsForRepository(owner, repoName);
+
+            // Assert
+            expect(echoErrorSpy).toHaveBeenCalled();
+            expect(result).toBeUndefined();
+        });
+
+        test("given an owner and repoName, when response.status < 200, it outputs an error and returns undefined", async () => {
+            // Arrange
+            const owner = testUtils.randomWord();
+            const repoName = testUtils.randomWord();
+            const responseStatus = testUtils.randomNumber(0, 199); // This is the important setup
+            const responseData = null;
+
+            const echoErrorSpy = jest.spyOn(echo, "error");
+
+            const mockTopicRoute = [
+                github.apiRepositoriesRouteParam,
+                owner,
+                repoName,
+                "topics",
+            ].join("/");
+
+            nock(github.apiRootUrl)
+                .get(new RegExp(mockTopicRoute))
+                .reply(responseStatus, responseData);
+
+            // Act
+            const result = await github.topicsForRepository(owner, repoName);
+
+            // Assert
+            expect(echoErrorSpy).toHaveBeenCalled();
+            expect(result).toBeUndefined();
+        });
+
+        test("given an owner and repoName, when response.status > 202, it outputs an error and returns undefined", async () => {
+            // Arrange
+            const owner = testUtils.randomWord();
+            const repoName = testUtils.randomWord();
+            const responseStatus = testUtils.randomNumber(203); // This is the important setup
+            const responseData = null;
+
+            const echoErrorSpy = jest.spyOn(echo, "error");
+
+            const mockTopicRoute = [
+                github.apiRepositoriesRouteParam,
+                owner,
+                repoName,
+                "topics",
+            ].join("/");
+
+            nock(github.apiRootUrl)
+                .get(new RegExp(mockTopicRoute))
+                .reply(responseStatus, responseData);
+
+            // Act
+            const result = await github.topicsForRepository(owner, repoName);
+
+            // Assert
+            expect(echoErrorSpy).toHaveBeenCalled();
+            expect(result).toBeUndefined();
+        });
+    });
+
+    // #endregion topicsForRepository
 });
 
 // #endregion Tests
