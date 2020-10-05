@@ -55,6 +55,7 @@ describe("github", () => {
             const addTopicSpy = jest
                 .spyOn(github, "addTopicToRepository")
                 .mockImplementation(() => []);
+            // Mock the confirmation prompt since we do not have user input
             jest.spyOn(userPrompt, "confirmOrExit").mockResolvedValueOnce();
 
             // Act

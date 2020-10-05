@@ -100,11 +100,6 @@ const github = {
             repoName
         );
 
-        // If nothing came back from the update, an error message should already have been displayed.
-        if (updateResult == null) {
-            return null;
-        }
-
         _outputUpdateTopicResult(repoName, updateResult);
         return updateResult;
     },
@@ -335,11 +330,6 @@ const github = {
             repoName
         );
 
-        // If nothing came back from the update, an error message should already have been displayed.
-        if (updateResult == null) {
-            return null;
-        }
-
         _outputUpdateTopicResult(repoName, updateResult);
         return updateResult;
     },
@@ -481,9 +471,14 @@ const _list = async (command, options, filter) => {
  * Outputs information for a topic update operation
  *
  * @param {string} repoName short name of repository (excluding user/organization)
- * @param {string[]} result Result to concatenate topic names from
+ * @param {string[] | undefined} result Result to concatenate topic names from
  */
 const _outputUpdateTopicResult = (repoName, result) => {
+    // If nothing came back from the update, an error message should already have been displayed.
+    if (result == null) {
+        return;
+    }
+
     echo.success(`Updated topics for ${repoName}`);
     echo.message(result.join(", "));
 };
