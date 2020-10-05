@@ -138,6 +138,11 @@ describe("github", () => {
                 const existingTopics = [testUtils.randomWord()];
                 const expectedTopics = [...existingTopics, topic];
 
+                // We'll want to mock the token so that CI environments aren't left hanging
+                jest.spyOn(github, "getToken").mockReturnValue(
+                    testUtils.randomWord()
+                );
+
                 // Mock the call to get existing topics
                 nock(github.apiRootUrl)
                     .get(getRepoTopicsRoute(owner, repoName))
@@ -563,6 +568,11 @@ describe("github", () => {
                 const repoName = testUtils.randomWord();
                 const existingTopics = [topic];
                 const expectedTopics = [];
+
+                // We'll want to mock the token so that CI environments aren't left hanging
+                jest.spyOn(github, "getToken").mockReturnValue(
+                    testUtils.randomWord()
+                );
 
                 // Mock the call to get existing topics
                 nock(github.apiRootUrl)
