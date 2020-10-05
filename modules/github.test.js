@@ -349,7 +349,7 @@ describe("github", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("repositoriesByAndculture", () => {
-        test(`given no username, returns list of master ${github.andcultureOrg} repositories`, async () => {
+        test(`given no username, returns list of main ${github.andcultureOrg} repositories`, async () => {
             // Arrange
             const expected = github.andcultureOrg;
 
@@ -399,7 +399,7 @@ describe("github", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("repositoriesByOrganization", () => {
-        test(`given no organization, returns list of master ${github.andcultureOrg} repositories`, async () => {
+        test(`given no organization, returns list of main ${github.andcultureOrg} repositories`, async () => {
             // Arrange
             const expected = github.andcultureOrg;
 
@@ -419,7 +419,7 @@ describe("github", () => {
             expect(results[0].name).toBe(expected);
         });
 
-        test(`given organization, returns list of master ${github.andcultureOrg} repositories`, async () => {
+        test(`given organization, returns list of main ${github.andcultureOrg} repositories`, async () => {
             // Arrange
             const expected = testUtils.randomWord();
 
@@ -439,7 +439,7 @@ describe("github", () => {
             expect(results[0].name).toBe(expected);
         });
 
-        test(`given filter, returns list of master ${github.andcultureOrg} repositories matched by filter`, async () => {
+        test(`given filter, returns list of main ${github.andcultureOrg} repositories matched by filter`, async () => {
             // Arrange
             const expected = github.andcultureOrg;
             const unexpected = testUtils.randomWord();

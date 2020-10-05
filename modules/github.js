@@ -336,7 +336,8 @@ const github = {
 
     /**
      * Lists all andculture organization repositories
-     * @param {string} username optional username of user account. if null, returns master andculture organization repositories
+     * @param {string} username optional username of user account. if null, returns main andculture
+     * organization repositories
      */
     async repositoriesByAndculture(username) {
         const fn =
