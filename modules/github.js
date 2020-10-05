@@ -48,6 +48,7 @@ const github = {
     andcultureOrg: "AndcultureCode",
     apiRepositoriesRouteParam: "repos",
     apiRootUrl: `https://${API_DOMAIN}`,
+    apiTopicsRouteParam: "topics",
     configAuthConfigPath: upath.join(os.homedir(), ".netrc"), // Path to octokit-auth-netrc configuration
     configAuthDocsUrl:
         "https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token",
@@ -88,7 +89,7 @@ const github = {
      */
     async addTopicToRepository(topic, owner, repoName) {
         if (!_validateTopicInputOrExit(topic, owner, repoName)) {
-            return false;
+            return null;
         }
 
         const updateFunction = (existingTopics) => [...existingTopics, topic];
@@ -101,11 +102,11 @@ const github = {
 
         // If nothing came back from the update, an error message should already have been displayed.
         if (updateResult == null) {
-            return false;
+            return null;
         }
 
         _outputUpdateTopicResult(repoName, updateResult);
-        return true;
+        return updateResult;
     },
 
     /**
@@ -322,7 +323,7 @@ const github = {
      */
     async removeTopicFromRepository(topic, owner, repoName) {
         if (!_validateTopicInputOrExit(topic, owner, repoName)) {
-            return false;
+            return null;
         }
 
         const updateFunction = (existingTopics) =>
@@ -336,11 +337,11 @@ const github = {
 
         // If nothing came back from the update, an error message should already have been displayed.
         if (updateResult == null) {
-            return false;
+            return null;
         }
 
         _outputUpdateTopicResult(repoName, updateResult);
-        return true;
+        return updateResult;
     },
 
     /**

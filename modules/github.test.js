@@ -2,13 +2,14 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
+const echo = require("./echo");
 const faker = require("faker");
 const file = require("./file");
 const fs = require("fs");
 const github = require("./github");
 const nock = require("nock");
 const testUtils = require("../tests/test-utils");
-const echo = require("./echo");
+const userPrompt = require("./user-prompt");
 
 // #endregion Imports
 
@@ -18,10 +19,51 @@ const echo = require("./echo");
 
 describe("github", () => {
     // -----------------------------------------------------------------------------------------
+    // #region Setup
+    // -----------------------------------------------------------------------------------------
+
+    /**
+     * Utility function for generating the /repos/{owner}/{repoName}/topics API route
+     */
+    const getRepoTopicsRoute = (owner, repoName) =>
+        new RegExp(
+            [
+                github.apiRepositoriesRouteParam,
+                owner,
+                repoName,
+                github.apiTopicsRouteParam,
+            ].join("/")
+        );
+
+    afterEach(() => {
+        // Clean all mocked API routes - some tests in here actually call the Github API, and will
+        // flake out depending on ordering.
+        nock.cleanAll();
+    });
+
+    // #endregion Setup
+
+    // -----------------------------------------------------------------------------------------
     // #region addTopicToAllRepositories
     // -----------------------------------------------------------------------------------------
 
-    describe("addTopicToAllRepositories", () => {});
+    describe("addTopicToAllRepositories", () => {
+        test(`it calls addTopicToRepository for each ${github.andcultureOrg} repo`, async () => {
+            // Arrange
+            const repositories = await github.repositoriesByAndculture();
+            const topic = testUtils.randomWord();
+            const addTopicSpy = jest
+                .spyOn(github, "addTopicToRepository")
+                .mockImplementation(() => []);
+            jest.spyOn(userPrompt, "confirmOrExit").mockResolvedValueOnce();
+
+            // Act
+            await github.addTopicToAllRepositories(topic);
+
+            // Assert
+            expect(addTopicSpy).toHaveBeenCalledTimes(repositories.length);
+        });
+    });
 
     // #endregion addTopicToAllRepositories
 
@@ -29,7 +71,94 @@ describe("github", () => {
     // #region addTopicToRepository
     // -----------------------------------------------------------------------------------------
 
-    describe("addTopicToRepository", () => {});
+    describe("addTopicToRepository", () => {
+        let shellExitSpy;
+        beforeEach(() => {
+            shellExitSpy = testUtils.spyOnShellExit();
+        });
+
+        test.each([undefined, null, "", " "])(
+            "given topic is %p, it outputs an error and calls shell.exit",
+            async (topic) => {
+                // Arrange
+                const owner = testUtils.randomWord();
+                const repoName = testUtils.randomWord();
+                const echoErrorSpy = jest.spyOn(echo, "error");
+
+                // Act
+                await github.addTopicToRepository(topic, owner, repoName);
+
+                // Assert
+                expect(echoErrorSpy).toHaveBeenCalled();
+                expect(shellExitSpy).toHaveBeenCalled();
+            }
+        );
+
+        test.each([undefined, null, "", " "])(
+            "given owner is %p, it outputs an error and calls shell.exit",
+            async (owner) => {
+                // Arrange
+                const topic = testUtils.randomWord();
+                const repoName = testUtils.randomWord();
+                const echoErrorSpy = jest.spyOn(echo, "error");
+
+                // Act
+                await github.addTopicToRepository(topic, owner, repoName);
+
+                // Assert
+                expect(echoErrorSpy).toHaveBeenCalled();
+                expect(shellExitSpy).toHaveBeenCalled();
+            }
+        );
+
+        test.each([undefined, null, "", " "])(
+            "given repoName is %p, it outputs an error and calls shell.exit",
+            async (repoName) => {
+                // Arrange
+                const topic = testUtils.randomWord();
+                const owner = testUtils.randomWord();
+                const echoErrorSpy = jest.spyOn(echo, "error");
+
+                // Act
+                await github.addTopicToRepository(topic, owner, repoName);
+
+                // Assert
+                expect(echoErrorSpy).toHaveBeenCalled();
+                expect(shellExitSpy).toHaveBeenCalled();
+            }
+        );
+
+        describe("given a topic, owner, and repoName", () => {
+            test("it calls the topic api and returns the updated topics", async () => {
+                // Arrange
+                const topic = testUtils.randomWord();
+                const owner = testUtils.randomWord();
+                const repoName = testUtils.randomWord();
+                const existingTopics = [testUtils.randomWord()];
+                const expectedTopics = [...existingTopics, topic];
+
+                // Mock the call to get existing topics
+                nock(github.apiRootUrl)
+                    .get(getRepoTopicsRoute(owner, repoName))
+                    .reply(200, { names: existingTopics });
+
+                // Mock the PUT API call to update topics
+                nock(github.apiRootUrl)
+                    .put(getRepoTopicsRoute(owner, repoName))
+                    .reply(200, { names: expectedTopics });
+
+                // Act
+                const result = await github.addTopicToRepository(
+                    topic,
+                    owner,
+                    repoName
+                );
+
+                // Assert
+                expect(result).toContain(topic);
+            });
+        });
+    });
 
     // #endregion addTopicToRepository
 
@@ -340,6 +469,126 @@ describe("github", () => {
     // #endregion repositoriesByAndculture
 
     // -----------------------------------------------------------------------------------------
+    // #region removeTopicFromAllRepositories
+    // -----------------------------------------------------------------------------------------
+
+    describe("removeTopicFromAllRepositories", () => {
+        test(`it calls removeTopicFromRepository for each ${github.andcultureOrg} repo`, async () => {
+            // Arrange
+            const repositories = await github.repositoriesByAndculture();
+            const topic = testUtils.randomWord();
+            const removeTopicSpy = jest
+                .spyOn(github, "removeTopicFromRepository")
+                .mockImplementation(() => []);
+            // Mock the confirmation prompt since we do not have user input
+            jest.spyOn(userPrompt, "confirmOrExit").mockResolvedValueOnce();
+
+            // Act
+            await github.removeTopicFromAllRepositories(topic);
+
+            // Assert
+            expect(removeTopicSpy).toHaveBeenCalledTimes(repositories.length);
+        });
+    });
+
+    // #endregion removeTopicFromAllRepositories
+
+    // -----------------------------------------------------------------------------------------
+    // #region removeTopicFromRepository
+    // -----------------------------------------------------------------------------------------
+
+    describe("removeTopicFromRepository", () => {
+        let shellExitSpy;
+        beforeEach(() => {
+            shellExitSpy = testUtils.spyOnShellExit();
+        });
+
+        test.each([undefined, null, "", " "])(
+            "given topic is %p, it outputs an error and calls shell.exit",
+            async (topic) => {
+                // Arrange
+                const owner = testUtils.randomWord();
+                const repoName = testUtils.randomWord();
+                const echoErrorSpy = jest.spyOn(echo, "error");
+
+                // Act
+                await github.removeTopicFromRepository(topic, owner, repoName);
+
+                // Assert
+                expect(echoErrorSpy).toHaveBeenCalled();
+                expect(shellExitSpy).toHaveBeenCalled();
+            }
+        );
+
+        test.each([undefined, null, "", " "])(
+            "given owner is %p, it outputs an error and calls shell.exit",
+            async (owner) => {
+                // Arrange
+                const topic = testUtils.randomWord();
+                const repoName = testUtils.randomWord();
+                const echoErrorSpy = jest.spyOn(echo, "error");
+
+                // Act
+                await github.removeTopicFromRepository(topic, owner, repoName);
+
+                // Assert
+                expect(echoErrorSpy).toHaveBeenCalled();
+                expect(shellExitSpy).toHaveBeenCalled();
+            }
+        );
+
+        test.each([undefined, null, "", " "])(
+            "given repoName is %p, it outputs an error and calls shell.exit",
+            async (repoName) => {
+                // Arrange
+                const topic = testUtils.randomWord();
+                const owner = testUtils.randomWord();
+                const echoErrorSpy = jest.spyOn(echo, "error");
+
+                // Act
+                await github.removeTopicFromRepository(topic, owner, repoName);
+
+                // Assert
+                expect(echoErrorSpy).toHaveBeenCalled();
+                expect(shellExitSpy).toHaveBeenCalled();
+            }
+        );
+
+        describe("given a topic, owner, and repoName", () => {
+            test("it calls the topic api and returns the updated topics", async () => {
+                // Arrange
+                const topic = testUtils.randomWord();
+                const owner = testUtils.randomWord();
+                const repoName = testUtils.randomWord();
+                const existingTopics = [topic];
+                const expectedTopics = [];
+
+                // Mock the call to get existing topics
+                nock(github.apiRootUrl)
+                    .get(getRepoTopicsRoute(owner, repoName))
+                    .reply(200, { names: existingTopics });
+
+                // Mock the PUT API call to update topics
+                nock(github.apiRootUrl)
+                    .put(getRepoTopicsRoute(owner, repoName))
+                    .reply(200, { names: expectedTopics });
+
+                // Act
+                const result = await github.removeTopicFromRepository(
+                    topic,
+                    owner,
+                    repoName
+                );
+
+                // Assert
+                expect(result).not.toContain(topic);
+            });
+        });
+    });
+
+    // #endregion removeTopicFromRepository
+
+    // -----------------------------------------------------------------------------------------
     // #region topicsForRepository
     // -----------------------------------------------------------------------------------------
 
@@ -382,112 +631,99 @@ describe("github", () => {
             }
         );
 
-        test("given an owner and repoName, it returns an array of topic names", async () => {
-            // Arrange
-            const owner = testUtils.randomWord();
-            const repoName = testUtils.randomWord();
-            const expectedTopics = [
-                testUtils.randomWord(),
-                testUtils.randomWord(),
-            ];
-            const mockTopicRoute = [
-                github.apiRepositoriesRouteParam,
-                owner,
-                repoName,
-                "topics",
-            ].join("/");
+        describe("given an owner and repoName", () => {
+            let owner;
+            let repoName;
+            let mockRepoTopicsRoute;
 
-            nock(github.apiRootUrl)
-                .get(new RegExp(mockTopicRoute))
-                .reply(200, { names: expectedTopics });
+            beforeEach(() => {
+                owner = testUtils.randomWord();
+                repoName = testUtils.randomWord();
+                mockRepoTopicsRoute = getRepoTopicsRoute(owner, repoName);
+            });
 
-            // Act
-            const result = await github.topicsForRepository(owner, repoName);
+            test("when response is successful, it returns an array of topic names", async () => {
+                // Arrange
+                const expectedTopics = [
+                    testUtils.randomWord(),
+                    testUtils.randomWord(),
+                ];
 
-            // Assert
-            expect(result).toStrictEqual(expectedTopics);
-        });
+                nock(github.apiRootUrl)
+                    .get(mockRepoTopicsRoute)
+                    .reply(200, { names: expectedTopics });
 
-        test("given an owner and repoName, when response.data is null, it outputs an error and returns undefined", async () => {
-            // Arrange
-            const owner = testUtils.randomWord();
-            const repoName = testUtils.randomWord();
-            const echoErrorSpy = jest.spyOn(echo, "error");
-            const responseData = null; // This is the important setup
+                // Act
+                const result = await github.topicsForRepository(
+                    owner,
+                    repoName
+                );
 
-            const mockTopicRoute = [
-                github.apiRepositoriesRouteParam,
-                owner,
-                repoName,
-                "topics",
-            ].join("/");
+                // Assert
+                expect(result).toStrictEqual(expectedTopics);
+            });
 
-            nock(github.apiRootUrl)
-                .get(new RegExp(mockTopicRoute))
-                .reply(200, responseData);
+            test("when response.data is null, it outputs an error and returns undefined", async () => {
+                // Arrange
+                const echoErrorSpy = jest.spyOn(echo, "error");
+                const responseData = null; // This is the important setup
 
-            // Act
-            const result = await github.topicsForRepository(owner, repoName);
+                nock(github.apiRootUrl)
+                    .get(mockRepoTopicsRoute)
+                    .reply(200, responseData);
 
-            // Assert
-            expect(echoErrorSpy).toHaveBeenCalled();
-            expect(result).toBeUndefined();
-        });
+                // Act
+                const result = await github.topicsForRepository(
+                    owner,
+                    repoName
+                );
 
-        test("given an owner and repoName, when response.status < 200, it outputs an error and returns undefined", async () => {
-            // Arrange
-            const owner = testUtils.randomWord();
-            const repoName = testUtils.randomWord();
-            const responseStatus = testUtils.randomNumber(0, 199); // This is the important setup
-            const responseData = null;
+                // Assert
+                expect(echoErrorSpy).toHaveBeenCalled();
+                expect(result).toBeUndefined();
+            });
 
-            const echoErrorSpy = jest.spyOn(echo, "error");
+            test("when response.status < 200, it outputs an error and returns undefined", async () => {
+                // Arrange
+                const responseStatus = testUtils.randomNumber(0, 199); // This is the important setup
+                const responseData = null;
+                const echoErrorSpy = jest.spyOn(echo, "error");
 
-            const mockTopicRoute = [
-                github.apiRepositoriesRouteParam,
-                owner,
-                repoName,
-                "topics",
-            ].join("/");
+                nock(github.apiRootUrl)
+                    .get(mockRepoTopicsRoute)
+                    .reply(responseStatus, responseData);
 
-            nock(github.apiRootUrl)
-                .get(new RegExp(mockTopicRoute))
-                .reply(responseStatus, responseData);
+                // Act
+                const result = await github.topicsForRepository(
+                    owner,
+                    repoName
+                );
 
-            // Act
-            const result = await github.topicsForRepository(owner, repoName);
+                // Assert
+                expect(echoErrorSpy).toHaveBeenCalled();
+                expect(result).toBeUndefined();
+            });
 
-            // Assert
-            expect(echoErrorSpy).toHaveBeenCalled();
-            expect(result).toBeUndefined();
-        });
+            test("when response.status > 202, it outputs an error and returns undefined", async () => {
+                // Arrange
+                const responseStatus = testUtils.randomNumber(203); // This is the important setup
+                const responseData = null;
+                const echoErrorSpy = jest.spyOn(echo, "error");
 
-        test("given an owner and repoName, when response.status > 202, it outputs an error and returns undefined", async () => {
-            // Arrange
-            const owner = testUtils.randomWord();
-            const repoName = testUtils.randomWord();
-            const responseStatus = testUtils.randomNumber(203); // This is the important setup
-            const responseData = null;
+                nock(github.apiRootUrl)
+                    .get(mockRepoTopicsRoute)
+                    .reply(responseStatus, responseData);
 
-            const echoErrorSpy = jest.spyOn(echo, "error");
+                // Act
+                const result = await github.topicsForRepository(
+                    owner,
+                    repoName
+                );
 
-            const mockTopicRoute = [
-                github.apiRepositoriesRouteParam,
-                owner,
-                repoName,
-                "topics",
-            ].join("/");
-
-            nock(github.apiRootUrl)
-                .get(new RegExp(mockTopicRoute))
-                .reply(responseStatus, responseData);
-
-            // Act
-            const result = await github.topicsForRepository(owner, repoName);
-
-            // Assert
-            expect(echoErrorSpy).toHaveBeenCalled();
-            expect(result).toBeUndefined();
+                // Assert
+                expect(echoErrorSpy).toHaveBeenCalled();
+                expect(result).toBeUndefined();
+            });
         });
     });
 
