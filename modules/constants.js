@@ -2,6 +2,12 @@
 // #region Exports
 // -----------------------------------------------------------------------------------------
 
+/** Constant to hold the company name, as it is generally cased */
+module.exports.ANDCULTURE = "andculture";
+
+/** Constant to hold the company OSS brand, as it is generally cased */
+module.exports.ANDCULTURE_CODE = "AndcultureCode";
+
 /** Constant to hold a reference to name of the CLI so we aren't hard-coding it multiple places */
 module.exports.CLI_NAME = "and-cli";
 

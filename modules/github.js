@@ -5,11 +5,14 @@
 const { createNetrcAuth } = require("octokit-auth-netrc");
 const { Octokit } = require("@octokit/rest");
 const { StringUtils } = require("andculturecode-javascript-core");
+const constants = require("./constants");
 const echo = require("./echo");
+const formatters = require("./formatters");
 const fs = require("fs");
 const git = require("./git");
 const js = require("./js");
 const os = require("os");
+const shell = require("shelljs");
 const upath = require("upath");
 const userPrompt = require("./user-prompt");
 
@@ -19,6 +22,8 @@ const userPrompt = require("./user-prompt");
 // #region Constants
 // -----------------------------------------------------------------------------------------
 
+const { ANDCULTURE, ANDCULTURE_CODE } = constants;
+const { yellow } = formatters;
 const API_DOMAIN = "api.github.com";
 
 // #endregion Constants
@@ -42,9 +47,10 @@ const github = {
     // #region Public Properties
     // -----------------------------------------------------------------------------------------
 
-    andcultureOrg: "AndcultureCode",
+    andcultureOrg: ANDCULTURE_CODE,
     apiRepositoriesRouteParam: "repos",
     apiRootUrl: `https://${API_DOMAIN}`,
+    apiTopicsRouteParam: "topics",
     configAuthConfigPath: upath.join(os.homedir(), ".netrc"), // Path to octokit-auth-netrc configuration
     configAuthDocsUrl:
         "https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token",
@@ -55,6 +61,55 @@ const github = {
     // -----------------------------------------------------------------------------------------
     // #region Public Methods
     // -----------------------------------------------------------------------------------------
+
+    /**
+     * Adds a topic to all AndcultureCode repositories
+     *
+     * @param {string} topic Topic to be added
+     */
+    async addTopicToAllRepositories(topic) {
+        if (StringUtils.isEmpty(topic)) {
+            echo.error("Topic name is required");
+            return;
+        }
+
+        const andcultureRepos = await this.repositoriesByAndculture();
+        const repoNames = andcultureRepos.map((e) => e.name);
+
+        // Safe guard against accidental command runs
+        await _promptUpdateAllRepos(
+            `add the topic '${topic}'`,
+            repoNames.length
+        );
+
+        await js.asyncForEach(repoNames, async (repo) => {
+            await this.addTopicToRepository(topic, this.andcultureOrg, repo);
+        });
+    },
+
+    /**
+     * Adds a topic to given repository
+     *
+     * @param {string} topic Topic to be added
+     * @param {string} owner user or organization name owning the repo
+     * @param {string} repoName short name of repository (excluding user/organization)
+     */
+    async addTopicToRepository(topic, owner, repoName) {
+        if (!_validateTopicInputOrExit(topic, owner, repoName)) {
+            return null;
+        }
+
+        const updateFunction = (existingTopics) => [...existingTopics, topic];
+
+        const updateResult = await _updateTopicsForRepo(
+            updateFunction,
+            owner,
+            repoName
+        );
+
+        _outputUpdateTopicResult(repoName, updateResult);
+        return updateResult;
+    },
 
     /**
      * Sets login token for github api
@@ -74,7 +129,7 @@ const github = {
     },
 
     description() {
-        return `Helpful github operations used at andculture`;
+        return `Helpful github operations used at ${ANDCULTURE}`;
     },
 
     /**
@@ -238,8 +293,63 @@ const github = {
     },
 
     /**
+     * Removes a topic from all AndcultureCode repositories
+     *
+     * @param {string} topic Topic to be removed
+     */
+    async removeTopicFromAllRepositories(topic) {
+        if (StringUtils.isEmpty(topic)) {
+            echo.error("Topic name is required");
+            return;
+        }
+
+        const andcultureRepos = await this.repositoriesByAndculture();
+        const repoNames = andcultureRepos.map((e) => e.name);
+
+        // Safe guard against accidental command runs
+        await _promptUpdateAllRepos(
+            `remove the topic '${topic}'`,
+            repoNames.length
+        );
+
+        await js.asyncForEach(repoNames, async (repo) => {
+            await this.removeTopicFromRepository(
+                topic,
+                this.andcultureOrg,
+                repo
+            );
+        });
+    },
+
+    /**
+     * Removes a topic from a given repository
+     *
+     * @param {string} topic Topic to be removed
+     * @param {string} owner user or organization name owning the repo
+     * @param {string} repoName short name of repository (excluding user/organization)
+     */
+    async removeTopicFromRepository(topic, owner, repoName) {
+        if (!_validateTopicInputOrExit(topic, owner, repoName)) {
+            return null;
+        }
+
+        const updateFunction = (existingTopics) =>
+            existingTopics.filter((existingTopic) => existingTopic !== topic);
+
+        const updateResult = await _updateTopicsForRepo(
+            updateFunction,
+            owner,
+            repoName
+        );
+
+        _outputUpdateTopicResult(repoName, updateResult);
+        return updateResult;
+    },
+
+    /**
      * Lists all andculture organization repositories
-     * @param {string} username optional username of user account. if null, returns master andculture organization repositories
+     * @param {string} username optional username of user account. if null, returns main andculture
+     * organization repositories
      */
     async repositoriesByAndculture(username) {
         const fn =
@@ -272,6 +382,39 @@ const github = {
                 `There was an error listing repositories by organization ${org}: ${error}`
             );
             return null;
+        }
+    },
+
+    /**
+     * Returns the topics for a specific repository
+     *
+     * @param {string} ownerName User or organization that owns the repo
+     * @param {string} repoName The 'short' name of the repo (excludes the owner/user/organization)
+     * @returns {string[] | undefined} Array of topics related to the repository
+     */
+    async topicsForRepository(owner, repoName) {
+        const actionText = "list topics";
+        if (StringUtils.isEmpty(owner) || StringUtils.isEmpty(repoName)) {
+            echo.error(
+                `Owner and repository name are required to ${actionText}.`
+            );
+            return;
+        }
+
+        try {
+            const response = await _client().repos.getAllTopics({
+                owner: owner,
+                repo: repoName,
+            });
+
+            _throwIfApiError(response, true, actionText);
+
+            return response.data.names;
+        } catch (error) {
+            echo.error(
+                `There was an error attempting to ${actionText} for repository ${repoName} by owner ${owner}: ${error}`
+            );
+            return;
         }
     },
 
@@ -338,6 +481,35 @@ const _list = async (command, options, filter) => {
 };
 
 /**
+ * Outputs information for a topic update operation
+ *
+ * @param {string} repoName short name of repository (excluding user/organization)
+ * @param {string[] | undefined} result Result to concatenate topic names from
+ */
+const _outputUpdateTopicResult = (repoName, result) => {
+    // If nothing came back from the update, an error message should already have been displayed.
+    if (result == null) {
+        return;
+    }
+
+    echo.success(`Updated topics for ${repoName}`);
+    echo.message(result.join(", "));
+};
+
+/**
+ * Prompts the user to confirm an action affecting multiple repositories to prevent accidental changes
+ *
+ * @param {string} actionText Text representing the action to be performed on all repos
+ * @param {number} repoCount Number of repos that will be affected by the change
+ */
+const _promptUpdateAllRepos = (actionText, repoCount) =>
+    userPrompt.confirmOrExit(
+        `Are you sure you want to ${actionText} for ${yellow(repoCount)} ${
+            github.andcultureOrg
+        } repos?`
+    );
+
+/**
  * Throws an error if provided github api response isn't successful
  * @param {OctokitResponse} response API response object
  * @param {boolean} expectData In addition to a successful response, we expect data on the result
@@ -360,6 +532,63 @@ const _throwIfApiError = (response, expectData, actionText) => {
 };
 
 /**
+ * Updates the set of topics for a given repository based on the given updater function.
+ *
+ * @param {(existingTopics: string[]) => string[]} updateFunc Manipulation function to be run on the
+ * existing topic list for a repo.
+ * @param {string} owner user or organization name owning the repo
+ * @param {string} repoName short name of repository (excluding user/organization)
+ */
+const _updateTopicsForRepo = async (updateFunc, owner, repoName) => {
+    const actionText = "update topics";
+    if (!(await _verifyTokenFor(actionText))) {
+        return;
+    }
+
+    const existingTopics = await github.topicsForRepository(owner, repoName);
+    if (existingTopics == null) {
+        return;
+    }
+
+    const updatedTopics = updateFunc(existingTopics);
+    try {
+        const response = await _client().repos.replaceAllTopics({
+            owner: owner,
+            repo: repoName,
+            names: updatedTopics,
+        });
+
+        _throwIfApiError(response, true, actionText);
+
+        return response.data.names;
+    } catch (error) {
+        echo.error(`Failed to ${actionText} for repo ${repoName}: ${error}`);
+        return null;
+    }
+};
+
+/**
+ * Validates user input for updating topics
+ *
+ * @param {string} topic Topic to be updated
+ * @param {string} owner user or organization name owning the repo
+ * @param {string} repoName short name of repository (excluding user/organization)
+ */
+const _validateTopicInputOrExit = (topic, owner, repoName) => {
+    if (
+        StringUtils.hasValue(topic) &&
+        StringUtils.hasValue(owner) &&
+        StringUtils.hasValue(repoName)
+    ) {
+        return true;
+    }
+
+    echo.error("Topic, owner, and repository name must be provided");
+    shell.exit(1);
+    return false;
+};
+
+/**
  * Attempts to retrieve authentication token if it isn't configured
  * @param {string} actionText text explaining what authentication required action is being attempted
  */
@@ -375,7 +604,7 @@ const _verifyTokenFor = async (actionText) => {
     return null;
 };
 
-//#endregion Private Functions
+// #endregion Private Functions
 
 // -----------------------------------------------------------------------------------------
 // #region Exports
