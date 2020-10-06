@@ -23,6 +23,12 @@ describe("github", () => {
     // -----------------------------------------------------------------------------------------
 
     /**
+     * Utility function for generating the /{owner}/repos API route
+     */
+    const getReposRoute = (owner) =>
+        new RegExp(`${owner}/${github.apiRepositoriesRouteParam}`);
+
+    /**
      * Utility function for generating the /repos/{owner}/{repoName}/topics API route
      */
     const getRepoTopicsRoute = (owner, repoName) =>
@@ -50,11 +56,21 @@ describe("github", () => {
     describe("addTopicToAllRepositories", () => {
         test(`it calls addTopicToRepository for each ${github.andcultureOrg} repo`, async () => {
             // Arrange
-            const repositories = await github.repositoriesByAndculture();
             const topic = testUtils.randomWord();
+            const repos = [
+                { name: "AndcultureCode.Cli" },
+                { name: "AndcultureCode.CSharp.Core" },
+            ];
+
+            // Mock the API response for repositories
+            nock(github.apiRootUrl)
+                .get(getReposRoute(github.andcultureOrg))
+                .reply(200, repos);
+
             const addTopicSpy = jest
                 .spyOn(github, "addTopicToRepository")
                 .mockImplementation(() => []);
+
             // Mock the confirmation prompt since we do not have user input
             jest.spyOn(userPrompt, "confirmOrExit").mockResolvedValueOnce();
 
@@ -62,7 +78,7 @@ describe("github", () => {
             await github.addTopicToAllRepositories(topic);
 
             // Assert
-            expect(addTopicSpy).toHaveBeenCalledTimes(repositories.length);
+            expect(addTopicSpy).toHaveBeenCalledTimes(repos.length);
         });
     });
 
@@ -481,11 +497,21 @@ describe("github", () => {
     describe("removeTopicFromAllRepositories", () => {
         test(`it calls removeTopicFromRepository for each ${github.andcultureOrg} repo`, async () => {
             // Arrange
-            const repositories = await github.repositoriesByAndculture();
             const topic = testUtils.randomWord();
+            const repos = [
+                { name: "AndcultureCode.Cli" },
+                { name: "AndcultureCode.CSharp.Core" },
+            ];
+
+            // Mock the API response for repositories
+            nock(github.apiRootUrl)
+                .get(getReposRoute(github.andcultureOrg))
+                .reply(200, repos);
+
             const removeTopicSpy = jest
                 .spyOn(github, "removeTopicFromRepository")
                 .mockImplementation(() => []);
+
             // Mock the confirmation prompt since we do not have user input
             jest.spyOn(userPrompt, "confirmOrExit").mockResolvedValueOnce();
 
@@ -493,7 +519,7 @@ describe("github", () => {
             await github.removeTopicFromAllRepositories(topic);
 
             // Assert
-            expect(removeTopicSpy).toHaveBeenCalledTimes(repositories.length);
+            expect(removeTopicSpy).toHaveBeenCalledTimes(repos.length);
         });
     });
 
