@@ -5,6 +5,7 @@
 const { createNetrcAuth } = require("octokit-auth-netrc");
 const { Octokit } = require("@octokit/rest");
 const { StringUtils } = require("andculturecode-javascript-core");
+const constants = require("./constants");
 const echo = require("./echo");
 const formatters = require("./formatters");
 const fs = require("fs");
@@ -21,6 +22,7 @@ const userPrompt = require("./user-prompt");
 // #region Constants
 // -----------------------------------------------------------------------------------------
 
+const { ANDCULTURE, ANDCULTURE_CODE } = constants;
 const { yellow } = formatters;
 const API_DOMAIN = "api.github.com";
 
@@ -45,7 +47,7 @@ const github = {
     // #region Public Properties
     // -----------------------------------------------------------------------------------------
 
-    andcultureOrg: "AndcultureCode",
+    andcultureOrg: ANDCULTURE_CODE,
     apiRepositoriesRouteParam: "repos",
     apiRootUrl: `https://${API_DOMAIN}`,
     apiTopicsRouteParam: "topics",
@@ -66,6 +68,11 @@ const github = {
      * @param {string} topic Topic to be added
      */
     async addTopicToAllRepositories(topic) {
+        if (StringUtils.isEmpty(topic)) {
+            echo.error("Topic name is required");
+            return;
+        }
+
         const andcultureRepos = await this.repositoriesByAndculture();
         const repoNames = andcultureRepos.map((e) => e.name);
 
@@ -122,7 +129,7 @@ const github = {
     },
 
     description() {
-        return `Helpful github operations used at andculture`;
+        return `Helpful github operations used at ${ANDCULTURE}`;
     },
 
     /**
@@ -291,6 +298,11 @@ const github = {
      * @param {string} topic Topic to be removed
      */
     async removeTopicFromAllRepositories(topic) {
+        if (StringUtils.isEmpty(topic)) {
+            echo.error("Topic name is required");
+            return;
+        }
+
         const andcultureRepos = await this.repositoriesByAndculture();
         const repoNames = andcultureRepos.map((e) => e.name);
 

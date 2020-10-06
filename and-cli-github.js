@@ -6,12 +6,21 @@ require("./command-runner").run(async () => {
     // -----------------------------------------------------------------------------------------
 
     const { StringUtils } = require("andculturecode-javascript-core");
+    const constants = require("./modules/constants");
     const echo = require("./modules/echo");
     const github = require("./modules/github");
     const js = require("./modules/js");
     const program = require("commander");
 
     // #endregion Imports
+
+    // -----------------------------------------------------------------------------------------
+    // #region Constants
+    // -----------------------------------------------------------------------------------------
+
+    const { ANDCULTURE_CODE } = constants;
+
+    // #endregion Constants
 
     // -----------------------------------------------------------------------------------------
     // #region Entrypoint
@@ -22,16 +31,16 @@ require("./command-runner").run(async () => {
         .description(github.description())
         .option(
             "--add-topic <topic>",
-            "Add topic to specified repository, or all AndcultureCode repositories if no repo provided"
+            `Add topic to specified repository, or all ${ANDCULTURE_CODE} repositories if no repo provided`
         )
+        .option("--list-repos", "Lists all andculture repos")
         .option(
             "--list-topics",
             "List topics for a given repo (used in conjunction with --repo)"
         )
-        .option("--list-repos", "Lists all andculture repos")
         .option(
             "--remove-topic <topic>",
-            "Remove topic from specified repository, or all AndcultureCode repositories if no repo provided"
+            `Remove topic from specified repository, or all ${ANDCULTURE_CODE} repositories if no repo provided`
         )
         .option(
             "-r, --repo <repo>",
@@ -39,7 +48,7 @@ require("./command-runner").run(async () => {
         )
         .option(
             "-u, --username <username>",
-            "Github username for which to list andculture repositories"
+            `Github username for which to list ${ANDCULTURE_CODE} repositories`
         )
         .parse(process.argv);
 
@@ -67,13 +76,13 @@ require("./command-runner").run(async () => {
         StringUtils.hasValue(program.repo);
 
     if (listAndcultureRepos) {
-        echo.success("AndcultureCode Repositories");
+        echo.success(`${ANDCULTURE_CODE} Repositories`);
         echo.byProperty(await github.repositoriesByAndculture(), "url");
         return;
     }
 
     if (listReposByUser) {
-        echo.success(`${program.username} Repositories`);
+        echo.success(`${program.username}/${ANDCULTURE_CODE} Repositories`);
         echo.byProperty(
             await github.repositoriesByAndculture(program.username),
             "url"

@@ -69,7 +69,7 @@ describe("github", () => {
 
             const addTopicSpy = jest
                 .spyOn(github, "addTopicToRepository")
-                .mockImplementation(() => []);
+                .mockResolvedValue([]);
 
             // Mock the confirmation prompt since we do not have user input
             jest.spyOn(userPrompt, "confirmOrExit").mockResolvedValueOnce();
@@ -510,7 +510,7 @@ describe("github", () => {
 
             const removeTopicSpy = jest
                 .spyOn(github, "removeTopicFromRepository")
-                .mockImplementation(() => []);
+                .mockResolvedValue([]);
 
             // Mock the confirmation prompt since we do not have user input
             jest.spyOn(userPrompt, "confirmOrExit").mockResolvedValueOnce();
