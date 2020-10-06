@@ -51,5 +51,5 @@
         "test:integration": "jest --runInBand \"(and-cli)(.)*(.test.js)\"",
         "watch:test": "jest --watch"
     },
-    "version": "1.4.1"
+    "version": "1.4.2"
 }
