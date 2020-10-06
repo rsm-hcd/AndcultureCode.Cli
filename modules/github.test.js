@@ -322,11 +322,7 @@ describe("github", () => {
             const expected = "wintondeshong";
 
             nock(github.apiRootUrl)
-                .get(
-                    new RegExp(
-                        expected + "/" + github.apiRepositoriesRouteParam
-                    )
-                ) // make sure github is properly passed username
+                .get(getReposRoute(expected)) // make sure github is properly passed username
                 .reply(200, [{ url: `https://someurl.com/${expected}` }]);
 
             // Act
@@ -344,11 +340,7 @@ describe("github", () => {
             const unexpected = testUtils.randomWord();
 
             nock(github.apiRootUrl)
-                .get(
-                    new RegExp(
-                        username + "/" + github.apiRepositoriesRouteParam
-                    )
-                ) // make sure github is properly passed username
+                .get(getReposRoute(username)) // make sure github is properly passed username
                 .reply(200, [{ name: expected }, { name: unexpected }]);
 
             const filter = (repos) =>
@@ -375,11 +367,7 @@ describe("github", () => {
             const expected = github.andcultureOrg;
 
             nock(github.apiRootUrl)
-                .get(
-                    new RegExp(
-                        expected + "/" + github.apiRepositoriesRouteParam
-                    )
-                ) // make sure github is properly passed username
+                .get(getReposRoute(expected)) // make sure github is properly passed username
                 .reply(200, [{ name: expected }]);
 
             // Act
@@ -397,11 +385,7 @@ describe("github", () => {
             const unexpected = testUtils.randomWord();
 
             nock(github.apiRootUrl)
-                .get(
-                    new RegExp(
-                        username + "/" + github.apiRepositoriesRouteParam
-                    )
-                ) // make sure github is properly passed username
+                .get(getReposRoute(username)) // make sure github is properly passed username
                 .reply(200, [{ name: expected }, { name: unexpected }]);
 
             // Act
@@ -425,11 +409,7 @@ describe("github", () => {
             const expected = github.andcultureOrg;
 
             nock(github.apiRootUrl)
-                .get(
-                    new RegExp(
-                        expected + "/" + github.apiRepositoriesRouteParam
-                    )
-                ) // make sure github is properly passed username
+                .get(getReposRoute(expected)) // make sure github is properly passed username
                 .reply(200, [{ name: expected }]);
 
             // Act
@@ -445,11 +425,7 @@ describe("github", () => {
             const expected = testUtils.randomWord();
 
             nock(github.apiRootUrl)
-                .get(
-                    new RegExp(
-                        expected + "/" + github.apiRepositoriesRouteParam
-                    )
-                ) // make sure github is properly passed username
+                .get(getReposRoute(expected)) // make sure github is properly passed username
                 .reply(200, [{ name: expected }]);
 
             // Act
@@ -466,11 +442,7 @@ describe("github", () => {
             const unexpected = testUtils.randomWord();
 
             nock(github.apiRootUrl)
-                .get(
-                    new RegExp(
-                        expected + "/" + github.apiRepositoriesRouteParam
-                    )
-                ) // make sure github is properly passed username
+                .get(getReposRoute(expected)) // make sure github is properly passed username
                 .reply(200, [{ name: expected }, { name: unexpected }]);
 
             const filter = (repos) =>
