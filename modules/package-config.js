@@ -2,7 +2,10 @@
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const { CoreUtils } = require("andculturecode-javascript-core");
+const {
+    CoreUtils,
+    CollectionUtils,
+} = require("andculturecode-javascript-core");
 const { CLI_NAME, PACKAGE_JSON } = require("./constants");
 const finder = require("find-package-json");
 const upath = require("upath");
@@ -70,6 +73,26 @@ const packageConfig = {
         }
 
         return localPackageJson;
+    },
+
+    /**
+     * Returns the first binary name from the local package.json file. If no 'bin' section exists,
+     * or it contains no values, it returns `undefined`. If multiple keys exist, only the first will
+     * be returned.
+     */
+    getLocalBinName() {
+        const localPackageJson = this.getLocal();
+        if (localPackageJson == null || localPackageJson["bin"] == null) {
+            return undefined;
+        }
+
+        const bin = localPackageJson["bin"];
+        const keys = Object.keys(bin);
+        if (CollectionUtils.isEmpty(keys)) {
+            return undefined;
+        }
+
+        return keys[0];
     },
 
     /**
