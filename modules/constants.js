@@ -2,6 +2,9 @@
 // #region Exports
 // -----------------------------------------------------------------------------------------
 
+/** Constant to represent the 'bin' folder or config section */
+module.exports.BIN = "bin";
+
 /** Constant to hold a reference to name of the CLI so we aren't hard-coding it multiple places */
 module.exports.CLI_NAME = "and-cli";
 

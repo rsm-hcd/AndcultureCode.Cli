@@ -20,6 +20,14 @@ const testUtils = require("../tests/test-utils");
 // #endregion Imports
 
 // -----------------------------------------------------------------------------------------
+// #region Constants
+// -----------------------------------------------------------------------------------------
+
+const { ALIASES } = packageConfig.SECTIONS;
+
+// #endregion Constants
+
+// -----------------------------------------------------------------------------------------
 // #region Tests
 // -----------------------------------------------------------------------------------------
 
@@ -132,7 +140,7 @@ describe("packageConfig", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("getLocalConfigOrDefault", () => {
-        test("given no 'and-cli' section exists, it returns the default config", () => {
+        test(`given no '${CLI_NAME}' section exists, it returns the default config`, () => {
             // Arrange
             const getLocalSpy = jest
                 .spyOn(packageConfig, "getLocal")
@@ -148,8 +156,8 @@ describe("packageConfig", () => {
             expect(result).toStrictEqual(packageConfig.DEFAULT_CONFIG);
         });
 
-        describe("given 'and-cli' section exists", () => {
-            test("given no 'aliases' section exists, it returns a default value for the 'aliases' section", () => {
+        describe(`given '${CLI_NAME}' section exists`, () => {
+            test(`given no '${ALIASES}' section exists, it returns a default value for the '${ALIASES}' section`, () => {
                 // Arrange
                 const getLocalSpy = jest
                     .spyOn(packageConfig, "getLocal")
