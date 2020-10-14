@@ -55,6 +55,7 @@ require("./command-runner").run(async () => {
             _installDevAlias();
 
             // Reload shell
+            echo.newLine();
             echo.success(
                 "Install successful. Reload your shell for changes to take effect"
             );
@@ -71,6 +72,11 @@ require("./command-runner").run(async () => {
         return StringUtils.hasValue(
             shell.cat(file.bashFile()).grep(text).stdout
         );
+    };
+
+    const _echoInstallErrorAndExit = (code) => {
+        echo.error(`There was an error installing the package: ${code}`);
+        shell.exit(code);
     };
 
     const _installAndCliGlobally = () => {
@@ -102,13 +108,12 @@ require("./command-runner").run(async () => {
             return;
         }
 
-        shell.echo("").toEnd(file.bashFile());
-        shell
-            .echo(
-                `# ${CLI_NAME} global development alias pointing to your fork of the repository`
-            )
-            .toEnd(file.bashFile());
-        shell.echo(developerAlias).toEnd(file.bashFile());
+        _writeToBashFile("");
+        _writeToBashFile(
+            `# ${CLI_NAME} global development alias pointing to your fork of the repository`
+        );
+        _writeToBashFile(developerAlias);
+
         echo.success(`Successfully installed ${CLI_NAME}-dev alias`);
     };
 
@@ -145,17 +150,15 @@ require("./command-runner").run(async () => {
             return;
         }
 
-        shell.echo("").toEnd(file.bashFile());
-        shell.echo(`# ${CLI_NAME} project-level alias`).toEnd(file.bashFile());
-        shell.echo(projectAlias).toEnd(file.bashFile());
+        _writeToBashFile("");
+        _writeToBashFile(`# ${CLI_NAME} project-level alias`);
+        _writeToBashFile(projectAlias);
+
         echo.success(`Successfully installed ${CLI_NAME} bash alias`);
         echo.newLine();
     };
 
-    const _echoInstallErrorAndExit = (code) => {
-        echo.error(`There was an error installing the package: ${code}`);
-        shell.exit(code);
-    };
+    const _writeToBashFile = (text) => shell.echo(text).toEnd(file.bashFile());
 
     // #endregion Private Functions
 
