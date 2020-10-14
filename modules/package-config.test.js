@@ -10,7 +10,7 @@ jest.mock("find-package-json");
 // #region Imports
 // -----------------------------------------------------------------------------------------
 
-const { CLI_NAME } = require("./constants");
+const { BIN, CLI_NAME, PACKAGE_JSON, ENTRYPOINT } = require("./constants");
 const packageConfig = require("./package-config");
 const packageJson = require("../package.json");
 const faker = require("faker");
@@ -32,6 +32,22 @@ const { ALIASES } = packageConfig.SECTIONS;
 // -----------------------------------------------------------------------------------------
 
 describe("packageConfig", () => {
+    // -----------------------------------------------------------------------------------------
+    // #region Setup
+    // -----------------------------------------------------------------------------------------
+
+    const mockLocalPackageJson = (value) => {
+        finder.mockImplementation(() => {
+            return {
+                next() {
+                    return { value };
+                },
+            };
+        });
+    };
+
+    // #endregion Setup
+
     // -----------------------------------------------------------------------------------------
     // #region getBase
     // -----------------------------------------------------------------------------------------
@@ -85,15 +101,9 @@ describe("packageConfig", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("getLocal", () => {
-        test("given package.json cannot be found, it returns the base package.json", () => {
+        test(`given ${PACKAGE_JSON} cannot be found, it returns the base ${PACKAGE_JSON}`, () => {
             // Arrange
-            finder.mockImplementation(() => {
-                return {
-                    next() {
-                        return { value: undefined };
-                    },
-                };
-            });
+            mockLocalPackageJson(undefined);
             const getBaseSpy = jest.spyOn(packageConfig, "getBase");
 
             // Act
@@ -104,7 +114,7 @@ describe("packageConfig", () => {
             expect(getBaseSpy).toHaveBeenCalled();
         });
 
-        test("given package.json can be found, it returns the object", () => {
+        test(`given ${PACKAGE_JSON} can be found, it returns the object`, () => {
             // Arrange
             const mockPackageJson = {};
             const keyCount = testUtils.randomNumber(1, 10);
@@ -118,14 +128,9 @@ describe("packageConfig", () => {
                 mockPackageJson[key] = testUtils.randomNumber();
             }
 
-            finder.mockImplementation(() => {
-                return {
-                    next() {
-                        return { value: mockPackageJson };
-                    },
-                };
-            });
+            mockLocalPackageJson(mockPackageJson);
 
+            // Act
             const result = packageConfig.getLocal();
 
             // Assert
@@ -136,42 +141,103 @@ describe("packageConfig", () => {
     // #endregion getLocal
 
     // -----------------------------------------------------------------------------------------
-    // #region getLocalConfigOrDefault
+    // #region getLocalBinName
     // -----------------------------------------------------------------------------------------
 
-    describe("getLocalConfigOrDefault", () => {
-        test(`given no '${CLI_NAME}' section exists, it returns the default config`, () => {
+    describe("getLocalBinName", () => {
+        test(`given no ${BIN} section exists, it returns undefined`, () => {
             // Arrange
-            const getLocalSpy = jest
-                .spyOn(packageConfig, "getLocal")
-                .mockImplementation(() => {
-                    return {};
-                });
+            mockLocalPackageJson({});
 
             // Act
-            const result = packageConfig.getLocalConfigOrDefault();
+            const result = packageConfig.getLocalBinName();
 
             // Assert
-            expect(getLocalSpy).toHaveBeenCalled();
+            expect(result).toBeUndefined();
+        });
+
+        test(`given ${BIN} section contains no keys, it returns undefined`, () => {
+            // Arrange
+            mockLocalPackageJson({
+                [BIN]: {},
+            });
+
+            // Act
+            const result = packageConfig.getLocalBinName();
+
+            // Assert
+            expect(result).toBeUndefined();
+        });
+
+        test(`given ${BIN} section contains a single key, it returns the key`, () => {
+            // Arrange
+            const bin = {
+                [CLI_NAME]: ENTRYPOINT,
+            };
+            const mockPackageJson = {
+                [BIN]: bin,
+            };
+            mockLocalPackageJson(mockPackageJson);
+            const expected = Object.keys(bin)[0];
+
+            // Act
+            const result = packageConfig.getLocalBinName();
+
+            // Assert
+            expect(result).toBe(expected);
+        });
+
+        test(`given ${BIN} section contains multiple keys, it returns the first key`, () => {
+            // Arrange
+            const bin = {
+                // Values don't matter, we care about the key
+                first: testUtils.randomWord(),
+                second: testUtils.randomWord(),
+                third: testUtils.randomWord(),
+            };
+            const mockPackageJson = {
+                [BIN]: bin,
+            };
+            mockLocalPackageJson(mockPackageJson);
+            const expected = Object.keys(bin)[0];
+
+            // Act
+            const result = packageConfig.getLocalBinName();
+
+            // Assert
+            expect(result).toBe(expected);
+        });
+    });
+
+    // #endregion getLocalBinName
+
+    // -----------------------------------------------------------------------------------------
+    // #region getLocalAndCliConfigOrDefault
+    // -----------------------------------------------------------------------------------------
+
+    describe("getLocalAndCliConfigOrDefault", () => {
+        test(`given no '${CLI_NAME}' section exists, it returns the default config`, () => {
+            // Arrange
+            mockLocalPackageJson({});
+
+            // Act
+            const result = packageConfig.getLocalAndCliConfigOrDefault();
+
+            // Assert
             expect(result).toStrictEqual(packageConfig.DEFAULT_CONFIG);
         });
 
         describe(`given '${CLI_NAME}' section exists`, () => {
             test(`given no '${ALIASES}' section exists, it returns a default value for the '${ALIASES}' section`, () => {
                 // Arrange
-                const getLocalSpy = jest
-                    .spyOn(packageConfig, "getLocal")
-                    .mockImplementation(() => {
-                        return {
-                            [CLI_NAME]: {},
-                        };
-                    });
+                mockLocalPackageJson({
+                    [CLI_NAME]: {},
+                });
 
                 // Act
-                const result = packageConfig.getLocalConfigOrDefault();
+                const result = packageConfig.getLocalAndCliConfigOrDefault();
 
                 // Assert
-                expect(getLocalSpy).toHaveBeenCalled();
                 expect(result.aliases).toStrictEqual(
                     packageConfig.DEFAULT_CONFIG.aliases
                 );
@@ -179,7 +245,7 @@ describe("packageConfig", () => {
         });
     });
 
-    // #endregion getLocalConfigOrDefault
+    // #endregion getLocalAndCliConfigOrDefault
 });
 
 // #endregion Tests

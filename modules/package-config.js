@@ -16,12 +16,13 @@ const upath = require("upath");
 // #region Constants
 // -----------------------------------------------------------------------------------------
 
-const _defaultConfig = {
-    [_sections.ALIASES]: {},
+// Must be defined before _defaultConfig variable in scope
+const __sections = {
+    ALIASES: "aliases",
 };
 
-const _sections = {
-    ALIASES: "aliases",
+const _defaultConfig = {
+    [__sections.ALIASES]: {},
 };
 
 // #endregion Constants
@@ -43,7 +44,7 @@ const packageConfig = {
     /**
      * Object to hold constants for each supported config under the 'and-cli' section
      */
-    SECTIONS: _sections,
+    SECTIONS: __sections,
 
     // #endregion Public Members
 
