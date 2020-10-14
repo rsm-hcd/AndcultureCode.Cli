@@ -220,8 +220,12 @@ Various commands to interact with github andculture related resources.
 
 ### Commands
 
--   `and-cli github` - Lists master AndcultureCode repositories
--   `and-cli github -u|--username <username>` - Lists master AndcultureCode repositories as well as those for the supplied github username
+-   `and-cli github -l|--list-repos` - Lists main AndcultureCode repositories
+-   `and-cli github --list-topics --repo AndcultureCode.Cli` - Lists topics for a specified AndcultureCode repo
+-   `and-cli github --add-topic hacktoberfest --repo AndcultureCode.Cli` - Adds a topic to a specified AndcultureCodeRepo
+-   `and-cli github --remove-topic hacktoberfest --repo AndcultureCode.Cli` - Removes a topic from a specified AndcultureCode repo
+-   `and-cli github --remove-topic hacktoberfest` - Removes a topic from all AndcultureCode repos
+-   `and-cli github -u|--username <username>` - Lists forked AndcultureCode repositories for the supplied github username
 
 ## nuget
 
