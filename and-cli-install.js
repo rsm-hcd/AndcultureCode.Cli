@@ -79,15 +79,23 @@ require("./command-runner").run(async () => {
         shell.exit(code);
     };
 
+    const _execAndExitIfErrored = (cmd) => {
+        const { code } = shell.exec(cmd);
+        if (code !== 0) {
+            _echoInstallErrorAndExit(code);
+            return false;
+        }
+
+        return true;
+    };
+
     const _installAndCliGlobally = () => {
         const cmd = install.cmd(CLI_NAME);
         echo.message(
             `Installing ${CLI_NAME} as global npm tool... (via ${cmd})`
         );
 
-        const { code } = shell.exec(cmd);
-        if (code !== 0) {
-            _echoInstallErrorAndExit(code);
+        if (!_execAndExitIfErrored(cmd)) {
             return;
         }
 
@@ -96,14 +104,15 @@ require("./command-runner").run(async () => {
     };
 
     const _installDevAlias = () => {
+        const andCliDev = `${CLI_NAME}-dev`;
         echo.message(
-            `Configuring cli development '${CLI_NAME}-dev' bash alias...`
+            `Configuring cli development '${andCliDev}' bash alias...`
         );
         const pathToCli = upath.join(shell.pwd().toString(), ENTRYPOINT);
-        const developerAlias = `alias ${CLI_NAME}-dev='${pathToCli}'`;
+        const developerAlias = `alias ${andCliDev}='${pathToCli}'`;
 
         if (_bashFileContains(developerAlias)) {
-            echo.success(`${CLI_NAME}-dev bash alias already installed`);
+            echo.success(`${andCliDev} bash alias already installed`);
             echo.newLine();
             return;
         }
@@ -114,7 +123,7 @@ require("./command-runner").run(async () => {
         );
         _writeToBashFile(developerAlias);
 
-        echo.success(`Successfully installed ${CLI_NAME}-dev alias`);
+        echo.success(`Successfully installed ${andCliDev} alias`);
     };
 
     const _installLocalProjectGlobally = (binName) => {
@@ -123,9 +132,7 @@ require("./command-runner").run(async () => {
             `Installing current project as a global npm tool... (via ${cmd})`
         );
 
-        const { code } = shell.exec(cmd);
-        if (code !== 0) {
-            _echoInstallErrorAndExit(code);
+        if (!_execAndExitIfErrored(cmd)) {
             return;
         }
 
