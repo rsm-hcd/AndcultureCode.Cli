@@ -1,13 +1,18 @@
 #!/usr/bin/env node
+
 require("./command-runner").run(async () => {
     // -----------------------------------------------------------------------------------------
     // #region Imports
     // -----------------------------------------------------------------------------------------
 
+    const { CLI_NAME, ENTRYPOINT } = require("./modules/constants");
+    const { StringUtils } = require("andculturecode-javascript-core");
     const commands = require("./modules/commands");
     const echo = require("./modules/echo");
     const file = require("./modules/file");
-    const path = require("path");
+    const formatters = require("./modules/formatters");
+    const js = require("./modules/js");
+    const packageConfig = require("./modules/package-config");
     const program = require("commander");
     const shell = require("shelljs");
     const upath = require("upath");
@@ -15,67 +20,39 @@ require("./command-runner").run(async () => {
     // #endregion Imports
 
     // -----------------------------------------------------------------------------------------
-    // #region Functions
+    // #region Constants
+    // -----------------------------------------------------------------------------------------
+
+    const { purple } = formatters;
+
+    // #endregion Constants
+
+    // -----------------------------------------------------------------------------------------
+    // #region Public Functions
     // -----------------------------------------------------------------------------------------
 
     const install = {
-        cmds: {
-            installGlobally: "npm install --global and-cli",
+        cmd(package) {
+            return `npm install --global ${package}`;
         },
         description() {
             return "Configures development machine with global npm, project-specific and developer and-cli tools";
         },
         run() {
+            // Local project (likely a plugin CLI) global install
+            const binName = packageConfig.getLocalBinName();
+            if (StringUtils.hasValue(binName) && binName !== CLI_NAME) {
+                _installLocalProjectGlobally(binName);
+            }
+
             // Global npm package
-            echo.message("Installing and-cli as global npm tool...");
-            shell.exec(this.cmds.installGlobally);
-            echo.success("Successfully installed globally");
-            echo.newLine();
+            _installAndCliGlobally();
 
             // Project-specific alias
-            echo.message(
-                "Configuring project-specific `and-cli` bash alias..."
-            );
-            const projectAlias = "alias and-cli='npx and-cli'";
-
-            if (
-                shell.cat(file.bashFile()).grep(projectAlias).stdout.length > 1
-            ) {
-                echo.success("and-cli bash alias already installed");
-            } else {
-                shell.echo("").toEnd(file.bashFile());
-                shell
-                    .echo("# and-cli project-level alias")
-                    .toEnd(file.bashFile());
-                shell.echo(projectAlias).toEnd(file.bashFile());
-                echo.success("Successfully installed and-cli bash alias");
-            }
-            echo.newLine();
+            _installNpxAlias();
 
             // Developer alias
-            echo.message(
-                "Configuring cli development `and-cli-dev` bash alias..."
-            );
-            const pathToCli = upath.toUnix(
-                path.join(shell.pwd().toString(), "and-cli.js")
-            );
-            const developerAlias = `alias and-cli-dev='${pathToCli}'`;
-
-            if (
-                shell.cat(file.bashFile()).grep(developerAlias).stdout.length >
-                1
-            ) {
-                echo.success("and-cli-dev bash alias already installed");
-            } else {
-                shell.echo("").toEnd(file.bashFile());
-                shell
-                    .echo(
-                        "# and-cli global development alias pointing to your fork of the repository"
-                    )
-                    .toEnd(file.bashFile());
-                shell.echo(developerAlias).toEnd(file.bashFile());
-                echo.success("Successfully installed and-cli-dev alias");
-            }
+            _installDevAlias();
 
             // Reload shell
             echo.newLine();
@@ -85,7 +62,112 @@ require("./command-runner").run(async () => {
         },
     };
 
-    // #endregion Functions
+    // #endregion Public Functions
+
+    // -----------------------------------------------------------------------------------------
+    // #region Private Functions
+    // -----------------------------------------------------------------------------------------
+
+    const _bashFileContains = (text) => {
+        return StringUtils.hasValue(
+            shell.cat(file.bashFile()).grep(text).stdout
+        );
+    };
+
+    const _echoInstallErrorAndExit = (code) => {
+        echo.error(`There was an error installing the package: ${code}`);
+        shell.exit(code);
+    };
+
+    const _execAndExitIfErrored = (cmd) => {
+        const { code } = shell.exec(cmd);
+        if (code !== 0) {
+            _echoInstallErrorAndExit(code);
+            return false;
+        }
+
+        return true;
+    };
+
+    const _installAndCliGlobally = () => {
+        const cmd = install.cmd(CLI_NAME);
+        echo.message(
+            `Installing ${CLI_NAME} as global npm tool... (via ${cmd})`
+        );
+
+        if (!_execAndExitIfErrored(cmd)) {
+            return;
+        }
+
+        echo.success(`Successfully installed ${CLI_NAME} globally`);
+        echo.newLine();
+    };
+
+    const _installDevAlias = () => {
+        const andCliDev = `${CLI_NAME}-dev`;
+        echo.message(
+            `Configuring cli development '${andCliDev}' bash alias...`
+        );
+        const pathToCli = upath.join(shell.pwd().toString(), ENTRYPOINT);
+        const developerAlias = `alias ${andCliDev}='${pathToCli}'`;
+
+        if (_bashFileContains(developerAlias)) {
+            echo.success(`${andCliDev} bash alias already installed`);
+            echo.newLine();
+            return;
+        }
+
+        _writeToBashFile("");
+        _writeToBashFile(
+            `# ${CLI_NAME} global development alias pointing to your fork of the repository`
+        );
+        _writeToBashFile(developerAlias);
+
+        echo.success(`Successfully installed ${andCliDev} alias`);
+    };
+
+    const _installLocalProjectGlobally = (binName) => {
+        const cmd = install.cmd(".");
+        echo.message(
+            `Installing current project as a global npm tool... (via ${cmd})`
+        );
+
+        if (!_execAndExitIfErrored(cmd)) {
+            return;
+        }
+
+        echo.success("Current project was successfully installed globally");
+        echo.message(
+            `You should now be able to run it from any directory with: ${purple(
+                `${binName} <command>`
+            )}`
+        );
+        echo.newLine();
+    };
+
+    const _installNpxAlias = () => {
+        echo.message(
+            `Configuring project-specific '${CLI_NAME}' bash alias...`
+        );
+        const projectAlias = `alias ${CLI_NAME}='npx ${CLI_NAME}'`;
+
+        if (_bashFileContains(projectAlias)) {
+            echo.success(`${CLI_NAME} bash alias already installed`);
+            echo.newLine();
+            return;
+        }
+
+        _writeToBashFile("");
+        _writeToBashFile(`# ${CLI_NAME} project-level alias`);
+        _writeToBashFile(projectAlias);
+
+        echo.success(`Successfully installed ${CLI_NAME} bash alias`);
+        echo.newLine();
+    };
+
+    const _writeToBashFile = (text) => shell.echo(text).toEnd(file.bashFile());
+
+    // #endregion Private Functions
 
     // -----------------------------------------------------------------------------------------
     // #region Entrypoint
@@ -97,7 +179,7 @@ require("./command-runner").run(async () => {
         .parse(process.argv);
 
     // If no options are passed in, performs installation steps
-    if (process.argv.slice(2).length === 0) {
+    if (js.hasNoArguments()) {
         install.run();
     }
 

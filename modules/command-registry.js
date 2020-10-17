@@ -409,7 +409,7 @@ const commandRegistry = {
      * @returns `this` for chaining
      */
     registerAliasesFromConfig(overrideIfRegistered = false) {
-        const { aliases } = packageConfig.getLocalConfigOrDefault();
+        const { aliases } = packageConfig.getLocalAndCliConfigOrDefault();
         const aliasKeys = Object.keys(aliases);
 
         if (CollectionUtils.isEmpty(aliasKeys)) {

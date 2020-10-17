@@ -394,7 +394,7 @@ describe("commandRegistry", () => {
             // Arrange
             jest.spyOn(
                 packageConfig,
-                "getLocalConfigOrDefault"
+                "getLocalAndCliConfigOrDefault"
             ).mockImplementation(() => {
                 return { aliases: {} };
             });
@@ -414,7 +414,7 @@ describe("commandRegistry", () => {
                 program.command(command, description);
                 jest.spyOn(
                     packageConfig,
-                    "getLocalConfigOrDefault"
+                    "getLocalAndCliConfigOrDefault"
                 ).mockImplementation(() => {
                     return {
                         aliases: {
@@ -438,7 +438,7 @@ describe("commandRegistry", () => {
                 program.command(command, description);
                 jest.spyOn(
                     packageConfig,
-                    "getLocalConfigOrDefault"
+                    "getLocalAndCliConfigOrDefault"
                 ).mockImplementation(() => {
                     return {
                         aliases: {
@@ -462,7 +462,7 @@ describe("commandRegistry", () => {
                 const overrideIfRegistered = faker.random.boolean(); // This shouldn't matter
                 jest.spyOn(
                     packageConfig,
-                    "getLocalConfigOrDefault"
+                    "getLocalAndCliConfigOrDefault"
                 ).mockImplementation(() => {
                     return {
                         aliases: {
