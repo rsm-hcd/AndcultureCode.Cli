@@ -56,12 +56,12 @@ require("./command-runner").run(async () => {
 
     const jenkinsDeploy = {
         async init() {
-            // create .jenkinsconfig file
             const configPath = this.getConfigPath();
+            const userPrompt = prompt.getPrompt();
+
             file.deleteIfExists(configPath);
             shell.touch(configPath);
-            // prompt user for credentials
-            const userPrompt = prompt.getPrompt();
+
             jenkinsUrl = await userPrompt.questionAsync("Jenkins server url: ");
             username = await userPrompt.questionAsync("Jenkins Username: ");
             token = await userPrompt.questionAsync("Jenkins API Token: ");
@@ -74,6 +74,7 @@ require("./command-runner").run(async () => {
                 },
                 profiles: {},
             };
+
             this.writeToConfig(JSON.stringify(baseConfig));
             await prompt.confirmOrExit("Success, add job profile?", 0);
             await this.createProfile();
@@ -90,29 +91,16 @@ require("./command-runner").run(async () => {
 
             let config = this.getConfig();
             let profiles = config.profiles;
+
             if (profiles === null || profiles === undefined) {
                 profiles = Object.create(null);
             }
+
             profiles[profileName] = jenkinsJobName;
             config.profiles = profiles;
+
             this.writeToConfig(JSON.stringify(config));
             shell.exit(0);
-        },
-
-        getConfig() {
-            const configPath = this.getConfigPath();
-            const configFile = fs.readFileSync(configPath);
-            return JSON.parse(configFile);
-        },
-
-        writeToConfig(value) {
-            const configPath = this.getConfigPath();
-            fs.writeFileSync(configPath, value);
-        },
-
-        getConfigPath() {
-            const homeDir = os.homedir();
-            return (configPath = upath.toUnix(path.join(homeDir, CONFIG_FILE)));
         },
 
         async build() {
@@ -157,6 +145,21 @@ require("./command-runner").run(async () => {
             }
             await this.build();
         },
+
+        getConfig() {
+            const configPath = this.getConfigPath();
+            const configFile = fs.readFileSync(configPath);
+            return JSON.parse(configFile);
+        },
+        getConfigPath() {
+            const homeDir = os.homedir();
+            return (configPath = upath.toUnix(path.join(homeDir, CONFIG_FILE)));
+        },
+        writeToConfig(value) {
+            const configPath = this.getConfigPath();
+            fs.writeFileSync(configPath, value);
+        },
+
         validateOrExit() {
             const errors = [];
             const config = this.getConfig();
