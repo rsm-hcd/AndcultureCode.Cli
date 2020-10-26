@@ -1,28 +1,19 @@
 #!/usr/bin/env node
 
-const { profile } = require("console");
-
 require("./command-runner").run(async () => {
     // -----------------------------------------------------------------------------------------
     // #region Imports
     // -----------------------------------------------------------------------------------------
 
-    const {
-        StringUtils,
-        CollectionUtils,
-    } = require("andculturecode-javascript-core");
+    const { StringUtils } = require("andculturecode-javascript-core");
     const commandStringFactory = require("./utilities/command-string-factory");
     const echo = require("./modules/echo");
     const file = require("./modules/file");
+    const jenkins = require("./modules/jenkins");
     const optionStringFactory = require("./utilities/option-string-factory");
     const program = require("commander");
     const prompt = require("./modules/user-prompt");
-    const path = require("path");
     const shell = require("shelljs");
-    const upath = require("upath");
-    const os = require("os");
-    const readline = require("readline");
-    const fs = require("fs");
 
     // #endregion Imports
 
@@ -33,7 +24,6 @@ require("./command-runner").run(async () => {
     const INIT_OPTION = optionStringFactory.build("init", "i");
     const PROFILE_OPTION = optionStringFactory.build("profile <p>", "p");
     const CREATE_PROFILE_OPTION = optionStringFactory.build("new");
-    const CONFIG_FILE = ".jenkinsconfig";
 
     // #endregion Constants
 
@@ -46,7 +36,6 @@ require("./command-runner").run(async () => {
     let username = null;
     let token = null;
     let jenkinsUrl = null;
-    let profile = null;
 
     // #endregion Variables
 
@@ -56,7 +45,7 @@ require("./command-runner").run(async () => {
 
     const jenkinsDeploy = {
         async init() {
-            const configPath = this.getConfigPath();
+            const configPath = jenkins.getConfigPath();
             const userPrompt = prompt.getPrompt();
 
             file.deleteIfExists(configPath);
@@ -66,16 +55,7 @@ require("./command-runner").run(async () => {
             username = await userPrompt.questionAsync("Jenkins Username: ");
             token = await userPrompt.questionAsync("Jenkins API Token: ");
 
-            const baseConfig = {
-                url: jenkinsUrl,
-                credentials: {
-                    username: username,
-                    token: token,
-                },
-                profiles: {},
-            };
-
-            this.writeToConfig(JSON.stringify(baseConfig));
+            jenkins.writeToConfig(baseConfig);
             await prompt.confirmOrExit("Success, add job profile?", 0);
             await this.createProfile();
         },
@@ -86,31 +66,38 @@ require("./command-runner").run(async () => {
                 "Jenkins Job Name: "
             );
             const profileName = await userPrompt.questionAsync(
-                "Profile name (Name to use in cli): "
+                "Profile name (Nickname): "
             );
 
-            let config = this.getConfig();
+            let config = jenkins.getConfig();
             let profiles = config.profiles;
 
             if (profiles === null || profiles === undefined) {
                 profiles = Object.create(null);
             }
-
             profiles[profileName] = jenkinsJobName;
             config.profiles = profiles;
 
-            this.writeToConfig(JSON.stringify(config));
+            jenkins.writeToConfig(config);
             shell.exit(0);
         },
 
         async build() {
             const userPrompt = prompt.getPrompt();
-            const config = this.getConfig();
+            const config = jenkins.getConfig();
             let profile = program.profile;
             if (StringUtils.isEmpty(program.profile)) {
                 echo.error("Please specify a profile [--profile] to trigger");
                 shell.exit(1);
             }
+
+            if (config.profiles.indexof(profile) < 0) {
+                echo.error(
+                    "Profile not found, please check your configuration"
+                );
+                shell.exit(1);
+            }
+
             job = config.profiles[profile];
             tag = await userPrompt.questionAsync("Tag name to deploy: ");
             this.validateOrExit();
@@ -119,6 +106,7 @@ require("./command-runner").run(async () => {
                 `Please confirm deployment of tag ${tag} to ${job}`,
                 0
             );
+
             echo.message(`Jenkins starting ${job}, deploying version ${tag}`);
             const url = `${jenkinsUrl}/job/${job}/buildWithParameters?version=${tag}`;
 
@@ -127,46 +115,22 @@ require("./command-runner").run(async () => {
                 "-X",
                 "POST",
                 "-L",
-                `--user ${config.credentials.username}:${config.credentials.token}`,
+                `--user ${config.username}:${config.token}`,
                 url
             );
+
             if (shell.exec(cmd, { silent: false }).code !== 0) {
                 echo.error(" - Failed to deploy jenkins");
                 shell.exit(1);
             }
         },
-
-        async run() {
-            if (program.init) {
-                await this.init();
-            }
-            if (program.new) {
-                await this.createProfile();
-            }
-            await this.build();
-        },
-
-        getConfig() {
-            const configPath = this.getConfigPath();
-            const configFile = fs.readFileSync(configPath);
-            return JSON.parse(configFile);
-        },
-        getConfigPath() {
-            const homeDir = os.homedir();
-            return (configPath = upath.toUnix(path.join(homeDir, CONFIG_FILE)));
-        },
-        writeToConfig(value) {
-            const configPath = this.getConfigPath();
-            fs.writeFileSync(configPath, value);
-        },
-
         validateOrExit() {
             const errors = [];
-            const config = this.getConfig();
+            const config = jenkins.getConfig();
             if (
                 StringUtils.isEmpty(config.url) ||
-                StringUtils.isEmpty(config.credentials.username) ||
-                StringUtils.isEmpty(config.credentials.token)
+                StringUtils.isEmpty(config.username) ||
+                StringUtils.isEmpty(config.token)
             ) {
                 errors.push("Credentials not found");
             }
@@ -183,6 +147,16 @@ require("./command-runner").run(async () => {
                 shell.exit(1);
             }
             return true;
+        },
+
+        async run() {
+            if (program.init) {
+                await this.init();
+            }
+            if (program.new) {
+                await this.createProfile();
+            }
+            await this.build();
         },
     };
 
