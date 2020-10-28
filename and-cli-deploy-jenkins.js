@@ -89,13 +89,12 @@ require("./command-runner").run(async () => {
 
         async build() {
             const userPrompt = prompt.getPrompt();
-            const config = jenkins.getConfig();
             let profile = program.profile;
             if (StringUtils.isEmpty(program.profile)) {
                 echo.error("Please specify a profile [--profile] to trigger");
                 shell.exit(1);
             }
-
+            const config = jenkins.getConfig();
             if (config.profiles.indexof(profile) < 0) {
                 echo.error(
                     "Profile not found, please check your configuration"
@@ -170,12 +169,14 @@ require("./command-runner").run(async () => {
     // -----------------------------------------------------------------------------------------
     // #region Entrypoint
     // -----------------------------------------------------------------------------------------
+
     program
         .description("Trigger a build through Jenkins remotely")
         .option(CREATE_PROFILE_OPTION, "Profile selected to trigger")
         .option(INIT_OPTION, "Configure Jenkins credentials")
         .option(PROFILE_OPTION, "Profile selected to trigger")
         .parse(process.argv);
+
     // #endregion Entrypoint
 
     await jenkinsDeploy.run();
