@@ -172,7 +172,7 @@ This command allows you to deploy to Azure Web Apps through local git deployment
 
 ### Usage
 
-Trigger jenkins jobs requiring parameters remotely
+Trigger jenkins jobs requiring parameters remotely. Jobs requiring tags
 
 ### Commands
 
