@@ -33,9 +33,6 @@ require("./command-runner").run(async () => {
 
     let tag = null;
     let job = null;
-    let username = null;
-    let token = null;
-    let jenkinsUrl = null;
 
     // #endregion Variables
 
@@ -51,11 +48,19 @@ require("./command-runner").run(async () => {
             file.deleteIfExists(configPath);
             shell.touch(configPath);
 
-            jenkinsUrl = await userPrompt.questionAsync("Jenkins server url: ");
-            username = await userPrompt.questionAsync("Jenkins Username: ");
-            token = await userPrompt.questionAsync("Jenkins API Token: ");
+            const url = await userPrompt.questionAsync("Jenkins server url: ");
+            const username = await userPrompt.questionAsync(
+                "Jenkins Username: "
+            );
+            const token = await userPrompt.questionAsync("Jenkins API Token: ");
 
-            jenkins.writeToConfig(baseConfig);
+            const config = Object.assign(baseConfig, { url, username, token });
+
+            const configResult = jenkins.writeToConfig(config);
+            if (!configResult) {
+                echo.error("Error writing to config file");
+                shell.exit(1);
+            }
             await prompt.confirmOrExit("Success, add job profile?", 0);
             await this.createProfile();
         },
@@ -108,7 +113,7 @@ require("./command-runner").run(async () => {
             );
 
             echo.message(`Jenkins starting ${job}, deploying version ${tag}`);
-            const url = `${jenkinsUrl}/job/${job}/buildWithParameters?version=${tag}`;
+            const url = `${config.url}/job/${job}/buildWithParameters?version=${tag}`;
 
             const cmd = commandStringFactory.build(
                 "curl",

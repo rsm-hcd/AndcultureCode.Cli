@@ -6,10 +6,10 @@ const {
     StringUtils,
     CollectionUtils,
 } = require("andculturecode-javascript-core");
+const echo = require("./echo");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
-const { echo } = require("shelljs");
 const upath = require("upath");
 
 // #endregion Imports
@@ -45,25 +45,35 @@ const jenkins = {
         }
         if (CollectionUtils.hasValues(errors)) {
             echo.errors(errors);
-            shell.exit(1);
+            return false;
         }
         let config = BASE_CONFIG;
         Object.assign(config, { url, username, token });
         this.writeToConfig(config);
+        return true;
     },
     getConfig() {
         const configPath = this.getConfigPath();
         const configFile = fs.readFileSync(configPath);
+        if (configFile === null || configFile === undefined) {
+            return undefined;
+        }
         return JSON.parse(configFile);
     },
     getConfigPath() {
         const homeDir = os.homedir();
-        return (configPath = upath.toUnix(path.join(homeDir, CONFIG_FILE)));
+        const configPath = upath.toUnix(path.join(homeDir, CONFIG_FILE));
+        return configPath;
     },
     writeToConfig(jsonConfig) {
         const value = JSON.stringify(jsonConfig);
         const configPath = this.getConfigPath();
-        fs.writeFileSync(configPath, value);
+        try {
+            fs.writeFileSync(configPath, value);
+        } catch (error) {
+            return false;
+        }
+        return true;
     },
 };
 // #endregion Functions
