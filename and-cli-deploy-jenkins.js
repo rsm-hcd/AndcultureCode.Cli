@@ -54,7 +54,8 @@ require("./command-runner").run(async () => {
             );
             const token = await userPrompt.questionAsync("Jenkins API Token: ");
 
-            const config = Object.assign(baseConfig, { url, username, token });
+            let config = jenkins.getConfig();
+            config = Object.assign(config, { url, username, token });
 
             const configResult = jenkins.writeToConfig(config);
             if (!configResult) {

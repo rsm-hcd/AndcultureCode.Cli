@@ -58,6 +58,9 @@ const jenkins = {
         if (configFile === null || configFile === undefined) {
             return undefined;
         }
+        if (StringUtils.isEmpty(configFile)) {
+            return BASE_CONFIG;
+        }
         return JSON.parse(configFile);
     },
     getConfigPath() {
