@@ -9,7 +9,6 @@ const {
 const echo = require("./echo");
 const fs = require("fs");
 const os = require("os");
-const path = require("path");
 const upath = require("upath");
 
 // #endregion Imports
@@ -54,7 +53,7 @@ const jenkins = {
     getConfig() {
         const configPath = this.getConfigPath();
         const configFile = fs.readFileSync(configPath);
-        if (configFile === null || configFile === undefined) {
+        if (configFile == null) {
             return undefined;
         }
         if (StringUtils.isEmpty(configFile)) {
@@ -64,7 +63,7 @@ const jenkins = {
     },
     getConfigPath() {
         const homeDir = os.homedir();
-        const configPath = upath.toUnix(path.join(homeDir, CONFIG_FILE));
+        const configPath = upath.toUnix(upath.join(homeDir, CONFIG_FILE));
         return configPath;
     },
     writeToConfig(jsonConfig) {
