@@ -170,7 +170,7 @@ require("./command-runner").run(async () => {
 
     program
         .description("Trigger a build through Jenkins remotely")
-        .option(CREATE_PROFILE_OPTION, "Profile selected to trigger")
+        .option(CREATE_PROFILE_OPTION, "Configure a profile for a jenkins job")
         .option(INIT_OPTION, "Configure Jenkins credentials")
         .option(PROFILE_OPTION, "Profile selected to trigger")
         .parse(process.argv);
