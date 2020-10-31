@@ -22,8 +22,10 @@ describe("jenkins", () => {
             const url = "";
             const username = "aaa";
             const token = "aaa";
+
             // Act
             const result = jenkins.configureCredentials(url, username, token);
+
             // Assert
             expect(result).toBeFalse();
         });
@@ -33,8 +35,10 @@ describe("jenkins", () => {
             const url = "aaa";
             const username = "";
             const token = "aaa";
+
             // Act
             const result = jenkins.configureCredentials(url, username, token);
+
             // Assert
             expect(result).toBeFalse();
         });
@@ -44,8 +48,10 @@ describe("jenkins", () => {
             const url = "aaa";
             const username = "aaa";
             const token = "";
+
             // Act
             const result = jenkins.configureCredentials(url, username, token);
+
             // Assert
             expect(result).toBeFalse();
         });
@@ -56,8 +62,10 @@ describe("jenkins", () => {
             const url = "aaa";
             const username = "aaa";
             const token = "aaa";
+
             // Act
             const result = jenkins.configureCredentials(url, username, token);
+
             // Assert
             expect(result).toBeTrue();
         });
@@ -106,6 +114,7 @@ describe("jenkins", () => {
         test("should return a string ending in .jenkinsconfig", () => {
             // Act
             const result = jenkins.getConfigPath();
+
             // Assert
             expect(result).toContain(".jenkinsconfig");
         });
@@ -122,6 +131,7 @@ describe("jenkins", () => {
             jest.spyOn(fs, "writeFileSync").mockImplementation(
                 jest.fn(() => undefined)
             );
+
             // Act
             const result = jenkins.writeToConfig({ test: "test" });
 
