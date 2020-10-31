@@ -49,8 +49,7 @@ const jenkins = {
         }
         let config = BASE_CONFIG;
         Object.assign(config, { url, username, token });
-        this.writeToConfig(config);
-        return true;
+        return this.writeToConfig(config);
     },
     getConfig() {
         const configPath = this.getConfigPath();

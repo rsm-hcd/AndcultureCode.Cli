@@ -12,8 +12,12 @@ const fs = require("fs");
 // -----------------------------------------------------------------------------------------
 
 describe("jenkins", () => {
+    // -----------------------------------------------------------------------------------------
+    // #region configureCredentials
+    // -----------------------------------------------------------------------------------------
+
     describe("configureCredentials", () => {
-        it("when url is empty then returns false", () => {
+        test("when url is empty then returns false", () => {
             // Arrange
             const url = "";
             const username = "aaa";
@@ -21,10 +25,10 @@ describe("jenkins", () => {
             // Act
             const result = jenkins.configureCredentials(url, username, token);
             // Assert
-            expect(result).toBe(false);
+            expect(result).toBeFalse();
         });
 
-        it("when username is empty then returns false", () => {
+        test("when username is empty then returns false", () => {
             // Arrange
             const url = "aaa";
             const username = "";
@@ -32,10 +36,10 @@ describe("jenkins", () => {
             // Act
             const result = jenkins.configureCredentials(url, username, token);
             // Assert
-            expect(result).toBe(false);
+            expect(result).toBeFalse();
         });
 
-        it("when token is empty then returns with errors", () => {
+        test("when token is empty then returns with errors", () => {
             // Arrange
             const url = "aaa";
             const username = "aaa";
@@ -43,10 +47,10 @@ describe("jenkins", () => {
             // Act
             const result = jenkins.configureCredentials(url, username, token);
             // Assert
-            expect(result).toBe(false);
+            expect(result).toBeFalse();
         });
 
-        it("when url, username and token provided then returns true ", () => {
+        test("when url, username and token provided then returns true ", () => {
             // Arrange
             jenkins.writeToConfig = jest.fn(() => true);
             const url = "aaa";
@@ -55,15 +59,22 @@ describe("jenkins", () => {
             // Act
             const result = jenkins.configureCredentials(url, username, token);
             // Assert
-            expect(result).toBe(true);
+            expect(result).toBeTrue();
         });
     });
 
+    // #endregion configureCredentials
+
+    // -----------------------------------------------------------------------------------------
+    // #region getConfig
+    // -----------------------------------------------------------------------------------------
+
     describe("getConfig", () => {
-        it("when config does not exist, then returns undefined", () => {
+        test("when config does not exist, then returns undefined", () => {
             // Arrange
-            jest.mock("fs");
-            fs.readFileSync = jest.fn(() => undefined);
+            jest.spyOn(fs, "readFileSync").mockImplementation(
+                jest.fn(() => undefined)
+            );
 
             // Act
             const result = jenkins.getConfig();
@@ -72,10 +83,11 @@ describe("jenkins", () => {
             expect(result).toBeUndefined();
         });
 
-        it("should return a JSON config object", () => {
+        test("should return a JSON config object", () => {
             // Arrange
-            jest.mock("fs");
-            fs.readFileSync = jest.fn(() => JSON.stringify({ value: true }));
+            jest.spyOn(fs, "readFileSync").mockImplementation(
+                jest.fn(() => JSON.stringify({ value: true }))
+            );
 
             // Act
             const result = jenkins.getConfig();
@@ -84,28 +96,40 @@ describe("jenkins", () => {
             expect(result).toBeObject();
         });
     });
+    // #endregion getConfig
+
+    // -----------------------------------------------------------------------------------------
+    // #region getConfigPath
+    // -----------------------------------------------------------------------------------------
 
     describe("getConfigPath", () => {
-        it("should return a string ending in .jenkinsconfig", () => {
+        test("should return a string ending in .jenkinsconfig", () => {
             // Act
             const result = jenkins.getConfigPath();
             // Assert
             expect(result).toContain(".jenkinsconfig");
         });
     });
+    // #endregion getConfigPath
+
+    // -----------------------------------------------------------------------------------------
+    // #region writeToConfig
+    // -----------------------------------------------------------------------------------------
 
     describe("writeToConfig", () => {
-        it("should return true", () => {
+        test("when writeFileSyncSucceeds then returns true", () => {
             // Arrange
-            jest.mock("fs");
-            fs.writeFileSync = jest.fn(() => undefined);
+            jest.spyOn(fs, "writeFileSync").mockImplementation(
+                jest.fn(() => undefined)
+            );
             // Act
             const result = jenkins.writeToConfig({ test: "test" });
 
             // Assert
-            expect(result).toBe(true);
+            expect(result).toBeTrue();
         });
     });
+    // #endregion writeToConfig
 });
 
 // #endregion Tests
