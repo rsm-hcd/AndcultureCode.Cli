@@ -4,6 +4,7 @@
 
 const jenkins = require("./jenkins");
 const fs = require("fs");
+const echo = require("./echo");
 
 // #endregion Imports
 
@@ -22,12 +23,14 @@ describe("jenkins", () => {
             const url = "";
             const username = "aaa";
             const token = "aaa";
+            const echoSpy = jest.spyOn(echo, "errors").mockResolvedValueOnce();
 
             // Act
             const result = jenkins.configureCredentials(url, username, token);
 
             // Assert
             expect(result).toBeFalse();
+            expect(echoSpy).toHaveBeenCalledTimes(1);
         });
 
         test("when username is empty then returns false", () => {
@@ -35,12 +38,14 @@ describe("jenkins", () => {
             const url = "aaa";
             const username = "";
             const token = "aaa";
+            const echoSpy = jest.spyOn(echo, "errors").mockResolvedValueOnce();
 
             // Act
             const result = jenkins.configureCredentials(url, username, token);
 
             // Assert
             expect(result).toBeFalse();
+            expect(echoSpy).toHaveBeenCalledTimes(1);
         });
 
         test("when token is empty then returns with errors", () => {
@@ -48,12 +53,14 @@ describe("jenkins", () => {
             const url = "aaa";
             const username = "aaa";
             const token = "";
+            const echoSpy = jest.spyOn(echo, "errors").mockResolvedValueOnce();
 
             // Act
             const result = jenkins.configureCredentials(url, username, token);
 
             // Assert
             expect(result).toBeFalse();
+            expect(echoSpy).toHaveBeenCalledTimes(1);
         });
 
         test("when url, username and token provided then returns true ", () => {
