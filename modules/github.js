@@ -133,6 +133,56 @@ const github = {
     },
 
     /**
+     * Retrieves list of pull requests for a repository
+     * @param {string} owner user or organization name owning the repo
+     * @param {string} repoName name of repository
+     * @param {string} state all, closed, open
+     */
+    async getPullRequests(owner, repoName, state) {
+        state = StringUtils.isEmpty(state) ? "all" : state;
+
+        try {
+            const response = await _client().pulls.list({
+                owner: owner,
+                repo: repoName,
+                state,
+            });
+            _throwIfApiError(response);
+
+            return response.data;
+        } catch (e) {
+            echo.error(
+                `Error retrieving pull requests for ${owner}/${repoName} - ${e}`
+            );
+            return null;
+        }
+    },
+
+    /**
+     * Retrieves list of reviews for a pull request
+     * @param {string} owner user or organization name owning the repo
+     * @param {string} repoName name of repository
+     * @param {number} number pull request number
+     */
+    async getPullRequestReviews(owner, repoName, number) {
+        try {
+            const response = await _client().pulls.listReviews({
+                owner: owner,
+                repo: repoName,
+                pull_number: number,
+            });
+            _throwIfApiError(response);
+
+            return response.data;
+        } catch (e) {
+            echo.error(
+                `Error retrieving reviews for ${owner}/${repoName}/pulls/${number} - ${e}`
+            );
+            return null;
+        }
+    },
+
+    /**
      * Retrieves a repository
      * @param {string} owner user or organization name owning the repo
      * @param {string} repoName short name of repository (excluding user/organization)

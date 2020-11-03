@@ -77,7 +77,57 @@ require("./command-runner").run(async () => {
 
     if (listAndcultureRepos) {
         echo.success(`${ANDCULTURE_CODE} Repositories`);
-        echo.byProperty(await github.repositoriesByAndculture(), "url");
+
+        await github.getToken(); // make all requests authenticated
+        const repos = await github.repositoriesByAndculture();
+        // echo.byProperty(repos, "url");
+
+        echo.headerSuccess("Calculating review counts...");
+        const reviewCounts = {};
+
+        await js.asyncForEach(repos, async (repo) => {
+            echo.message(` - Processing ${repo.full_name}`);
+
+            if (repo.owner.login == null) {
+                return;
+            }
+
+            const prs = await github.getPullRequests(
+                repo.owner.login,
+                repo.name,
+                "closed"
+            );
+
+            await js.asyncForEach(prs, async (pr) => {
+                const created = new Date(pr.created_at);
+                // if (created.getMonth() !== 9) { // hacktoberfest
+                //     // october
+                //     return;
+                // }
+
+                const reviews = await github.getPullRequestReviews(
+                    repo.owner.login,
+                    repo.name,
+                    pr.number
+                );
+
+                reviews.forEach((review) => {
+                    if (review.user == null) {
+                        return;
+                    }
+                    const user = review.user.login;
+
+                    if (reviewCounts[user] == null) {
+                        reviewCounts[user] = 0;
+                    }
+
+                    reviewCounts[user]++;
+                });
+            });
+        });
+
+        echo.message(JSON.stringify(reviewCounts, null, 4));
+
         return;
     }
 
