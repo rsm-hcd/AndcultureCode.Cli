@@ -101,11 +101,14 @@ require("./command-runner").run(async () => {
             config.profiles = profiles;
 
             jenkins.writeToConfig(config);
-            shell.exit(0);
         },
         async init() {
             const configPath = jenkins.getConfigPath();
             const userPrompt = prompt.getPrompt();
+
+            await userPrompt.confirmOrExit(
+                "This operation will overwrite any existing configurations. Continue?"
+            );
 
             file.deleteIfExists(configPath);
             shell.touch(configPath);

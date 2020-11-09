@@ -23,7 +23,7 @@ describe("jenkins", () => {
             const url = "";
             const username = "aaa";
             const token = "aaa";
-            const echoSpy = jest.spyOn(echo, "errors").mockResolvedValueOnce();
+            const echoSpy = jest.spyOn(echo, "errors").mockImplementation();
 
             // Act
             const result = jenkins.configureCredentials(url, username, token);
@@ -135,9 +135,7 @@ describe("jenkins", () => {
     describe("writeToConfig", () => {
         test("when writeFileSyncSucceeds then returns true", () => {
             // Arrange
-            jest.spyOn(fs, "writeFileSync").mockImplementation(
-                jest.fn(() => undefined)
-            );
+            jest.spyOn(fs, "writeFileSync").mockImplementation();
 
             // Act
             const result = jenkins.writeToConfig({ test: "test" });
