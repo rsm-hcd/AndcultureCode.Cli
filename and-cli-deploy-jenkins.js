@@ -106,7 +106,7 @@ require("./command-runner").run(async () => {
             const configPath = jenkins.getConfigPath();
             const userPrompt = prompt.getPrompt();
 
-            await userPrompt.confirmOrExit(
+            await prompt.confirmOrExit(
                 "This operation will overwrite any existing configurations. Continue?"
             );
 
