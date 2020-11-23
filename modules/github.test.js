@@ -263,6 +263,50 @@ describe("github", () => {
     //#endregion description
 
     // -----------------------------------------------------------------------------------------
+    // #region getPullRequests
+    // -----------------------------------------------------------------------------------------
+
+    describe("getPullRequests", () => {
+        test("given username does not exist, returns null", async () => {
+            // Arrange
+            const invalidUser = `AndcultureCode${faker.random.uuid()}`;
+
+            // Act & Assert
+            expect(
+                await github.getPullRequests(invalidUser, "AndcultureCode.Cli")
+            ).toBeNull();
+        });
+
+        test("given repo does not exist, returns null", async () => {
+            // Arrange
+            const invalidRepo = `AndcultureCode.Cli${faker.random.uuid()}`;
+
+            // Act & Assert
+            expect(
+                await github.getPullRequests("AndcultureCode", invalidRepo)
+            ).toBeNull();
+        });
+
+        test("given username and repo exists, returns pull requests", async () => {
+            // Arrange
+            const expectedUsername = "AndcultureCode";
+            const expectedRepo = "AndcultureCode.Cli";
+
+            // Act
+            const results = await github.getPullRequests(
+                expectedUsername,
+                expectedRepo
+            );
+
+            // Assert
+            expect(results).not.toBeNull();
+            expect(results.length).toBeGreaterThan(0);
+        });
+    });
+
+    // #endregion getPullRequests
+
+    // -----------------------------------------------------------------------------------------
     // #region getRepo
     // -----------------------------------------------------------------------------------------
 
