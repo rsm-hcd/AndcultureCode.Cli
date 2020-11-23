@@ -168,6 +168,21 @@ This command allows you to deploy to Azure Web Apps through local git deployment
     -   Optionally pass `--force` to use the `-f` flag in the git push to the remote.
     -   If not using a Service Principal, pass the account username in the `--username` argument instead of `--client-id` and `--tenant-id`, and pass the account password in the `--secret` argument.
 
+## Jenkins
+
+### Usage
+
+Trigger jenkins jobs requiring parameters remotely. Jobs requiring tags
+
+### Commands
+
+-   `and-cli deploy jenkins --init`
+    -   Initialize jenkins configuration with jenkins server url, jenkins username and api token
+-   `and-cli deploy jenkins --new`
+    -   Create a profile name for a Jenkins job to be triggered
+-   `and-cli deploy jenkins --profile PROFILE_NAME --tag VERSION`
+    -   Trigger a jenkins job remotely by providing the specified profile name and requested tag
+
 ## dotnet
 
 ### Usage
