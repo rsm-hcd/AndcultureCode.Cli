@@ -50,7 +50,7 @@ require("./command-runner").run(async () => {
                 shell.exit(1);
             }
             const config = jenkins.getConfig();
-            if (config.profiles.indexof(profile) < 0) {
+            if (config.profiles[profile] == null) {
                 echo.error(
                     "Profile not found, please check your configuration"
                 );
@@ -133,9 +133,11 @@ require("./command-runner").run(async () => {
         async run() {
             if (program.init) {
                 await this.init();
+                return;
             }
             if (program.new) {
                 await this.createProfile();
+                return;
             }
             await this.build();
         },
