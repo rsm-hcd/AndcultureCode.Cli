@@ -25,6 +25,7 @@ describe("github", () => {
     /**
      * Utility function for generating the /{owner}/repos API route
      */
+
     const getReposRoute = (owner) =>
         new RegExp(`${owner}/${github.apiRepositoriesRouteParam}`);
 
@@ -305,6 +306,59 @@ describe("github", () => {
     });
 
     // #endregion getPullRequests
+
+    // -----------------------------------------------------------------------------------------
+    // #region getPullRequestReviews
+    // -----------------------------------------------------------------------------------------
+
+    describe("getPullRequestReviews", () => {
+        test("given username does not exist, returns null", async () => {
+            // Arrange
+            const invalidUser = `AndcultureCode${faker.random.uuid()}`;
+
+            // Act & Assert
+            expect(
+                await github.getPullRequestReviews(
+                    invalidUser,
+                    "AndcultureCode.Cli",
+                    404
+                )
+            ).toBeNull();
+        });
+
+        test("given repo does not exist, returns null", async () => {
+            // Arrange
+            const invalidRepo = `AndcultureCode.Cli${faker.random.uuid()}`;
+
+            // Act & Assert
+            expect(
+                await github.getPullRequestReviews(
+                    "AndcultureCode",
+                    invalidRepo,
+                    404
+                )
+            ).toBeNull();
+        });
+
+        test("given username and repo exists, returns pull request reviews", async () => {
+            // Arrange
+            const expectedUsername = "AndcultureCode";
+            const expectedRepo = "AndcultureCode.Cli";
+
+            // Act
+            const results = await github.getPullRequestReviews(
+                expectedUsername,
+                expectedRepo,
+                1
+            );
+
+            // Assert
+            expect(results).not.toBeNull();
+            expect(results.length).toBeGreaterThan(0);
+        });
+    });
+
+    // #endregion getPullRequestReviews
 
     // -----------------------------------------------------------------------------------------
     // #region getRepo
