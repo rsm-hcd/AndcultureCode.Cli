@@ -141,6 +141,10 @@ const github = {
      * @param {string} state all, closed, open
      */
     async getPullRequests(owner, repoName, state) {
+        if (!_validateInputOrExit(owner, repoName)) {
+            return null;
+        }
+
         state = StringUtils.isEmpty(state) ? "all" : state;
 
         try {
@@ -167,6 +171,10 @@ const github = {
      * @param {number} number pull request number
      */
     async getPullRequestReviews(owner, repoName, number) {
+        if (!_validateInputOrExit(owner, repoName)) {
+            return null;
+        }
+
         try {
             const response = await _client().pulls.listReviews({
                 owner: owner,
@@ -620,6 +628,22 @@ const _updateTopicsForRepo = async (updateFunc, owner, repoName) => {
 };
 
 /**
+ * Validates standard user input
+ *
+ * @param {string} owner user or organization name owning the repo
+ * @param {string} repoName short name of repository (excluding user/organization)
+ */
+const _validateInputOrExit = (owner, repoName) => {
+    if (StringUtils.hasValue(owner) && StringUtils.hasValue(repoName)) {
+        return true;
+    }
+
+    echo.error("Owner and repository name must be provided");
+    shell.exit(1);
+    return false;
+};
+
+/**
  * Validates user input for updating topics
  *
  * @param {string} topic Topic to be updated
@@ -627,15 +651,11 @@ const _updateTopicsForRepo = async (updateFunc, owner, repoName) => {
  * @param {string} repoName short name of repository (excluding user/organization)
  */
 const _validateTopicInputOrExit = (topic, owner, repoName) => {
-    if (
-        StringUtils.hasValue(topic) &&
-        StringUtils.hasValue(owner) &&
-        StringUtils.hasValue(repoName)
-    ) {
+    if (_validateInputOrExit(owner, repoName) && StringUtils.hasValue(topic)) {
         return true;
     }
 
-    echo.error("Topic, owner, and repository name must be provided");
+    echo.error("Topic must be provided");
     shell.exit(1);
     return false;
 };
