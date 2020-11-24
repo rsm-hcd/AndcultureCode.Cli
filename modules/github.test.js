@@ -401,8 +401,8 @@ describe("github", () => {
 
         test("given username and repo exists, returns pull request reviews", async () => {
             // Arrange
-            const owner = "AndcultureCode";
-            const repoName = "AndcultureCode.Cli";
+            const owner = testUtils.randomWord();
+            const repoName = testUtils.randomWord();
             const pullNumber = random.number();
 
             const mockedReviews = [{}];
