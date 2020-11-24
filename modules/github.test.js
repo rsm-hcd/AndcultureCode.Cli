@@ -296,6 +296,11 @@ describe("github", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("getPullRequests", () => {
+        let shellExitSpy;
+        beforeEach(() => {
+            shellExitSpy = testUtils.spyOnShellExit();
+        });
+
         test.each([undefined, null, "", " "])(
             "given owner is %p, it outputs an error and calls shell.exit",
             async (owner) => {
@@ -355,6 +360,11 @@ describe("github", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("getPullRequestReviews", () => {
+        let shellExitSpy;
+        beforeEach(() => {
+            shellExitSpy = testUtils.spyOnShellExit();
+        });
+
         test.each([undefined, null, "", " "])(
             "given owner is %p, it outputs an error and calls shell.exit",
             async (owner) => {
