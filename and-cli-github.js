@@ -10,6 +10,7 @@ require("./command-runner").run(async () => {
     const echo = require("./modules/echo");
     const github = require("./modules/github");
     const js = require("./modules/js");
+    const _ = require("lodash");
     const program = require("commander");
 
     // #endregion Imports
@@ -32,6 +33,10 @@ require("./command-runner").run(async () => {
         .option(
             "--add-topic <topic>",
             `Add topic to specified repository, or all ${ANDCULTURE_CODE} repositories if no repo provided`
+        )
+        .option(
+            "--auth",
+            "Authenticate any github API requests. Can help avoid API limits"
         )
         .option("--list-repos", "Lists all andculture repos")
         .option(
@@ -75,59 +80,13 @@ require("./command-runner").run(async () => {
         StringUtils.hasValue(program.removeTopic) &&
         StringUtils.hasValue(program.repo);
 
+    if (program.auth != null) {
+        await github.getToken();
+    }
+
     if (listAndcultureRepos) {
         echo.success(`${ANDCULTURE_CODE} Repositories`);
-
-        await github.getToken(); // make all requests authenticated
-        const repos = await github.repositoriesByAndculture();
-        // echo.byProperty(repos, "url");
-
-        echo.headerSuccess("Calculating review counts...");
-        const reviewCounts = {};
-
-        await js.asyncForEach(repos, async (repo) => {
-            echo.message(` - Processing ${repo.full_name}`);
-
-            if (repo.owner.login == null) {
-                return;
-            }
-
-            const prs = await github.getPullRequests(
-                repo.owner.login,
-                repo.name,
-                "closed"
-            );
-
-            await js.asyncForEach(prs, async (pr) => {
-                const created = new Date(pr.created_at);
-                // if (created.getMonth() !== 9) { // hacktoberfest
-                //     // october
-                //     return;
-                // }
-
-                const reviews = await github.getPullRequestReviews(
-                    repo.owner.login,
-                    repo.name,
-                    pr.number
-                );
-
-                reviews.forEach((review) => {
-                    if (review.user == null) {
-                        return;
-                    }
-                    const user = review.user.login;
-
-                    if (reviewCounts[user] == null) {
-                        reviewCounts[user] = 0;
-                    }
-
-                    reviewCounts[user]++;
-                });
-            });
-        });
-
-        echo.message(JSON.stringify(reviewCounts, null, 4));
-
+        echo.byProperty(await github.repositoriesByAndculture(), "url");
         return;
     }
 

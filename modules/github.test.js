@@ -25,7 +25,6 @@ describe("github", () => {
     /**
      * Utility function for generating the /{owner}/repos API route
      */
-
     const getReposRoute = (owner) =>
         new RegExp(`${owner}/${github.apiRepositoriesRouteParam}`);
 
