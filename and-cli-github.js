@@ -10,7 +10,6 @@ require("./command-runner").run(async () => {
     const echo = require("./modules/echo");
     const github = require("./modules/github");
     const js = require("./modules/js");
-    const _ = require("lodash");
     const program = require("commander");
 
     // #endregion Imports
