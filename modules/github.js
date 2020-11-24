@@ -48,7 +48,9 @@ const github = {
     // -----------------------------------------------------------------------------------------
 
     andcultureOrg: ANDCULTURE_CODE,
+    apiPullsRouteParam: "pulls",
     apiRepositoriesRouteParam: "repos",
+    apiReviewsRouteParam: "reviews",
     apiRootUrl: `https://${API_DOMAIN}`,
     apiTopicsRouteParam: "topics",
     configAuthConfigPath: upath.join(os.homedir(), ".netrc"), // Path to octokit-auth-netrc configuration

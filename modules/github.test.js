@@ -10,6 +10,7 @@ const github = require("./github");
 const nock = require("nock");
 const testUtils = require("../tests/test-utils");
 const userPrompt = require("./user-prompt");
+const { random } = require("faker");
 
 // #endregion Imports
 
@@ -21,6 +22,34 @@ describe("github", () => {
     // -----------------------------------------------------------------------------------------
     // #region Setup
     // -----------------------------------------------------------------------------------------
+
+    /**
+     * Utility function for generating the /repos/{owner}/{repoName}/pulls API route
+     */
+    const getRepoPullRequestsRoute = (owner, repoName) =>
+        new RegExp(
+            [
+                github.apiRepositoriesRouteParam,
+                owner,
+                repoName,
+                github.apiPullsRouteParam,
+            ].join("/")
+        );
+
+    /**
+     * Utility function for generating the /repos/{owner}/{repoName}/pulls/{pull_number}/reviews API route
+     */
+    const getRepoPullRequestReviewsRoute = (owner, repoName, pullNumber) =>
+        new RegExp(
+            [
+                github.apiRepositoriesRouteParam,
+                owner,
+                repoName,
+                github.apiPullsRouteParam,
+                pullNumber,
+                github.apiReviewsRouteParam,
+            ].join("/")
+        );
 
     /**
      * Utility function for generating the /{owner}/repos API route
@@ -267,36 +296,51 @@ describe("github", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("getPullRequests", () => {
-        test("given username does not exist, returns null", async () => {
-            // Arrange
-            const invalidUser = `AndcultureCode${faker.random.uuid()}`;
+        test.each([undefined, null, "", " "])(
+            "given owner is %p, it outputs an error and calls shell.exit",
+            async (owner) => {
+                // Arrange
+                const repoName = testUtils.randomWord();
+                const echoErrorSpy = jest.spyOn(echo, "error");
 
-            // Act & Assert
-            expect(
-                await github.getPullRequests(invalidUser, "AndcultureCode.Cli")
-            ).toBeNull();
-        });
+                // Act
+                await github.getPullRequests(owner, repoName);
 
-        test("given repo does not exist, returns null", async () => {
-            // Arrange
-            const invalidRepo = `AndcultureCode.Cli${faker.random.uuid()}`;
+                // Assert
+                expect(echoErrorSpy).toHaveBeenCalled();
+                expect(shellExitSpy).toHaveBeenCalled();
+            }
+        );
 
-            // Act & Assert
-            expect(
-                await github.getPullRequests("AndcultureCode", invalidRepo)
-            ).toBeNull();
-        });
+        test.each([undefined, null, "", " "])(
+            "given repoName is %p, it outputs an error and calls shell.exit",
+            async (repoName) => {
+                // Arrange
+                const owner = testUtils.randomWord();
+                const echoErrorSpy = jest.spyOn(echo, "error");
+
+                // Act
+                await github.getPullRequests(owner, repoName);
+
+                // Assert
+                expect(echoErrorSpy).toHaveBeenCalled();
+                expect(shellExitSpy).toHaveBeenCalled();
+            }
+        );
 
         test("given username and repo exists, returns pull requests", async () => {
             // Arrange
-            const expectedUsername = "AndcultureCode";
-            const expectedRepo = "AndcultureCode.Cli";
+            const owner = "AndcultureCode";
+            const repoName = "AndcultureCode.Cli";
+
+            const mockedPullRequests = [{ id: random.number() }];
+
+            nock(github.apiRootUrl)
+                .get(getRepoPullRequestsRoute(owner, repoName))
+                .reply(200, mockedPullRequests);
 
             // Act
-            const results = await github.getPullRequests(
-                expectedUsername,
-                expectedRepo
-            );
+            const results = await github.getPullRequests(owner, repoName);
 
             // Assert
             expect(results).not.toBeNull();
@@ -311,44 +355,59 @@ describe("github", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("getPullRequestReviews", () => {
-        test("given username does not exist, returns null", async () => {
-            // Arrange
-            const invalidUser = `AndcultureCode${faker.random.uuid()}`;
+        test.each([undefined, null, "", " "])(
+            "given owner is %p, it outputs an error and calls shell.exit",
+            async (owner) => {
+                // Arrange
+                const repoName = testUtils.randomWord();
+                const echoErrorSpy = jest.spyOn(echo, "error");
+                const pullNumber = random.number();
 
-            // Act & Assert
-            expect(
-                await github.getPullRequestReviews(
-                    invalidUser,
-                    "AndcultureCode.Cli",
-                    404
-                )
-            ).toBeNull();
-        });
+                // Act
+                await github.getPullRequestReviews(owner, repoName, pullNumber);
 
-        test("given repo does not exist, returns null", async () => {
-            // Arrange
-            const invalidRepo = `AndcultureCode.Cli${faker.random.uuid()}`;
+                // Assert
+                expect(echoErrorSpy).toHaveBeenCalled();
+                expect(shellExitSpy).toHaveBeenCalled();
+            }
+        );
 
-            // Act & Assert
-            expect(
-                await github.getPullRequestReviews(
-                    "AndcultureCode",
-                    invalidRepo,
-                    404
-                )
-            ).toBeNull();
-        });
+        test.each([undefined, null, "", " "])(
+            "given repoName is %p, it outputs an error and calls shell.exit",
+            async (repoName) => {
+                // Arrange
+                const owner = testUtils.randomWord();
+                const echoErrorSpy = jest.spyOn(echo, "error");
+                const pullNumber = random.number();
+
+                // Act
+                await github.getPullRequestReviews(owner, repoName, pullNumber);
+
+                // Assert
+                expect(echoErrorSpy).toHaveBeenCalled();
+                expect(shellExitSpy).toHaveBeenCalled();
+            }
+        );
 
         test("given username and repo exists, returns pull request reviews", async () => {
             // Arrange
-            const expectedUsername = "AndcultureCode";
-            const expectedRepo = "AndcultureCode.Cli";
+            const owner = "AndcultureCode";
+            const repoName = "AndcultureCode.Cli";
+            const pullNumber = random.number();
+
+            const mockedReviews = [{}];
+
+            nock(github.apiRootUrl)
+                .get(
+                    getRepoPullRequestReviewsRoute(owner, repoName, pullNumber)
+                )
+                .reply(200, mockedReviews);
 
             // Act
             const results = await github.getPullRequestReviews(
-                expectedUsername,
-                expectedRepo,
-                1
+                owner,
+                repoName,
+                pullNumber
             );
 
             // Assert
