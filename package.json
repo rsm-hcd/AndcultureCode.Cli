@@ -60,7 +60,7 @@
         "clean": "echo Removing coverage, dist and leftover tmp directories && rimraf coverage && rimraf dist && rimraf tmp*",
         "configure:git": "echo Ensuring git hooksPath is set to .githooks directory && git config core.hooksPath .githooks && chmod +x .githooks/*",
         "format": "prettier --write \"src/**/*.ts\" --trailing-comma es5",
-        "postbuild": "echo Ensuring dist folder is executable and contains package.json && chmod +x dist/* && cp package.json dist",
+        "postbuild": "echo Ensuring dist folder is executable && chmod +x dist/*",
         "postpublish": "cross-env-shell \"git add -A && git commit -m \"$npm_package_version\" && git push origin main\"",
         "prebuild": "npm run clean && npm run format && echo Using TypeScript && tsc --version",
         "prepublishOnly": "npm run build",
