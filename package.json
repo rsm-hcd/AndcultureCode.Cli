@@ -1,7 +1,7 @@
 {
     "author": "andculture <developer+code@andculture.com> (http://andculture.com)",
     "bin": {
-        "and-cli": "and-cli.js"
+        "and-cli": "dist/and-cli.js"
     },
     "dependencies": {
         "@octokit/rest": "18.0.0",
@@ -19,38 +19,57 @@
     },
     "description": "and-cli command-line tool to manage the development of software applications",
     "devDependencies": {
-        "@types/jest": "26.0.10",
+        "@types/archiver": "3.1.1",
+        "@types/concat-stream": "1.6.0",
+        "@types/faker": "4.1.7",
+        "@types/find-package-json": "1.1.1",
+        "@types/jest": "25.2.3",
+        "@types/shelljs": "0.8.8",
+        "andculturecode-javascript-testing": "0.0.5",
         "concat-stream": "2.0.0",
         "cross-env": "6.0.3",
         "faker": "4.1.0",
-        "jest": "25.3.0",
+        "jest": "25.5.4",
         "jest-extended": "0.11.5",
         "nock": "12.0.3",
         "prettier": "1.19.1",
         "pryjs": "1.0.3",
-        "rimraf": "3.0.2"
+        "rimraf": "3.0.2",
+        "ts-jest": "26.4.1",
+        "typescript": "4.0.3"
     },
     "engines": {
         "node": ">=8.0.0"
     },
+    "files": [
+        "dist"
+    ],
     "homepage": "https://github.com/AndcultureCode/AndcultureCode.Cli#readme",
     "keywords": [
         "cli"
     ],
     "license": "Apache-2.0",
-    "main": "and-cli.js",
+    "main": "dist/index.js",
     "name": "and-cli",
     "repository": {
         "type": "git",
         "url": "git@github.com:AndcultureCode/AndcultureCode.Cli.git"
     },
     "scripts": {
-        "clean": "echo Removing leftover tmp directories && rimraf tmp*",
+        "build": "tsc --pretty",
+        "clean": "echo Removing coverage, dist and leftover tmp directories && rimraf coverage && rimraf dist && rimraf tmp*",
         "configure:git": "echo Ensuring git hooksPath is set to .githooks directory && git config core.hooksPath .githooks && chmod +x .githooks/*",
+        "format": "prettier --write \"src/**/*.ts\" --trailing-comma es5",
+        "postbuild": "echo Ensuring dist folder is executable and contains package.json && chmod +x dist/* && cp package.json dist",
         "postpublish": "cross-env-shell \"git add -A && git commit -m \"$npm_package_version\" && git push origin main\"",
+        "prebuild": "npm run clean && npm run format && echo Using TypeScript && tsc --version",
+        "prepublishOnly": "npm run build",
+        "pretest": "npm run clean && npm run build",
+        "pretest:integration": "npm run clean && npm run build",
         "test": "jest",
-        "test:unit": "jest \"^((?!and-cli).)*$\"",
-        "test:integration": "jest --runInBand \"(and-cli)(.)*(.test.js)\"",
+        "test:integration": "jest \"(and-cli)(.)*(.test.ts)\"",
+        "test:unit": "jest \"^((?!and-cli).)*.ts$\"",
+        "watch": "tsc --watch",
         "watch:test": "jest --watch"
     },
     "version": "1.6.2"
