@@ -387,11 +387,12 @@ const _getAliasCommandDefinitions = (): CommandDefinition[] => {
 const _getExecutablePath = (commandName: string): string => {
     const filename = `${Constants.CLI_NAME}-${commandName}.js`;
     if (_isImportedModule != null && _isImportedModule) {
-        // Returns './node_modules/and-cli/and-cli-dotnet.js, for example
+        // Returns './node_modules/and-cli/dist/and-cli-dotnet.js', for example
         return upath.join(
             ".",
             Constants.NODE_MODULES,
             Constants.CLI_NAME,
+            Constants.DIST,
             filename
         );
     }
