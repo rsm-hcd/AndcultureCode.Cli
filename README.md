@@ -11,7 +11,7 @@
 From the root of the cloned or forked repository, run this command:
 
 ```
-npm install && ./and-cli.js install
+npm install && npm run build && ./dist/and-cli.js install
 ```
 
 What this does:
@@ -46,33 +46,30 @@ The documentation for `and-cli` commands can be found in [COMMANDS.md](./COMMAND
 
 ```
 .
-├── __mocks__/                              # Mocked module implementations for Jest
-│   ...
-│   └── shelljs.js
-├── modules/                                # Modules are shared functions holding business logic to be imported & called by commands
-│   ...
-│   ├── command-registry.js                 # Module holding abstractions around command registration (internal & external)
-│   ├── command-registry.test.js            # Unit test file for the command-registry module
-│   ├── commands.js                         # Module exporting names & descriptions of each command to be registered for the CLI
-|   ...
-│   └── zip.js
-├── tests/                                  # Setup, utilities and shared specs for the test suite
-|   ...
-│   └── test-utils.js
-├── types/                                  # Custom types found in the project. Not currently on TS, but this will ease the migration
-|   ...
-│   └── option-string-type.js
-├── utilities/                              # Utility functions that aren't really categorized as a standard 'module'
-|   ...
-|   ├── option-string-factory.js            # Factory for building out option strings to be passed to `program.option`, ie `-i, --info`
-|   └── option-string-factory.test.js       # Unit tests file for the option-string-factory utility
-├── and-cli.js                              # Main entrypoint/parent command that registers subcommands
-├── and-cli-copy.js                         # Implementation of the 'copy' command
-├── and-cli-copy.test.js                    # Integration test file for the 'copy' command
-| ...
-├── and-cli.test.js                         # Integration test file for the main entrypoint/parent command
-├── COMMANDS.md                             # Markdown file containing extra documentation for each command
-├── command-runner.js                       # Utility module for wrapping command body functions in to mimic top-level async
+├── src/
+|  ├── modules/                                # Modules are shared functions holding business logic to be imported & called by commands
+|  │   ...
+|  │   ├── command-registry.ts                 # Module holding abstractions around command registration (internal & external)
+|  │   ├── command-registry.test.ts            # Unit test file for the command-registry module
+|  │   ├── commands.ts                         # Module exporting names & descriptions of each command to be registered for the CLI
+|  |   ...
+|  │   └── zip.ts
+|  ├── tests/                                  # Setup, utilities and shared specs for the test suite
+|  |   ...
+|  │   └── test-utils.ts
+|  ├── types/                                  # Custom types found in the project.
+|  │   └── command-definition-type.ts
+|  ├── utilities/                              # Utility functions that aren't really categorized as a standard 'module'
+|  |   ...
+|  |   ├── option-string-builder.ts            # Builder for constructing option strings to be passed to `program.option`, ie `-i, --info`
+|  |   └── option-string-builder.test.ts       # Unit tests file for the option-string-builder utility
+|  ├── and-cli.ts                              # Main entrypoint/parent command that registers subcommands
+|  ├── and-cli-copy.ts                         # Implementation of the 'copy' command
+|  ├── and-cli-copy.test.ts                    # Integration test file for the 'copy' command
+|  | ...
+|  ├── and-cli.test.ts                         # Integration test file for the main entrypoint/parent command
+|  └── index.ts                                # Index file that exports all modules, types, utilities, etc. for consumer usage
+├── COMMANDS.md                                # Markdown file containing extra documentation for each command
 ├── package.json
 └── package-lock.json
 
