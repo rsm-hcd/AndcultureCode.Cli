@@ -547,11 +547,12 @@ describe("CommandRegistry", () => {
                     const { command, description } = faker.random.arrayElement(
                         CommandDefinitions
                     );
-                    // The expected file path should point to ./node_modules/and-cli/and-cli-{commandName}.js
+                    // The expected file path should point to the transpiled JS in the node_modules folder
                     const expectedFilePath = upath.join(
                         ".",
                         Constants.NODE_MODULES,
                         Constants.CLI_NAME,
+                        Constants.DIST,
                         `${Constants.CLI_NAME}-${command}.js`
                     );
                     CommandRegistry.initialize(true); // This is the important setup
