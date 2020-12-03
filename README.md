@@ -20,7 +20,7 @@ What this does:
 1. Installs dependencies and runs a TypeScript build of the project
 1. Installs a global version of the npm package
 1. Creates an alias `and-cli` for the installed version of the npm package in your project, which defaults to globally installed package if not installed for project
-1. Creates an alias `and-cli-dev` for the running the cli while developing for it, via the directory in which you cloned or forked the repository
+1. Creates an alias `and-cli-dev` for running the cli while developing for it, via the directory in which you cloned or forked the repository
 
 To install `and-cli` only for the current project, run this in its root directory:
 
