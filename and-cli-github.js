@@ -33,6 +33,10 @@ require("./command-runner").run(async () => {
             "--add-topic <topic>",
             `Add topic to specified repository, or all ${ANDCULTURE_CODE} repositories if no repo provided`
         )
+        .option(
+            "--auth",
+            "Authenticate any github API requests. Can help avoid API limits"
+        )
         .option("--list-repos", "Lists all andculture repos")
         .option(
             "--list-topics",
@@ -74,6 +78,10 @@ require("./command-runner").run(async () => {
     const removeTopicFromRepo =
         StringUtils.hasValue(program.removeTopic) &&
         StringUtils.hasValue(program.repo);
+
+    if (program.auth != null) {
+        await github.getToken();
+    }
 
     if (listAndcultureRepos) {
         echo.success(`${ANDCULTURE_CODE} Repositories`);
