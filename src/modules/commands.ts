@@ -39,6 +39,11 @@ const Commands: Record<string, CommandDefinition> = {
         command: "nuget",
         description: "Manages publishing of nuget dotnet core projects",
     },
+    restore: {
+        command: "restore",
+        description:
+            "Restores application data assets for various application types",
+    },
     webpack: {
         command: "webpack",
         description: "Run various webpack commands for the project",
