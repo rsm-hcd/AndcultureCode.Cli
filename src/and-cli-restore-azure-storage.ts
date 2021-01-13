@@ -1,30 +1,24 @@
 #!/usr/bin/env node
 
 import { CommandRunner } from "./modules/command-runner";
-import { DeployConfig } from "./modules/deploy-config";
 import { Echo } from "./modules/echo";
-import { FrontendPath } from "./modules/frontend-path";
-import { WebpackPublish } from "./modules/webpack-publish";
 import program from "commander";
 import shell from "shelljs";
-import { Azure } from "./modules/azure";
-import { AzureStorageRemove } from "./modules/azure-storage-remove";
+import { AzureAzcopySync } from "./modules/azure-azcopy-sync";
 
 CommandRunner.run(async () => {
     // -----------------------------------------------------------------------------------------
     // #region Variables
     // -----------------------------------------------------------------------------------------
 
-    let clientId: string;
+    let deleteDestination: boolean = false;
+    let destinationAccount: string;
     let destinationContainer: string;
-    let preclearDestinationAssets: boolean = false;
-    const pythonInstallerUrl: string =
-        "https://www.python.org/ftp/python/3.7.4/python-3.7.4-amd64.exe";
+    let destinationSasToken: string;
     let recursive: boolean = false;
-    let secret: string;
+    let sourceAccount: string;
     let sourceContainer: string;
-    let tenantId: string;
-    let username: string;
+    let sourceSasToken: string;
 
     // #endregion Variables
 
@@ -40,69 +34,44 @@ CommandRunner.run(async () => {
             // Check system/command requirements
             this.validateOrExit();
 
-            // Configure .env.local to set public url before publish
-            if (program.publicUrl) {
-                DeployConfig.configurePublicUrl(program.publicUrl);
-            }
+            /*
+                Following options currently only support syncing utilizing Azure SAS Tokens.
+                Consider future refactor to allow this restore aspect to first generate a SAS
+                Token using a different means of authentication (service provider, active
+                directory, etc...).  Consider using AZ login and a service provider to then
+                generate a SAS before passing that SAS Token into the Azcopy module later instead
+                of forcing the consumer to define a hard coded value or force the consumer to
+                generate one on its own cadence.
+            */
+            const options = {
+                deleteDestination: deleteDestination,
+                destination: {
+                    account: destinationAccount,
+                    container: destinationContainer,
+                    sasToken: destinationSasToken,
+                },
+                recursive: recursive,
+                source: {
+                    account: sourceAccount,
+                    container: sourceContainer,
+                    sasToken: sourceSasToken,
+                },
+            };
 
-            // Locally publish frontend via webpack
-            if (program.publish && program.webpack) {
-                const publishResult = WebpackPublish.run();
-                if (!publishResult) {
-                    shell.exit(1);
-                }
-            }
-
-            // Login to Azure
-            if (username != null) {
-                Azure.login(username, secret);
-            } else {
-                Azure.login(clientId, tenantId, secret);
-            }
-
-            //
-            if (preclearDestinationAssets) {
-                AzureStorageRemove.allContainerBlobsRecursively(
-                    destinationContainer
-                );
-            }
-            // // Deploy build artifacts to Azure Storage
-            // Echo.message("Copying local build artifacts to Azure Storage...");
-            // Echo.message(` - Source path: ${sourcePath}`);
-            // Echo.message(` - Destination path: ${destination}`);
-
-            // const copyCommand = this.cmd();
-            // Echo.message(` - Command: ${copyCommand}`);
-            // if (shell.exec(copyCommand, { silent: false }).code !== 0) {
-            //     Echo.error(" - Failed to deploy to Azure Storage");
-            //     Azure.logout();
-            //     shell.exit(1);
-            // }
-
-            // Logout from Azure
-            Azure.logout();
+            AzureAzcopySync.containers(options);
 
             Echo.newLine();
-            Echo.success("Application successfully deployed to Azure Storage!");
+            Echo.success(
+                "Containers successfully synced in Azure Blob Storage!"
+            );
         },
         validateOrExit() {
             const errors = [];
 
             // Validate arguments
-            preclearDestinationAssets = program.preclearDestinationAssets;
-
-            const missingServicePrincipalArgs =
-                clientId == null || tenantId == null;
-
-            if (username == null && missingServicePrincipalArgs) {
-                errors.push(
-                    "when --client-id or --tenant-id not provided, --username is required"
-                );
-            }
-
-            secret = program.secret;
-            if (secret == null) {
-                errors.push("--secret is required");
+            destinationAccount = program.destinationAccount;
+            if (destinationAccount == null) {
+                errors.push("--destination-account is required");
             }
 
             destinationContainer = program.destinationContainer;
@@ -110,40 +79,27 @@ CommandRunner.run(async () => {
                 errors.push("--destination-container is required");
             }
 
-            if (program.recursive != null) {
-                recursive = program.recursive;
+            destinationSasToken = program.destinationSasToken;
+            if (destinationContainer == "" || destinationContainer == null) {
+                errors.push("--destination-sas-token is required");
+            }
+
+            sourceAccount = program.sourceAccount;
+            if (sourceAccount == null) {
+                errors.push("--source-account is required");
             }
 
             sourceContainer = program.sourceContainer;
-            if (program.sourceContainer == null) {
+            if (sourceContainer == null) {
                 errors.push("--source-container is required");
             }
 
+            sourceSasToken = program.sourceSasToken;
+            if (sourceContainer == "" || sourceContainer == null) {
+                errors.push("--source-sas-token is required");
+            }
+
             // Bail if up-front arguments are errored
-            if (errors.length > 0) {
-                Echo.errors(errors);
-                shell.exit(1);
-            }
-
-            if (!shell.which("az")) {
-                Echo.message(
-                    "Azure CLI not found. Attempting install via PIP..."
-                );
-
-                if (!shell.which("pip")) {
-                    Echo.error(`PIP is required - ${pythonInstallerUrl}`);
-                    shell.exit(1);
-                }
-
-                if (shell.exec("pip install azure-cli").code !== 0) {
-                    Echo.error("Failed to install azure cli via pip");
-                    shell.exit(1);
-                }
-
-                Echo.success(" - Successfully installed Azure CLI");
-            }
-
-            // Handle errors
             if (errors.length > 0) {
                 Echo.errors(errors);
                 shell.exit(1);
@@ -163,29 +119,36 @@ CommandRunner.run(async () => {
         .usage("option")
         .description(restoreAzureStorage.description())
         .option(
-            "--client-id <clientID>",
-            "Required Client ID (if deploying using Service Principal)"
+            "--deleteDestination",
+            "Optional flag to delete any blogs and folders from the destination that don't exist in the source"
+        )
+        .option(
+            "--destination-account <desctinationAccount>",
+            "Required name of destination blob storage account"
         )
         .option(
             "--destination-container <destinationContainer>",
-            "Required name of container where assets will be restored to"
+            "Required name of destination container where assets will be restored to"
         )
-        .option("--recursive", "Optional flag to recursively restore a folder")
         .option(
-            "--secret <profile>",
-            "Required secret for login -- either client secret for service principal or account password"
+            "--destination-sas-token <destinationSasToken>",
+            "Required SAS Token for access to the provided destination account/container"
+        )
+        .option(
+            "--recursive",
+            "Optional flag to recursively restore the contents of the container"
+        )
+        .option(
+            "--source-account <desctinationAccount>",
+            "Required name of source blob storage account"
         )
         .option(
             "--source-container <sourceContainer>",
-            `Required name of container where assets will be copied from`
+            "Required name of source container where assets will be restored to"
         )
         .option(
-            "--tenant-id <tenantID>",
-            "Required Tenant ID (if deploying using Service Principal)"
-        )
-        .option(
-            "--username <username>",
-            "Required Azure username (if deploying using Azure credentials)"
+            "--source-sas-token <sourceSasToken>",
+            "Required SAS Token for access to the provided source account/container"
         )
         .parse(process.argv);
 
