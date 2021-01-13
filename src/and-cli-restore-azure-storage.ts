@@ -68,6 +68,13 @@ CommandRunner.run(async () => {
         validateOrExit() {
             const errors = [];
 
+            if (program.deleteDestination != null) {
+                deleteDestination = program.deleteDestination;
+            }
+            if (program.recursive != null) {
+                recursive = program.recursive;
+            }
+
             // Validate arguments
             destinationAccount = program.destinationAccount;
             if (destinationAccount == null) {
@@ -119,11 +126,11 @@ CommandRunner.run(async () => {
         .usage("option")
         .description(restoreAzureStorage.description())
         .option(
-            "--deleteDestination",
+            "--delete-destination <deleteDestination>",
             "Optional flag to delete any blogs and folders from the destination that don't exist in the source"
         )
         .option(
-            "--destination-account <desctinationAccount>",
+            "--destination-account <destinationAccount>",
             "Required name of destination blob storage account"
         )
         .option(
@@ -135,7 +142,7 @@ CommandRunner.run(async () => {
             "Required SAS Token for access to the provided destination account/container"
         )
         .option(
-            "--recursive",
+            "--recursive <recursive>",
             "Optional flag to recursively restore the contents of the container"
         )
         .option(

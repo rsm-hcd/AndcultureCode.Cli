@@ -46,7 +46,9 @@ const _execute = (command: string, errorMessage: string) => {
 };
 
 const _getBlobStorageUrl = (urlParts: BlobStorageUrlParts) => {
-    return `https://${urlParts.account}.blob.core.windows.net/${urlParts.container}/}${urlParts.path}${urlParts.sasToken}`;
+    const path = urlParts.path ?? "";
+    const sasToken = urlParts.sasToken ?? "";
+    return `"https://${urlParts.account}.blob.core.windows.net/${urlParts.container}/${path}${sasToken}"`;
 };
 
 const _getDeleteDestination = (deleteDestination: boolean) => {
@@ -63,10 +65,12 @@ const _sync = (
     errorMessage: string,
     flags: string[]
 ) => {
-    _execute(
-        `${AZCOPY_COMMAND} ${source} ${destination} ${flags.join(" ")}`,
-        errorMessage
-    );
+    const command = `${AZCOPY_COMMAND} ${source} ${destination} ${flags.join(
+        " "
+    )}`;
+    Echo.success(`processing command ${command}`);
+
+    _execute(command, errorMessage);
 };
 
 const AzureAzcopySync = {
