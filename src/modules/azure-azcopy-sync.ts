@@ -1,5 +1,7 @@
 import { Echo } from "./echo";
 import shell from "shelljs";
+import { CommandStringBuilder } from "../utilities/command-string-builder";
+import child_process from "child_process";
 
 // -----------------------------------------------------------------------------------------
 // #region Constants
@@ -38,11 +40,18 @@ interface SyncContainerOptions {
 // #region Functions
 // -----------------------------------------------------------------------------------------
 
-const _execute = (command: string, errorMessage: string) => {
-    if (shell.exec(command, { silent: false }).code !== 0) {
-        Echo.error(errorMessage);
-        shell.exit(1);
-    }
+const _getCommandStringBuilder = (
+    source: string,
+    destination: string,
+    flags: string[]
+): CommandStringBuilder => {
+    return new CommandStringBuilder(
+        "azcopy",
+        "sync",
+        source,
+        destination,
+        ...flags
+    );
 };
 
 const _getBlobStorageUrl = (urlParts: BlobStorageUrlParts) => {
@@ -62,15 +71,21 @@ const _getRecursiveFlag = (recursive: boolean) => {
 const _sync = (
     source: string,
     destination: string,
-    errorMessage: string,
+    action: string,
     flags: string[]
 ) => {
-    const command = `${AZCOPY_COMMAND} ${source} ${destination} ${flags.join(
-        " "
-    )}`;
-    Echo.success(`processing command ${command}`);
+    const { cmd, args } = _getCommandStringBuilder(source, destination, flags);
 
-    _execute(command, errorMessage);
+    Echo.message(`Starting the action of ${action}`);
+    const { status } = child_process.spawnSync(cmd, args, {
+        stdio: "inherit",
+        shell: true,
+    });
+    if (status != null && status !== 0) {
+        Echo.error(`Failed when performing the action of ${action}`);
+        shell.exit(status);
+    }
+    Echo.success(`Succeeded when performing the action of ${action}`);
 };
 
 const AzureAzcopySync = {
@@ -82,8 +97,8 @@ const AzureAzcopySync = {
     localFile(options: SyncLocalFileOptions) {
         const destination = _getBlobStorageUrl(options.destination);
         const flags = [_getRecursiveFlag(false)];
-        const errorMessage = `Failed to sync blob from ${options.localFilePath} to ${destination}`;
-        _sync(options.localFilePath, destination, errorMessage, flags);
+        const action = `syncing blob from local file path of ${options.localFilePath} to blob storage URL of ${destination}`;
+        _sync(options.localFilePath, destination, action, flags);
     },
 
     /**
@@ -98,8 +113,8 @@ const AzureAzcopySync = {
             _getRecursiveFlag(options.recursive),
             _getDeleteDestination(options.deleteDestination),
         ];
-        const errorMessage = `Failed to sync blobs from ${source} to ${destination}`;
-        _sync(source, destination, errorMessage, flags);
+        const action = `syncing blobs from blob storage URL of ${source} to blob storage URL of ${destination}`;
+        _sync(source, destination, action, flags);
     },
 };
 
@@ -109,6 +124,11 @@ const AzureAzcopySync = {
 // #region Exports
 // -----------------------------------------------------------------------------------------
 
-export { AzureAzcopySync };
+export {
+    AzureAzcopySync,
+    BlobStorageUrlParts,
+    SyncLocalFileOptions,
+    SyncContainerOptions,
+};
 
 // #endregion Exports
