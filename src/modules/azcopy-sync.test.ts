@@ -46,16 +46,15 @@ describe("AzcopySync", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("localFile", () => {
-        let expectedCommandArgs: string[];
+        const getExpectedCommandArgs = () => [
+            "sync",
+            "c:/something/awesome/text.txt",
+            '"https://test_account.blob.core.windows.net/test_container/test_path?test_sas_token=test"',
+            "--recursive=false",
+        ];
         let localFileOptions: SyncLocalFileOptions;
 
         beforeEach(() => {
-            expectedCommandArgs = [
-                "sync",
-                "c:/something/awesome/text.txt",
-                '"https://test_account.blob.core.windows.net/test_container/test_path?test_sas_token=test"',
-                "--recursive=false",
-            ];
             localFileOptions = {
                 destination: {
                     account: "test_account",
@@ -70,6 +69,7 @@ describe("AzcopySync", () => {
         test("when localFilePath provided then used as the source path argument", () => {
             // Arrange
             localFileOptions.localFilePath = "c:/some/other/directory";
+            const expectedCommandArgs = getExpectedCommandArgs();
             expectedCommandArgs[1] = localFileOptions.localFilePath;
 
             // Act
@@ -86,6 +86,7 @@ describe("AzcopySync", () => {
         test("when destination.account provided then used in the destination URL argument", () => {
             // Arrange
             localFileOptions.destination.account = "other_test_account";
+            const expectedCommandArgs = getExpectedCommandArgs();
             expectedCommandArgs[2] = _getBlobStorageUrl(
                 localFileOptions.destination
             );
@@ -104,6 +105,7 @@ describe("AzcopySync", () => {
         test("when destination.container provided then used in the destination URL argument", () => {
             // Arrange
             localFileOptions.destination.container = "other_test_container";
+            const expectedCommandArgs = getExpectedCommandArgs();
             expectedCommandArgs[2] = _getBlobStorageUrl(
                 localFileOptions.destination
             );
@@ -122,6 +124,7 @@ describe("AzcopySync", () => {
         test("when destination.path provided then used in the destination URL argument", () => {
             // Arrange
             localFileOptions.destination.path = "other_test_account";
+            const expectedCommandArgs = getExpectedCommandArgs();
             expectedCommandArgs[2] = _getBlobStorageUrl(
                 localFileOptions.destination
             );
@@ -140,6 +143,7 @@ describe("AzcopySync", () => {
         test("when destination.path not provided then not used in the destination URL argument", () => {
             // Arrange
             delete localFileOptions.destination.path;
+            const expectedCommandArgs = getExpectedCommandArgs();
             expectedCommandArgs[2] = _getBlobStorageUrl(
                 localFileOptions.destination
             );
@@ -158,6 +162,7 @@ describe("AzcopySync", () => {
         test("when destination.sasToken provided then used in the destination URL argument", () => {
             // Arrange
             localFileOptions.destination.sasToken = "other_test_sas_token";
+            const expectedCommandArgs = getExpectedCommandArgs();
             expectedCommandArgs[2] = _getBlobStorageUrl(
                 localFileOptions.destination
             );
@@ -176,6 +181,7 @@ describe("AzcopySync", () => {
         test("when destination.sasToken not provided then not used in the destination URL argument", () => {
             // Arrange
             delete localFileOptions.destination.sasToken;
+            const expectedCommandArgs = getExpectedCommandArgs();
             expectedCommandArgs[2] = _getBlobStorageUrl(
                 localFileOptions.destination
             );
@@ -213,7 +219,13 @@ describe("AzcopySync", () => {
 
     describe("containers", () => {
         let containersOptions: SyncContainersOptions;
-        let expectedCommandArgs: string[];
+        const getExpectedCommandArgs = () => [
+            "sync",
+            '"https://source_test_account.blob.core.windows.net/source_test_container/source_test_path?source_test_sas_token=test"',
+            '"https://destination_test_account.blob.core.windows.net/destination_test_container/destination_test_path?destination_test_sas_token=test"',
+            "--recursive=false",
+            "--delete-destination=false",
+        ];
 
         beforeEach(() => {
             containersOptions = {
@@ -232,18 +244,12 @@ describe("AzcopySync", () => {
                     sasToken: "?source_test_sas_token=test",
                 },
             };
-            expectedCommandArgs = [
-                "sync",
-                '"https://source_test_account.blob.core.windows.net/source_test_container/source_test_path?source_test_sas_token=test"',
-                '"https://destination_test_account.blob.core.windows.net/destination_test_container/destination_test_path?destination_test_sas_token=test"',
-                "--recursive=false",
-                "--delete-destination=false",
-            ];
         });
 
         test("when deleteDestination provided then used as the 5th argument", () => {
             // Arrange
             containersOptions.deleteDestination = true;
+            const expectedCommandArgs = getExpectedCommandArgs();
             expectedCommandArgs[4] = "--delete-destination=true";
 
             // Act
@@ -261,6 +267,7 @@ describe("AzcopySync", () => {
             // Arrange
             containersOptions.destination.account =
                 "other_destination_test_account";
+            const expectedCommandArgs = getExpectedCommandArgs();
             expectedCommandArgs[2] = _getBlobStorageUrl(
                 containersOptions.destination
             );
@@ -280,6 +287,7 @@ describe("AzcopySync", () => {
             // Arrange
             containersOptions.destination.container =
                 "other_destination_test_container";
+            const expectedCommandArgs = getExpectedCommandArgs();
             expectedCommandArgs[2] = _getBlobStorageUrl(
                 containersOptions.destination
             );
@@ -299,6 +307,7 @@ describe("AzcopySync", () => {
             // Arrange
             containersOptions.destination.path =
                 "other_destination_test_account";
+            const expectedCommandArgs = getExpectedCommandArgs();
             expectedCommandArgs[2] = _getBlobStorageUrl(
                 containersOptions.destination
             );
@@ -318,6 +327,7 @@ describe("AzcopySync", () => {
             // Arrange
             containersOptions.destination.sasToken =
                 "other_destination_test_sas_token";
+            const expectedCommandArgs = getExpectedCommandArgs();
             expectedCommandArgs[2] = _getBlobStorageUrl(
                 containersOptions.destination
             );
@@ -336,6 +346,7 @@ describe("AzcopySync", () => {
         test("when recursive provided then used as the 4th argument", () => {
             // Arrange
             containersOptions.recursive = true;
+            const expectedCommandArgs = getExpectedCommandArgs();
             expectedCommandArgs[3] = "--recursive=true";
 
             // Act
@@ -352,6 +363,7 @@ describe("AzcopySync", () => {
         test("when source.account provided then used in the source URL argument", () => {
             // Arrange
             containersOptions.source.account = "other_source_test_account";
+            const expectedCommandArgs = getExpectedCommandArgs();
             expectedCommandArgs[1] = _getBlobStorageUrl(
                 containersOptions.source
             );
@@ -370,6 +382,7 @@ describe("AzcopySync", () => {
         test("when source.container provided then used in the source URL argument", () => {
             // Arrange
             containersOptions.source.container = "other_source_test_container";
+            const expectedCommandArgs = getExpectedCommandArgs();
             expectedCommandArgs[1] = _getBlobStorageUrl(
                 containersOptions.source
             );
@@ -388,6 +401,7 @@ describe("AzcopySync", () => {
         test("when source.path provided then used in the source URL argument", () => {
             // Arrange
             containersOptions.source.path = "other_source_test_account";
+            const expectedCommandArgs = getExpectedCommandArgs();
             expectedCommandArgs[1] = _getBlobStorageUrl(
                 containersOptions.source
             );
@@ -406,6 +420,7 @@ describe("AzcopySync", () => {
         test("when source.path not provided then not used in the source URL argument", () => {
             // Arrange
             delete containersOptions.source.path;
+            const expectedCommandArgs = getExpectedCommandArgs();
             expectedCommandArgs[1] = _getBlobStorageUrl(
                 containersOptions.source
             );
@@ -424,6 +439,7 @@ describe("AzcopySync", () => {
         test("when source.sasToken provided then used in the source URL argument", () => {
             // Arrange
             containersOptions.source.sasToken = "other_source_test_sas_token";
+            const expectedCommandArgs = getExpectedCommandArgs();
             expectedCommandArgs[1] = _getBlobStorageUrl(
                 containersOptions.source
             );
@@ -442,6 +458,7 @@ describe("AzcopySync", () => {
         test("when source.sasToken not provided then not used in the source URL argument", () => {
             // Arrange
             delete containersOptions.source.sasToken;
+            const expectedCommandArgs = getExpectedCommandArgs();
             expectedCommandArgs[1] = _getBlobStorageUrl(
                 containersOptions.source
             );
