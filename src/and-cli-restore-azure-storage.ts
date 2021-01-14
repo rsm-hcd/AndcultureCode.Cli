@@ -4,7 +4,8 @@ import { CommandRunner } from "./modules/command-runner";
 import { Echo } from "./modules/echo";
 import program from "commander";
 import shell from "shelljs";
-import { AzureAzcopySync } from "./modules/azure-azcopy-sync";
+import { AzcopySync } from "./modules/azcopy-sync";
+import { StringUtils } from "andculturecode-javascript-core";
 
 CommandRunner.run(async () => {
     // -----------------------------------------------------------------------------------------
@@ -58,7 +59,7 @@ CommandRunner.run(async () => {
                 },
             };
 
-            AzureAzcopySync.containers(options);
+            AzcopySync.containers(options);
 
             Echo.newLine();
             Echo.success(
@@ -77,32 +78,32 @@ CommandRunner.run(async () => {
 
             // Validate arguments
             destinationAccount = program.destinationAccount;
-            if (destinationAccount == null) {
+            if (StringUtils.isEmpty(destinationAccount)) {
                 errors.push("--destination-account is required");
             }
 
             destinationContainer = program.destinationContainer;
-            if (destinationContainer == null) {
+            if (StringUtils.isEmpty(destinationContainer)) {
                 errors.push("--destination-container is required");
             }
 
             destinationSasToken = program.destinationSasToken;
-            if (destinationContainer == "" || destinationContainer == null) {
+            if (StringUtils.isEmpty(destinationSasToken)) {
                 errors.push("--destination-sas-token is required");
             }
 
             sourceAccount = program.sourceAccount;
-            if (sourceAccount == null) {
+            if (StringUtils.isEmpty(sourceAccount)) {
                 errors.push("--source-account is required");
             }
 
             sourceContainer = program.sourceContainer;
-            if (sourceContainer == null) {
+            if (StringUtils.isEmpty(sourceContainer)) {
                 errors.push("--source-container is required");
             }
 
             sourceSasToken = program.sourceSasToken;
-            if (sourceContainer == "" || sourceContainer == null) {
+            if (StringUtils.isEmpty(sourceSasToken)) {
                 errors.push("--source-sas-token is required");
             }
 

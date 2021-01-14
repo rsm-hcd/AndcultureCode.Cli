@@ -1,10 +1,10 @@
 import { TestUtils } from "../tests/test-utils";
 import {
-    AzureAzcopySync,
+    AzcopySync,
     BlobStorageUrlParts,
-    SyncContainerOptions,
+    SyncContainersOptions,
     SyncLocalFileOptions,
-} from "./azure-azcopy-sync";
+} from "./azcopy-sync";
 import faker from "faker";
 
 // -----------------------------------------------------------------------------------------
@@ -32,7 +32,7 @@ const _getBlobStorageUrl = (urlParts: BlobStorageUrlParts) => {
 // #region Tests
 // -----------------------------------------------------------------------------------------
 
-describe("AzureAzcopySync", () => {
+describe("AzcopySync", () => {
     let spawnSyncSpy: jest.SpyInstance;
     let shellExitSpy: jest.SpyInstance;
 
@@ -46,11 +46,11 @@ describe("AzureAzcopySync", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("localFile", () => {
-        let calculatedCommandArgs: string[];
+        let expectedCommandArgs: string[];
         let localFileOptions: SyncLocalFileOptions;
 
         beforeEach(() => {
-            calculatedCommandArgs = [
+            expectedCommandArgs = [
                 "sync",
                 "c:/something/awesome/text.txt",
                 '"https://test_account.blob.core.windows.net/test_container/test_path?test_sas_token=test"',
@@ -70,15 +70,15 @@ describe("AzureAzcopySync", () => {
         test("when localFilePath provided then used as the source path argument", () => {
             // Arrange
             localFileOptions.localFilePath = "c:/some/other/directory";
-            calculatedCommandArgs[1] = localFileOptions.localFilePath;
+            expectedCommandArgs[1] = localFileOptions.localFilePath;
 
             // Act
-            AzureAzcopySync.localFile(localFileOptions);
+            AzcopySync.localFile(localFileOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalledWith(
                 command,
-                calculatedCommandArgs,
+                expectedCommandArgs,
                 spawnSyncArgs
             );
         });
@@ -86,17 +86,17 @@ describe("AzureAzcopySync", () => {
         test("when destination.account provided then used in the destination URL argument", () => {
             // Arrange
             localFileOptions.destination.account = "other_test_account";
-            calculatedCommandArgs[2] = _getBlobStorageUrl(
+            expectedCommandArgs[2] = _getBlobStorageUrl(
                 localFileOptions.destination
             );
 
             // Act
-            AzureAzcopySync.localFile(localFileOptions);
+            AzcopySync.localFile(localFileOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalledWith(
                 command,
-                calculatedCommandArgs,
+                expectedCommandArgs,
                 spawnSyncArgs
             );
         });
@@ -104,17 +104,17 @@ describe("AzureAzcopySync", () => {
         test("when destination.container provided then used in the destination URL argument", () => {
             // Arrange
             localFileOptions.destination.container = "other_test_container";
-            calculatedCommandArgs[2] = _getBlobStorageUrl(
+            expectedCommandArgs[2] = _getBlobStorageUrl(
                 localFileOptions.destination
             );
 
             // Act
-            AzureAzcopySync.localFile(localFileOptions);
+            AzcopySync.localFile(localFileOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalledWith(
                 command,
-                calculatedCommandArgs,
+                expectedCommandArgs,
                 spawnSyncArgs
             );
         });
@@ -122,17 +122,17 @@ describe("AzureAzcopySync", () => {
         test("when destination.path provided then used in the destination URL argument", () => {
             // Arrange
             localFileOptions.destination.path = "other_test_account";
-            calculatedCommandArgs[2] = _getBlobStorageUrl(
+            expectedCommandArgs[2] = _getBlobStorageUrl(
                 localFileOptions.destination
             );
 
             // Act
-            AzureAzcopySync.localFile(localFileOptions);
+            AzcopySync.localFile(localFileOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalledWith(
                 command,
-                calculatedCommandArgs,
+                expectedCommandArgs,
                 spawnSyncArgs
             );
         });
@@ -140,17 +140,17 @@ describe("AzureAzcopySync", () => {
         test("when destination.path not provided then not used in the destination URL argument", () => {
             // Arrange
             delete localFileOptions.destination.path;
-            calculatedCommandArgs[2] = _getBlobStorageUrl(
+            expectedCommandArgs[2] = _getBlobStorageUrl(
                 localFileOptions.destination
             );
 
             // Act
-            AzureAzcopySync.localFile(localFileOptions);
+            AzcopySync.localFile(localFileOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalledWith(
                 command,
-                calculatedCommandArgs,
+                expectedCommandArgs,
                 spawnSyncArgs
             );
         });
@@ -158,17 +158,17 @@ describe("AzureAzcopySync", () => {
         test("when destination.sasToken provided then used in the destination URL argument", () => {
             // Arrange
             localFileOptions.destination.sasToken = "other_test_sas_token";
-            calculatedCommandArgs[2] = _getBlobStorageUrl(
+            expectedCommandArgs[2] = _getBlobStorageUrl(
                 localFileOptions.destination
             );
 
             // Act
-            AzureAzcopySync.localFile(localFileOptions);
+            AzcopySync.localFile(localFileOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalledWith(
                 command,
-                calculatedCommandArgs,
+                expectedCommandArgs,
                 spawnSyncArgs
             );
         });
@@ -176,17 +176,17 @@ describe("AzureAzcopySync", () => {
         test("when destination.sasToken not provided then not used in the destination URL argument", () => {
             // Arrange
             delete localFileOptions.destination.sasToken;
-            calculatedCommandArgs[2] = _getBlobStorageUrl(
+            expectedCommandArgs[2] = _getBlobStorageUrl(
                 localFileOptions.destination
             );
 
             // Act
-            AzureAzcopySync.localFile(localFileOptions);
+            AzcopySync.localFile(localFileOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalledWith(
                 command,
-                calculatedCommandArgs,
+                expectedCommandArgs,
                 spawnSyncArgs
             );
         });
@@ -197,7 +197,7 @@ describe("AzureAzcopySync", () => {
             const spawnSyncSpy = TestUtils.spyOnSpawnSync(exitCode);
 
             // Act
-            await AzureAzcopySync.localFile(localFileOptions);
+            await AzcopySync.localFile(localFileOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalled();
@@ -212,11 +212,11 @@ describe("AzureAzcopySync", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("containers", () => {
-        let containerOptions: SyncContainerOptions;
-        let calculatedCommandArgs: string[];
+        let containersOptions: SyncContainersOptions;
+        let expectedCommandArgs: string[];
 
         beforeEach(() => {
-            containerOptions = {
+            containersOptions = {
                 deleteDestination: false,
                 destination: {
                     account: "destination_test_account",
@@ -232,7 +232,7 @@ describe("AzureAzcopySync", () => {
                     sasToken: "?source_test_sas_token=test",
                 },
             };
-            calculatedCommandArgs = [
+            expectedCommandArgs = [
                 "sync",
                 '"https://source_test_account.blob.core.windows.net/source_test_container/source_test_path?source_test_sas_token=test"',
                 '"https://destination_test_account.blob.core.windows.net/destination_test_container/destination_test_path?destination_test_sas_token=test"',
@@ -243,216 +243,216 @@ describe("AzureAzcopySync", () => {
 
         test("when deleteDestination provided then used as the 5th argument", () => {
             // Arrange
-            containerOptions.deleteDestination = true;
-            calculatedCommandArgs[4] = "--delete-destination=true";
+            containersOptions.deleteDestination = true;
+            expectedCommandArgs[4] = "--delete-destination=true";
 
             // Act
-            AzureAzcopySync.containers(containerOptions);
+            AzcopySync.containers(containersOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalledWith(
                 command,
-                calculatedCommandArgs,
+                expectedCommandArgs,
                 spawnSyncArgs
             );
         });
 
         test("when destination.account provided then used in the destination URL argument", () => {
             // Arrange
-            containerOptions.destination.account =
+            containersOptions.destination.account =
                 "other_destination_test_account";
-            calculatedCommandArgs[2] = _getBlobStorageUrl(
-                containerOptions.destination
+            expectedCommandArgs[2] = _getBlobStorageUrl(
+                containersOptions.destination
             );
 
             // Act
-            AzureAzcopySync.containers(containerOptions);
+            AzcopySync.containers(containersOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalledWith(
                 command,
-                calculatedCommandArgs,
+                expectedCommandArgs,
                 spawnSyncArgs
             );
         });
 
         test("when destination.container provided then used in the destination URL argument", () => {
             // Arrange
-            containerOptions.destination.container =
+            containersOptions.destination.container =
                 "other_destination_test_container";
-            calculatedCommandArgs[2] = _getBlobStorageUrl(
-                containerOptions.destination
+            expectedCommandArgs[2] = _getBlobStorageUrl(
+                containersOptions.destination
             );
 
             // Act
-            AzureAzcopySync.containers(containerOptions);
+            AzcopySync.containers(containersOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalledWith(
                 command,
-                calculatedCommandArgs,
+                expectedCommandArgs,
                 spawnSyncArgs
             );
         });
 
         test("when destination.path provided then used in the destination URL argument", () => {
             // Arrange
-            containerOptions.destination.path =
+            containersOptions.destination.path =
                 "other_destination_test_account";
-            calculatedCommandArgs[2] = _getBlobStorageUrl(
-                containerOptions.destination
+            expectedCommandArgs[2] = _getBlobStorageUrl(
+                containersOptions.destination
             );
 
             // Act
-            AzureAzcopySync.containers(containerOptions);
+            AzcopySync.containers(containersOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalledWith(
                 command,
-                calculatedCommandArgs,
+                expectedCommandArgs,
                 spawnSyncArgs
             );
         });
 
         test("when destination.sasToken provided then used in the destination URL argument", () => {
             // Arrange
-            containerOptions.destination.sasToken =
+            containersOptions.destination.sasToken =
                 "other_destination_test_sas_token";
-            calculatedCommandArgs[2] = _getBlobStorageUrl(
-                containerOptions.destination
+            expectedCommandArgs[2] = _getBlobStorageUrl(
+                containersOptions.destination
             );
 
             // Act
-            AzureAzcopySync.containers(containerOptions);
+            AzcopySync.containers(containersOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalledWith(
                 command,
-                calculatedCommandArgs,
+                expectedCommandArgs,
                 spawnSyncArgs
             );
         });
 
-        test("when recursive provided then used as the 6th argument", () => {
+        test("when recursive provided then used as the 4th argument", () => {
             // Arrange
-            containerOptions.recursive = true;
-            calculatedCommandArgs[3] = "--recursive=true";
+            containersOptions.recursive = true;
+            expectedCommandArgs[3] = "--recursive=true";
 
             // Act
-            AzureAzcopySync.containers(containerOptions);
+            AzcopySync.containers(containersOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalledWith(
                 command,
-                calculatedCommandArgs,
+                expectedCommandArgs,
                 spawnSyncArgs
             );
         });
 
         test("when source.account provided then used in the source URL argument", () => {
             // Arrange
-            containerOptions.source.account = "other_source_test_account";
-            calculatedCommandArgs[1] = _getBlobStorageUrl(
-                containerOptions.source
+            containersOptions.source.account = "other_source_test_account";
+            expectedCommandArgs[1] = _getBlobStorageUrl(
+                containersOptions.source
             );
 
             // Act
-            AzureAzcopySync.containers(containerOptions);
+            AzcopySync.containers(containersOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalledWith(
                 command,
-                calculatedCommandArgs,
+                expectedCommandArgs,
                 spawnSyncArgs
             );
         });
 
         test("when source.container provided then used in the source URL argument", () => {
             // Arrange
-            containerOptions.source.container = "other_source_test_container";
-            calculatedCommandArgs[1] = _getBlobStorageUrl(
-                containerOptions.source
+            containersOptions.source.container = "other_source_test_container";
+            expectedCommandArgs[1] = _getBlobStorageUrl(
+                containersOptions.source
             );
 
             // Act
-            AzureAzcopySync.containers(containerOptions);
+            AzcopySync.containers(containersOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalledWith(
                 command,
-                calculatedCommandArgs,
+                expectedCommandArgs,
                 spawnSyncArgs
             );
         });
 
         test("when source.path provided then used in the source URL argument", () => {
             // Arrange
-            containerOptions.source.path = "other_source_test_account";
-            calculatedCommandArgs[1] = _getBlobStorageUrl(
-                containerOptions.source
+            containersOptions.source.path = "other_source_test_account";
+            expectedCommandArgs[1] = _getBlobStorageUrl(
+                containersOptions.source
             );
 
             // Act
-            AzureAzcopySync.containers(containerOptions);
+            AzcopySync.containers(containersOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalledWith(
                 command,
-                calculatedCommandArgs,
+                expectedCommandArgs,
                 spawnSyncArgs
             );
         });
 
         test("when source.path not provided then not used in the source URL argument", () => {
             // Arrange
-            delete containerOptions.source.path;
-            calculatedCommandArgs[1] = _getBlobStorageUrl(
-                containerOptions.source
+            delete containersOptions.source.path;
+            expectedCommandArgs[1] = _getBlobStorageUrl(
+                containersOptions.source
             );
 
             // Act
-            AzureAzcopySync.containers(containerOptions);
+            AzcopySync.containers(containersOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalledWith(
                 command,
-                calculatedCommandArgs,
+                expectedCommandArgs,
                 spawnSyncArgs
             );
         });
 
         test("when source.sasToken provided then used in the source URL argument", () => {
             // Arrange
-            containerOptions.source.sasToken = "other_source_test_sas_token";
-            calculatedCommandArgs[1] = _getBlobStorageUrl(
-                containerOptions.source
+            containersOptions.source.sasToken = "other_source_test_sas_token";
+            expectedCommandArgs[1] = _getBlobStorageUrl(
+                containersOptions.source
             );
 
             // Act
-            AzureAzcopySync.containers(containerOptions);
+            AzcopySync.containers(containersOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalledWith(
                 command,
-                calculatedCommandArgs,
+                expectedCommandArgs,
                 spawnSyncArgs
             );
         });
 
         test("when source.sasToken not provided then not used in the source URL argument", () => {
             // Arrange
-            delete containerOptions.source.sasToken;
-            calculatedCommandArgs[1] = _getBlobStorageUrl(
-                containerOptions.source
+            delete containersOptions.source.sasToken;
+            expectedCommandArgs[1] = _getBlobStorageUrl(
+                containersOptions.source
             );
 
             // Act
-            AzureAzcopySync.containers(containerOptions);
+            AzcopySync.containers(containersOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalledWith(
                 command,
-                calculatedCommandArgs,
+                expectedCommandArgs,
                 spawnSyncArgs
             );
         });
@@ -463,7 +463,7 @@ describe("AzureAzcopySync", () => {
             const spawnSyncSpy = TestUtils.spyOnSpawnSync(exitCode);
 
             // Act
-            await AzureAzcopySync.containers(containerOptions);
+            await AzcopySync.containers(containersOptions);
 
             // Assert
             expect(spawnSyncSpy).toHaveBeenCalled();
