@@ -26,10 +26,10 @@ const _getBlobStorageUrl = (urlParts: BlobStorageUrlParts) => {
     return `"https://${urlParts.account}.blob.core.windows.net/${urlParts.container}/${path}${sasToken}"`;
 };
 
-// endregion Variables
+// endregion Functions
 
 // -----------------------------------------------------------------------------------------
-// #region Functions
+// #region Tests
 // -----------------------------------------------------------------------------------------
 
 describe("AzureAzcopySync", () => {
@@ -46,25 +46,25 @@ describe("AzureAzcopySync", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("localFile", () => {
-        let localFileOptions: SyncLocalFileOptions;
         let calculatedCommandArgs: string[];
+        let localFileOptions: SyncLocalFileOptions;
 
         beforeEach(() => {
-            localFileOptions = {
-                localFilePath: "c:/something/awesome/text.txt",
-                destination: {
-                    account: "test_account",
-                    container: "test_container",
-                    path: "test_path",
-                    sasToken: "?test_sas_token=test",
-                },
-            };
             calculatedCommandArgs = [
                 "sync",
                 "c:/something/awesome/text.txt",
                 '"https://test_account.blob.core.windows.net/test_container/test_path?test_sas_token=test"',
                 "--recursive=false",
             ];
+            localFileOptions = {
+                destination: {
+                    account: "test_account",
+                    container: "test_container",
+                    path: "test_path",
+                    sasToken: "?test_sas_token=test",
+                },
+                localFilePath: "c:/something/awesome/text.txt",
+            };
         });
 
         test("when localFilePath provided then used as the source path argument", () => {

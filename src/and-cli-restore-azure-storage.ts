@@ -62,7 +62,7 @@ CommandRunner.run(async () => {
 
             Echo.newLine();
             Echo.success(
-                "Containers successfully synced in Azure Blob Storage!"
+                `Container of ${options.source.container} successfully synced to container of ${options.destination.container} in Azure Blob Storage!`
             );
         },
         validateOrExit() {

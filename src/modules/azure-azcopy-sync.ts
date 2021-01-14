@@ -23,8 +23,8 @@ interface BlobStorageUrlParts {
 }
 
 interface SyncLocalFileOptions {
-    localFilePath: string;
     destination: BlobStorageUrlParts;
+    localFilePath: string;
 }
 
 interface SyncContainerOptions {
@@ -127,8 +127,8 @@ const AzureAzcopySync = {
 export {
     AzureAzcopySync,
     BlobStorageUrlParts,
-    SyncLocalFileOptions,
     SyncContainerOptions,
+    SyncLocalFileOptions,
 };
 
 // #endregion Exports
