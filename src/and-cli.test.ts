@@ -16,12 +16,8 @@ describe("and-cli", () => {
 
     describe("commands", () => {
         // Pull out the flattened list of command definitions
-        const commandDefinitions = CommandDefinitionUtils.flatten(
-            CommandDefinitions
-        );
-        const commandNames = CommandDefinitionUtils.getNames(
-            CommandDefinitions
-        );
+        const commandDefinitions = CommandDefinitionUtils.flatten();
+        const commandNames = CommandDefinitionUtils.getNames();
 
         givenOptions(commandNames, (command: string) =>
             // Each registered sub-command should display its respective help menu. This will help

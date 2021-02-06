@@ -105,7 +105,7 @@ const { CommandRegistry, program } = require("and-cli");
 // -----------------------------------------------------------------------------------------
 
 // Register all of the base commands from the and-cli with this application
-CommandRegistry.registerBases();
+CommandRegistry.registerAllBase();
 
 program.parse(process.argv);
 

@@ -4,7 +4,6 @@ import { Formatters } from "./formatters";
 import upath from "upath";
 import program from "commander";
 import { Echo } from "./echo";
-import { CommandDefinitions } from "./command-definitions";
 import { CommandDefinition } from "../interfaces/command-definition";
 import { PackageConfig } from "./package-config";
 import { Constants } from "./constants";
@@ -71,7 +70,7 @@ const CommandRegistry = {
      * Update the configuration for the registry. Can be called multiple times as long as the value
      * of 'isImportedModule' is only provided once, or stays the same.
      *
-     * @param {CommandRegistryConfiguration} config Object with various configuration options for the registry
+     * @param config Object with various configuration options for the registry
      *
      * @returns `this` for chaining
      */
@@ -85,8 +84,6 @@ const CommandRegistry = {
      * Returns a registered command by name. If the command is not registered, returns `undefined`
      *
      * @param {string} name
-     *
-     * @returns {program.Command}
      */
     get(name: string): program.Command | undefined {
         return CommandUtils.get(name);
@@ -159,27 +156,24 @@ const CommandRegistry = {
      *      description: "dotnet --cli -- test db migrate",
      *  }
      *
-     * @param {CommandDefinition} commandDefinition Command definition where the 'command' field
-     * is the desired alias value, and the 'description' field is the transformed command/option string.
-     * @param {boolean} overrideIfRegistered If true, subsequent registrations of a command
+     * @param definition Command definition where the 'command' field is the desired alias value,
+     * and the 'description' field is the transformed command/option string.
+     * @param overrideIfRegistered If true, subsequent registrations of a command
      * with the same name will override the last. Otherwise, a warning will be displayed and the
      * original command will remain.
      *
      * @returns `this` for chaining
      */
     registerAlias(
-        commandDefinition: CommandDefinition,
+        definition: CommandDefinition,
         overrideIfRegistered: boolean = false
     ) {
         // Ensure we are able to register the given command based on name + configuration
-        if (!_validate(commandDefinition, overrideIfRegistered)) {
+        if (!_validate(definition, overrideIfRegistered)) {
             return this;
         }
 
-        const {
-            command: alias,
-            description: transformedCommand,
-        } = commandDefinition;
+        const { command: alias, description: transformedCommand } = definition;
 
         // Filter out the registered command of the same name incase it is already registered
         // If it is not already registered, this should have no effect.
@@ -206,7 +200,7 @@ const CommandRegistry = {
      *      },
      *  },
      *
-     * @param {boolean} overrideIfRegistered If true, subsequent registrations of a command
+     * @param overrideIfRegistered If true, subsequent registrations of a command
      * with the same name will override the last. Otherwise, a warning will be displayed and the
      * original command will remain.
      *
@@ -236,8 +230,8 @@ const CommandRegistry = {
     /**
      * Register a set of commands with the program.
      *
-     * @param {CommandDefinition[]} [commands] Array of CommandDefinitions to register with the application
-     * @param {boolean} [overrideIfRegistered=false] If true, subsequent registrations of a command
+     * @param commands Array of CommandDefinitions to register with the application
+     * @param overrideIfRegistered If true, subsequent registrations of a command
      * with the same name will override the last. Otherwise, a warning will be displayed and the
      * original command will remain.
      *
@@ -260,15 +254,15 @@ const CommandRegistry = {
 
     /**
      * Registers all of the base commands available from the `and-cli` with the program.
-     * @param {boolean} [overrideIfRegistered=false] If true, subsequent registrations of a command
+     * @param overrideIfRegistered If true, subsequent registrations of a command
      * with the same name will override the last. Otherwise, a warning will be displayed and the
      * original command will remain.
      *
      * @returns `this` for chaining
      */
     registerAllBase(overrideIfRegistered: boolean = false) {
-        CommandDefinitionUtils.flatten().forEach((commandDefinition) => {
-            const { command } = commandDefinition;
+        CommandDefinitionUtils.flatten().forEach((definition) => {
+            const { command } = definition;
 
             this.registerBase(command, overrideIfRegistered);
         });
@@ -281,8 +275,8 @@ const CommandRegistry = {
      *
      * Note: Prints an error if the specified command name is not found.
      *
-     * @param {string} name Name of the base command to register
-     * @param {boolean} [overrideIfRegistered=false] If true, subsequent registrations of a command
+     * @param name Name of the base command to register
+     * @param overrideIfRegistered If true, subsequent registrations of a command
      * with the same name will override the last. Otherwise, a warning will be displayed and the
      * original command will remain.
      *
@@ -311,7 +305,7 @@ const CommandRegistry = {
     /**
      * Removes a command from the program by name.
      *
-     * @param {string} name
+     * @param name Name of the command to remove
      * @returns `this` for chaining
      */
     remove(name: string) {
@@ -395,11 +389,9 @@ const _preprocessArgsForAliases = (): CommandDefinition | undefined => {
         return undefined;
     }
 
-    // We expect the node binary & entrypoint filename to be the first two process.argv entries,
-    // and anything after that to be a command or option. If we have more or less arguments,
-    // we shouldn't attempt to match against any aliases. Aliases can only be
-    // one word (no spaces), so let's not try to eagerly compare every single argument to the alias list
-    if (CollectionUtils.length(process.argv) !== 3) {
+    // Expecting three values from process.argv, ie: /bin/node and-cli.js <alias>
+    const expectedArgCount = 3;
+    if (CollectionUtils.length(process.argv) !== expectedArgCount) {
         return undefined;
     }
 
@@ -415,21 +407,19 @@ const _preprocessArgsForAliases = (): CommandDefinition | undefined => {
 /**
  * Registers a command, taking into consideration whether the command is a base command or a local command.
  *
- * This function assumes the command is valid & ready to be registered (see `_validateAndGetBaseCommand`
- * and `_validateCommandRegistration` for validation logic)
+ * This function assumes the command is valid & ready to be registered.
  *
- * @param {CommandDefinition} commandDefinition
- * @param {boolean} isBaseCommand Flag to determine whether we're registering a base command or a local command
+ * @param isBaseCommand Flag to determine whether we're registering a base command or a local command
  */
 const _register = (
-    commandDefinition: CommandDefinition,
+    definition: CommandDefinition,
     isBaseCommand: boolean = false
 ): void => {
-    const { command, description } = commandDefinition;
+    const { command, description } = definition;
 
     if (!isBaseCommand) {
         program.command(command, description);
-        CommandUtils.sort(program);
+        CommandUtils.sort();
         return;
     }
 
@@ -438,7 +428,7 @@ const _register = (
         executableFile: _getExecutablePath(command),
     });
 
-    CommandUtils.sort(program);
+    CommandUtils.sort();
 };
 
 const _validateName = (name?: string) => {
@@ -460,9 +450,6 @@ const _validateName = (name?: string) => {
 /**
  * Validates that the given command name has a value, and exists in the base command definition array,
  * returning the found definition (or exiting if provided invalid input)
- *
- * @param {string} name
- * @returns {CommandDefinition} The CommandDefinition for the requested command
  */
 const _validateAndGetBaseDefinition = (
     name: string
@@ -477,10 +464,6 @@ const _validateAndGetBaseDefinition = (
 /**
  * Validates a command registration based on whether a command of the same name is already registered,
  * and if the consumer has opted in to overriding it.
- *
- * @param {CommandDefinition} commandDefinition
- * @param {boolean} overrideIfRegistered
- * @returns {boolean} True if the command is not already registered, or is registered & can be overridden.
  */
 const _validate = (
     commandDefinition: CommandDefinition,
@@ -502,7 +485,6 @@ const _validate = (
 /**
  * Ensures the configure function is called with the 'isImportedModule' property once, or its value
  * remains the same.
- *
  */
 const _validateConfigurationOrExit = (config: CommandRegistryConfiguration) => {
     const { isImportedModule } = config;
