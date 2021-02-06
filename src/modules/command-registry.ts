@@ -53,9 +53,6 @@ let _cachedConfig: CommandRegistryConfiguration = {};
 // -----------------------------------------------------------------------------------------
 
 const CommandRegistry = {
-    _config() {
-        return _cachedConfig;
-    },
     /**
      * Clears out all command registered with the program.
      *
