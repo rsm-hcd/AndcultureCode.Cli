@@ -1,5 +1,5 @@
-import { CommandDefinition } from "../types/command-definition-type";
-import { CommandDefinitions } from "./commands";
+import { CommandDefinition } from "../interfaces/command-definition";
+import { CommandDefinitions } from "./command-definitions";
 import { Echo } from "./echo";
 import program from "commander";
 import { CommandRegistry } from "./command-registry";
@@ -8,6 +8,19 @@ import { Constants } from "./constants";
 import faker from "faker";
 import { TestUtils } from "../tests/test-utils";
 import upath from "upath";
+import { CommandDefinitionUtils } from "../utilities/command-definition-utils";
+import { Factory } from "rosie";
+import { FactoryType } from "../tests/factories/factory-type";
+
+// -----------------------------------------------------------------------------------------
+// #region Constants
+// -----------------------------------------------------------------------------------------
+
+const FLATTENED_COMMAND_DEFINITIONS = CommandDefinitionUtils.flatten(
+    CommandDefinitions
+);
+
+// #endregion Constants
 
 // -----------------------------------------------------------------------------------------
 // #region Tests
@@ -24,6 +37,9 @@ describe("CommandRegistry", () => {
     let programCommandSpy: jest.SpyInstance;
     let shellExitSpy: jest.SpyInstance;
 
+    // Importing a fresh copy of the CommandRegistry in each test to clear out local state between tests
+    let sut: typeof CommandRegistry;
+
     beforeEach(() => {
         // In order to prevent test flakiness due to runtime order, we need to clear out
         // the cached program instance command array. Each test should have the appropriate setup steps
@@ -34,24 +50,11 @@ describe("CommandRegistry", () => {
         echoWarnSpy = jest.spyOn(Echo, "warn");
         programCommandSpy = jest.spyOn(program, "command");
         shellExitSpy = TestUtils.spyOnShellExit();
-    });
 
-    /**
-     * Utility function for generating a `CommandDefinition` with a unique name and description.
-     *
-     * The command name should never match one in our command definition module because we are using
-     * a guid for the name.
-     *
-     * @returns {CommandDefinition}
-     */
-    const seedRandomCommand = (): CommandDefinition => {
-        return {
-            // Intentionally generating a guid here instead of a random word, which might match
-            // an actual like 'copy' or 'install'
-            command: faker.random.uuid(),
-            description: faker.random.words(),
-        };
-    };
+        jest.isolateModules(() => {
+            sut = require("./command-registry").CommandRegistry;
+        });
+    });
 
     // #endregion Setup
 
@@ -62,11 +65,13 @@ describe("CommandRegistry", () => {
     describe("clear", () => {
         test("it assigns the program.commands array to an empty array", () => {
             // Arrange
-            const { command, description } = seedRandomCommand();
+            const { command, description } = Factory.build<CommandDefinition>(
+                FactoryType.CommandDefinition
+            );
             program.command(command, description);
 
             // Act
-            CommandRegistry.clear();
+            sut.clear();
 
             // Assert
             expect(program.commands).toStrictEqual([]);
@@ -76,35 +81,79 @@ describe("CommandRegistry", () => {
     // #endregion clear
 
     // -----------------------------------------------------------------------------------------
-    // #region getBaseCommandDefinitions
+    // #region configure
     // -----------------------------------------------------------------------------------------
 
-    describe("getBaseCommandDefinitions", () => {
-        test("it returns a flat array of CommandDefinitions from the commands module", () => {
-            // Arrange & Act
-            const result = CommandRegistry.getBaseCommandDefinitions();
+    describe("configure", () => {
+        test("it returns 'this'", () => {
+            // Arrange
+            const expected = sut;
+
+            // Act
+            const result = sut.configure({
+                isImportedModule: faker.random.boolean(),
+            });
 
             // Assert
-            CommandDefinitions.forEach((commandDefinition) => {
-                expect(result).toContain(commandDefinition);
+            expect(result).toBe(expected);
+        });
+
+        describe("given configure has been called with 'isImportedModule' value", () => {
+            test("when called with different value for 'isImportedModule', it exits with an error", () => {
+                // Arrange
+                const isImportedModule = faker.random.boolean();
+                sut.configure({ isImportedModule });
+
+                // Act
+                sut.configure({
+                    isImportedModule: !isImportedModule,
+                });
+
+                // Assert
+                expect(echoErrorSpy).toHaveBeenCalled();
+                expect(shellExitSpy).toHaveBeenCalledWith(1);
+            });
+
+            test("when called with no value for 'isImportedModule', it does not exit", () => {
+                // Arrange
+                const isImportedModule = faker.random.boolean();
+                sut.configure({ isImportedModule });
+
+                // Act
+                sut.configure({});
+
+                // Assert
+                expect(echoErrorSpy).not.toHaveBeenCalled();
+                expect(shellExitSpy).not.toHaveBeenCalled();
+            });
+
+            test("when called with same value for 'isImportedModule', it does not exit", () => {
+                // Arrange
+                const isImportedModule = faker.random.boolean();
+                sut.configure({ isImportedModule });
+
+                // Act
+                sut.configure({ isImportedModule });
+
+                // Assert
+                expect(echoErrorSpy).not.toHaveBeenCalled();
+                expect(shellExitSpy).not.toHaveBeenCalled();
             });
         });
     });
 
-    // #endregion getBaseCommandDefinitions
+    // #endregion configure
 
     // -----------------------------------------------------------------------------------------
-    // #region getCommand
+    // #region get
     // -----------------------------------------------------------------------------------------
 
-    describe("getCommand", () => {
+    describe("get", () => {
         test.each([undefined, null, "", " "])(
             "when called with %p, it returns undefined",
             (name) => {
                 // Arrange & Act
-                const result = CommandRegistry.getCommand(
-                    (name as any) as string
-                );
+                const result = sut.get((name as any) as string);
 
                 // Assert
                 expect(result).toBeUndefined();
@@ -114,10 +163,12 @@ describe("CommandRegistry", () => {
         describe("given the command is not registered", () => {
             test("when called with the command name, it returns undefined", () => {
                 // Arrange
-                const { command } = seedRandomCommand();
+                const { command } = Factory.build<CommandDefinition>(
+                    FactoryType.CommandDefinition
+                );
 
                 // Act
-                const result = CommandRegistry.getCommand(command);
+                const result = sut.get(command);
 
                 // Assert
                 expect(result).toBeUndefined();
@@ -127,11 +178,13 @@ describe("CommandRegistry", () => {
         describe("given a command is registered", () => {
             test("when called with that name, it returns the specified command", () => {
                 // Arrange
-                const { command, description } = seedRandomCommand();
+                const { command, description } = Factory.build<
+                    CommandDefinition
+                >(FactoryType.CommandDefinition);
                 program.command(command, description);
 
                 // Act
-                const result = CommandRegistry.getCommand(command);
+                const result = sut.get(command);
 
                 // Assert
                 expect(result).not.toBeNull();
@@ -140,12 +193,14 @@ describe("CommandRegistry", () => {
 
             test("when called with that name in any casing, it returns the specified command", () => {
                 // Arrange
-                const { command, description } = seedRandomCommand();
+                const { command, description } = Factory.build<
+                    CommandDefinition
+                >(FactoryType.CommandDefinition);
                 const randomCaseName = TestUtils.randomCase(command);
                 program.command(command, description);
 
                 // Act
-                const result = CommandRegistry.getCommand(randomCaseName);
+                const result = sut.get(randomCaseName);
 
                 // Assert
                 expect(result).not.toBeNull();
@@ -154,41 +209,7 @@ describe("CommandRegistry", () => {
         });
     });
 
-    // #endregion getCommand
-
-    // -----------------------------------------------------------------------------------------
-    // #region initialize
-    // -----------------------------------------------------------------------------------------
-
-    describe("initialize", () => {
-        test.each([undefined, null])(
-            "when called with %p, it exits with an error",
-            (isImportedModuleValue) => {
-                // Arrange & Act
-                CommandRegistry.initialize(
-                    (isImportedModuleValue as any) as boolean
-                );
-
-                // Assert
-                expect(echoErrorSpy).toHaveBeenCalled();
-                expect(shellExitSpy).toHaveBeenCalledWith(1);
-            }
-        );
-
-        test("given initialize has been called, when called again, it exits with an error", () => {
-            // Arrange
-            CommandRegistry.initialize(faker.random.boolean());
-
-            // Act
-            CommandRegistry.initialize(faker.random.boolean());
-
-            // Assert
-            expect(echoErrorSpy).toHaveBeenCalled();
-            expect(shellExitSpy).toHaveBeenCalledWith(1);
-        });
-    });
-
-    // #endregion initialize
+    // #endregion get
 
     // -----------------------------------------------------------------------------------------
     // #region parseWithAliases
@@ -212,7 +233,7 @@ describe("CommandRegistry", () => {
                 process.argv = [...expectedArgv];
 
                 // Act
-                CommandRegistry.parseWithAliases();
+                sut.parseWithAliases();
 
                 // Assert
                 expect(programParseSpy).toHaveBeenCalledWith(expectedArgv); // The test should fail if something modifies process.argv in-place
@@ -222,8 +243,10 @@ describe("CommandRegistry", () => {
         describe("given at least one alias is registered", () => {
             test("when < 3 args are provided, it calls program.parse with process.argv", () => {
                 // Arrange
-                const commandDefinition = seedRandomCommand();
-                CommandRegistry.registerAlias(commandDefinition);
+                const commandDefinition = Factory.build<CommandDefinition>(
+                    FactoryType.CommandDefinition
+                );
+                sut.registerAlias(commandDefinition);
                 const expectedArgv = [];
 
                 // This is the important setup
@@ -236,7 +259,7 @@ describe("CommandRegistry", () => {
                 process.argv = [...expectedArgv];
 
                 // Act
-                CommandRegistry.parseWithAliases();
+                sut.parseWithAliases();
 
                 // Assert
                 expect(programParseSpy).toHaveBeenCalledWith(expectedArgv); // The test should fail if something modifies process.argv in-place
@@ -244,8 +267,10 @@ describe("CommandRegistry", () => {
 
             test("when > 3 args are provided, it calls program.parse with process.argv", () => {
                 // Arrange
-                const commandDefinition = seedRandomCommand();
-                CommandRegistry.registerAlias(commandDefinition);
+                const commandDefinition = Factory.build<CommandDefinition>(
+                    FactoryType.CommandDefinition
+                );
+                sut.registerAlias(commandDefinition);
                 const expectedArgv = [];
 
                 // This is the important setup
@@ -258,7 +283,7 @@ describe("CommandRegistry", () => {
                 process.argv = [...expectedArgv];
 
                 // Act
-                CommandRegistry.parseWithAliases();
+                sut.parseWithAliases();
 
                 // Assert
                 expect(programParseSpy).toHaveBeenCalledWith(expectedArgv); // The test should fail if something modifies process.argv in-place
@@ -266,12 +291,14 @@ describe("CommandRegistry", () => {
 
             test("when 3rd arg matching an alias provided, it calls program.parse with transformed args", () => {
                 // Arrange
-                const commandDefinition = seedRandomCommand();
+                const commandDefinition = Factory.build<CommandDefinition>(
+                    FactoryType.CommandDefinition
+                );
                 const { command: alias } = commandDefinition;
                 const transformedCommand = commandDefinition.description.split(
                     " "
                 );
-                CommandRegistry.registerAlias(commandDefinition);
+                sut.registerAlias(commandDefinition);
                 // First two args don't really matter
                 process.argv = [
                     TestUtils.randomWord(),
@@ -280,7 +307,7 @@ describe("CommandRegistry", () => {
                 ];
 
                 // Act
-                CommandRegistry.parseWithAliases();
+                sut.parseWithAliases();
 
                 // Assert
                 expect(programParseSpy).toHaveBeenCalledWith(
@@ -291,8 +318,10 @@ describe("CommandRegistry", () => {
 
             test("when 3rd arg does not match any alias, it calls program.parse with process.argv", () => {
                 // Arrange
-                const commandDefinition = seedRandomCommand();
-                CommandRegistry.registerAlias(commandDefinition);
+                const commandDefinition = Factory.build<CommandDefinition>(
+                    FactoryType.CommandDefinition
+                );
+                sut.registerAlias(commandDefinition);
                 // First two args don't really matter
                 const expectedArgv = [
                     TestUtils.randomWord(),
@@ -303,7 +332,7 @@ describe("CommandRegistry", () => {
                 process.argv = [...expectedArgv];
 
                 // Act
-                CommandRegistry.parseWithAliases();
+                sut.parseWithAliases();
 
                 // Assert
                 expect(programParseSpy).toHaveBeenCalledWith(expectedArgv); // The test should fail if something modifies process.argv in-place
@@ -314,6 +343,68 @@ describe("CommandRegistry", () => {
     // #endregion parseWithAliases
 
     // -----------------------------------------------------------------------------------------
+    // #region register
+    // -----------------------------------------------------------------------------------------
+
+    describe("register", () => {
+        describe("given command is registered", () => {
+            test("when called with command name and 'overrideIfRegistered' false, it outputs a warning", () => {
+                // Arrange
+                const commandDefinition = Factory.build<CommandDefinition>(
+                    FactoryType.CommandDefinition
+                );
+                const { command, description } = commandDefinition;
+                const overrideIfRegistered = false; // This is the important setup
+                program.command(command, description);
+
+                // Act
+                sut.register(commandDefinition, overrideIfRegistered);
+
+                // Assert
+                expect(echoWarnSpy).toHaveBeenCalled();
+            });
+
+            test("when called with command name and 'overrideIfRegistered' true, it calls program.command again", () => {
+                // Arrange
+                const commandDefinition = Factory.build<CommandDefinition>(
+                    FactoryType.CommandDefinition
+                );
+                const { command, description } = commandDefinition;
+                const overrideIfRegistered = true; // This is the important setup
+                program.command(command, description);
+
+                // Act
+                sut.register(commandDefinition, overrideIfRegistered);
+
+                // Assert
+                expect(programCommandSpy).toHaveBeenCalledTimes(2);
+            });
+        });
+
+        describe("given command is not already registered", () => {
+            test("it calls program.command", () => {
+                // Arrange
+                const commandDefinition = Factory.build<CommandDefinition>(
+                    FactoryType.CommandDefinition
+                );
+                const { command, description } = commandDefinition;
+                const overrideIfRegistered = faker.random.boolean(); // This shouldn't matter
+
+                // Act
+                sut.register(commandDefinition, overrideIfRegistered);
+
+                // Assert
+                expect(programCommandSpy).toHaveBeenCalledWith(
+                    command,
+                    description
+                );
+            });
+        });
+    });
+
+    // #endregion register
+
+    // -----------------------------------------------------------------------------------------
     // #region registerAlias
     // -----------------------------------------------------------------------------------------
 
@@ -321,16 +412,15 @@ describe("CommandRegistry", () => {
         describe("given command is registered", () => {
             test("when called with command name and 'overrideIfRegistered' false, it outputs a warning", () => {
                 // Arrange
-                const commandDefinition = seedRandomCommand();
+                const commandDefinition = Factory.build<CommandDefinition>(
+                    FactoryType.CommandDefinition
+                );
                 const { command, description } = commandDefinition;
                 const overrideIfRegistered = false; // This is the important setup
                 program.command(command, description);
 
                 // Act
-                CommandRegistry.registerAlias(
-                    commandDefinition,
-                    overrideIfRegistered
-                );
+                sut.registerAlias(commandDefinition, overrideIfRegistered);
 
                 // Assert
                 expect(echoWarnSpy).toHaveBeenCalled();
@@ -338,16 +428,15 @@ describe("CommandRegistry", () => {
 
             test("when called with command name and 'overrideIfRegistered' true, it calls program.command", () => {
                 // Arrange
-                const commandDefinition = seedRandomCommand();
+                const commandDefinition = Factory.build<CommandDefinition>(
+                    FactoryType.CommandDefinition
+                );
                 const { command, description } = commandDefinition;
                 const overrideIfRegistered = true; // This is the important setup
                 program.command(command, description);
 
                 // Act
-                CommandRegistry.registerAlias(
-                    commandDefinition,
-                    overrideIfRegistered
-                );
+                sut.registerAlias(commandDefinition, overrideIfRegistered);
 
                 // Assert
                 expect(programCommandSpy).toHaveBeenCalled();
@@ -357,14 +446,13 @@ describe("CommandRegistry", () => {
         describe("given command is not already registered", () => {
             test("it calls program.command", () => {
                 // Arrange
-                const commandDefinition = seedRandomCommand();
+                const commandDefinition = Factory.build<CommandDefinition>(
+                    FactoryType.CommandDefinition
+                );
                 const overrideIfRegistered = faker.random.boolean(); // This shouldn't matter
 
                 // Act
-                CommandRegistry.registerAlias(
-                    commandDefinition,
-                    overrideIfRegistered
-                );
+                sut.registerAlias(commandDefinition, overrideIfRegistered);
 
                 // Assert
                 expect(programCommandSpy).toHaveBeenCalled();
@@ -389,16 +477,18 @@ describe("CommandRegistry", () => {
             });
 
             // Act
-            const result = CommandRegistry.registerAliasesFromConfig();
+            const result = sut.registerAliasesFromConfig();
 
             // Assert
-            expect(result).toBe(CommandRegistry); // Using toBe matcher for referential equality
+            expect(result).toBe(sut); // Using toBe matcher for referential equality
         });
 
         describe("given command is registered", () => {
             test("when called with command name and 'overrideIfRegistered' false, it outputs a warning", () => {
                 // Arrange
-                const { command, description } = seedRandomCommand();
+                const { command, description } = Factory.build<
+                    CommandDefinition
+                >(FactoryType.CommandDefinition);
                 const overrideIfRegistered = false; // This is the important setup
                 program.command(command, description);
                 jest.spyOn(
@@ -413,7 +503,7 @@ describe("CommandRegistry", () => {
                 });
 
                 // Act
-                CommandRegistry.registerAliasesFromConfig(overrideIfRegistered);
+                sut.registerAliasesFromConfig(overrideIfRegistered);
 
                 // Assert
                 expect(echoWarnSpy).toHaveBeenCalled();
@@ -422,7 +512,9 @@ describe("CommandRegistry", () => {
             test("when called with command name and 'overrideIfRegistered' true, it calls program.command again", () => {
                 // Arrange
                 // Variables need to be prefixed with 'mock' to be referenced in jest.mock calls
-                const { command, description } = seedRandomCommand();
+                const { command, description } = Factory.build<
+                    CommandDefinition
+                >(FactoryType.CommandDefinition);
                 const overrideIfRegistered = true; // This is the important setup
                 program.command(command, description);
                 jest.spyOn(
@@ -437,7 +529,7 @@ describe("CommandRegistry", () => {
                 });
 
                 // Act
-                CommandRegistry.registerAliasesFromConfig(overrideIfRegistered);
+                sut.registerAliasesFromConfig(overrideIfRegistered);
 
                 // Assert
                 expect(programCommandSpy).toHaveBeenCalledTimes(2);
@@ -447,7 +539,9 @@ describe("CommandRegistry", () => {
         describe("given command is not already registered", () => {
             test("it calls program.command", () => {
                 // Arrange
-                const { command, description } = seedRandomCommand();
+                const { command, description } = Factory.build<
+                    CommandDefinition
+                >(FactoryType.CommandDefinition);
                 const overrideIfRegistered = faker.random.boolean(); // This shouldn't matter
                 jest.spyOn(
                     PackageConfig,
@@ -461,7 +555,7 @@ describe("CommandRegistry", () => {
                 });
 
                 // Act
-                CommandRegistry.registerAliasesFromConfig(overrideIfRegistered);
+                sut.registerAliasesFromConfig(overrideIfRegistered);
 
                 // Assert
                 expect(programCommandSpy).toHaveBeenCalledTimes(1);
@@ -472,15 +566,74 @@ describe("CommandRegistry", () => {
     // #endregion registerAliasesFromConfig
 
     // -----------------------------------------------------------------------------------------
-    // #region registerBaseCommand
+    // #region registerAll
     // -----------------------------------------------------------------------------------------
 
-    describe("registerBaseCommand", () => {
+    describe("registerAll", () => {
+        test.each<undefined | null | any[]>([undefined, null, []])(
+            "when called with a commands array value of %p, it does not call registerCommand",
+            (commands) => {
+                // Arrange
+                const registerCommandSpy = jest.spyOn(sut, "register");
+
+                // Act
+                sut.registerAll(commands as CommandDefinition[]);
+
+                // Assert
+                expect(registerCommandSpy).not.toHaveBeenCalled();
+            }
+        );
+
+        test("when commands array has values, it calls 'register' for each definition", () => {
+            // Arrange
+            const commandCount = TestUtils.randomNumber(1, 10);
+            const definitions = [];
+            for (let i = 0; i < commandCount; i++) {
+                definitions.push(
+                    Factory.build<CommandDefinition>(
+                        FactoryType.CommandDefinition
+                    )
+                );
+            }
+
+            // Act
+            sut.registerAll(definitions);
+
+            // Assert
+            expect(programCommandSpy).toHaveBeenCalledTimes(commandCount);
+        });
+    });
+
+    // #endregion registerAll
+
+    // -----------------------------------------------------------------------------------------
+    // #region registerAllBase
+    // -----------------------------------------------------------------------------------------
+
+    describe("registerAllBase", () => {
+        test("it calls registerBase for each base command", () => {
+            // Arrange & Act
+            sut.registerAllBase();
+
+            // Assert
+            expect(programCommandSpy).toHaveBeenCalledTimes(
+                FLATTENED_COMMAND_DEFINITIONS.length
+            );
+        });
+    });
+
+    // #endregion registerAllBase
+
+    // -----------------------------------------------------------------------------------------
+    // #region registerBase
+    // -----------------------------------------------------------------------------------------
+
+    describe("registerBase", () => {
         test.each([undefined, null, "", " "])(
             "when called with %p, it exits with an error",
             (name) => {
                 // Arrange & Act
-                CommandRegistry.registerBaseCommand(name as string);
+                sut.registerBase(name as string);
 
                 // Assert
                 expect(echoErrorSpy).toHaveBeenCalled();
@@ -491,10 +644,12 @@ describe("CommandRegistry", () => {
         describe("given command is not defined in commands module", () => {
             test("when called with command name, it exits with an error", () => {
                 // Arrange
-                const { command } = seedRandomCommand();
+                const { command } = Factory.build<CommandDefinition>(
+                    FactoryType.CommandDefinition
+                );
 
                 // Act
-                CommandRegistry.registerBaseCommand(command);
+                sut.registerBase(command);
 
                 // Assert
                 expect(echoErrorSpy).toHaveBeenCalled();
@@ -506,16 +661,13 @@ describe("CommandRegistry", () => {
             test("when called with command name and 'overrideIfRegistered' false, it outputs a warning", () => {
                 // Arrange
                 const { command, description } = faker.random.arrayElement(
-                    CommandDefinitions
+                    FLATTENED_COMMAND_DEFINITIONS
                 );
                 const overrideIfRegistered = false; // This is the important setup
                 program.command(command, description);
 
                 // Act
-                CommandRegistry.registerBaseCommand(
-                    command,
-                    overrideIfRegistered
-                );
+                sut.registerBase(command, overrideIfRegistered);
 
                 // Assert
                 expect(echoWarnSpy).toHaveBeenCalled();
@@ -524,16 +676,13 @@ describe("CommandRegistry", () => {
             test("when called with command name and 'overrideIfRegistered' true, it calls program.command again", () => {
                 // Arrange
                 const { command, description } = faker.random.arrayElement(
-                    CommandDefinitions
+                    FLATTENED_COMMAND_DEFINITIONS
                 );
                 const overrideIfRegistered = true; // This is the important setup
                 program.command(command, description);
 
                 // Act
-                CommandRegistry.registerBaseCommand(
-                    command,
-                    overrideIfRegistered
-                );
+                sut.registerBase(command, overrideIfRegistered);
 
                 // Assert
                 expect(programCommandSpy).toHaveBeenCalledTimes(2);
@@ -541,11 +690,11 @@ describe("CommandRegistry", () => {
         });
 
         describe("given command is not already registered", () => {
-            describe("given 'isImportedModule' is initialized to true", () => {
+            describe("given 'isImportedModule' is set to true", () => {
                 test(`it calls program.command with a file path pointing to ${Constants.NODE_MODULES}`, () => {
                     // Arrange
                     const { command, description } = faker.random.arrayElement(
-                        CommandDefinitions
+                        FLATTENED_COMMAND_DEFINITIONS
                     );
                     // The expected file path should point to the transpiled JS in the node_modules folder
                     const expectedFilePath = upath.join(
@@ -555,10 +704,12 @@ describe("CommandRegistry", () => {
                         Constants.DIST,
                         `${Constants.CLI_NAME}-${command}.js`
                     );
-                    CommandRegistry.initialize(true); // This is the important setup
+                    sut.configure({
+                        isImportedModule: true,
+                    }); // This is the important setup
 
                     // Act
-                    CommandRegistry.registerBaseCommand(command);
+                    sut.registerBase(command);
 
                     // Assert
                     expect(programCommandSpy).toHaveBeenCalled();
@@ -572,21 +723,23 @@ describe("CommandRegistry", () => {
                 });
             });
 
-            describe("given 'isImportedModule' is initialized to false", () => {
+            describe("given 'isImportedModule' is set to false", () => {
                 test(`it calls program.command with a file path pointing to current directory`, () => {
                     // Arrange
                     const { command, description } = faker.random.arrayElement(
-                        CommandDefinitions
+                        FLATTENED_COMMAND_DEFINITIONS
                     );
                     // The expected file path should point to ./and-cli-{commandName}.js
                     const expectedFilePath = upath.join(
                         ".",
                         `${Constants.CLI_NAME}-${command}.js`
                     );
-                    CommandRegistry.initialize(false); // This is the important setup
+                    sut.configure({
+                        isImportedModule: false,
+                    }); // This is the important setup
 
                     // Act
-                    CommandRegistry.registerBaseCommand(command);
+                    sut.registerBase(command);
 
                     // Assert
                     expect(programCommandSpy).toHaveBeenCalled();
@@ -602,138 +755,13 @@ describe("CommandRegistry", () => {
         });
     });
 
-    // #endregion registerBaseCommand
+    // #endregion registerBase
 
     // -----------------------------------------------------------------------------------------
-    // #region registerBaseCommands
+    // #region remove
     // -----------------------------------------------------------------------------------------
 
-    describe("registerBaseCommands", () => {
-        test("it calls registerBaseCommand for each base command", () => {
-            // Arrange & Act
-            CommandRegistry.registerBaseCommands();
-
-            // Assert
-            expect(programCommandSpy).toHaveBeenCalledTimes(
-                CommandDefinitions.length
-            );
-        });
-    });
-
-    // #endregion registerBaseCommands
-
-    // -----------------------------------------------------------------------------------------
-    // #region registerCommand
-    // -----------------------------------------------------------------------------------------
-
-    describe("registerCommand", () => {
-        describe("given command is registered", () => {
-            test("when called with command name and 'overrideIfRegistered' false, it outputs a warning", () => {
-                // Arrange
-                const commandDefinition = seedRandomCommand();
-                const { command, description } = commandDefinition;
-                const overrideIfRegistered = false; // This is the important setup
-                program.command(command, description);
-
-                // Act
-                CommandRegistry.registerCommand(
-                    commandDefinition,
-                    overrideIfRegistered
-                );
-
-                // Assert
-                expect(echoWarnSpy).toHaveBeenCalled();
-            });
-
-            test("when called with command name and 'overrideIfRegistered' true, it calls program.command again", () => {
-                // Arrange
-                const commandDefinition = seedRandomCommand();
-                const { command, description } = commandDefinition;
-                const overrideIfRegistered = true; // This is the important setup
-                program.command(command, description);
-
-                // Act
-                CommandRegistry.registerCommand(
-                    commandDefinition,
-                    overrideIfRegistered
-                );
-
-                // Assert
-                expect(programCommandSpy).toHaveBeenCalledTimes(2);
-            });
-        });
-
-        describe("given command is not already registered", () => {
-            test("it calls program.command", () => {
-                // Arrange
-                const commandDefinition = seedRandomCommand();
-                const { command, description } = commandDefinition;
-                const overrideIfRegistered = faker.random.boolean(); // This shouldn't matter
-
-                // Act
-                CommandRegistry.registerCommand(
-                    commandDefinition,
-                    overrideIfRegistered
-                );
-
-                // Assert
-                expect(programCommandSpy).toHaveBeenCalledWith(
-                    command,
-                    description
-                );
-            });
-        });
-    });
-
-    // #endregion registerCommand
-
-    // -----------------------------------------------------------------------------------------
-    // #region registerCommands
-    // -----------------------------------------------------------------------------------------
-
-    describe("registerCommands", () => {
-        test.each<undefined | null | any[]>([undefined, null, []])(
-            "when called with a commands array value of %p, it does not call registerCommand",
-            (commands) => {
-                // Arrange
-                const registerCommandSpy = jest.spyOn(
-                    CommandRegistry,
-                    "registerCommand"
-                );
-
-                // Act
-                CommandRegistry.registerCommands(
-                    commands as CommandDefinition[]
-                );
-
-                // Assert
-                expect(registerCommandSpy).not.toHaveBeenCalled();
-            }
-        );
-
-        test("when commands array has values, it calls registerCommand for each command", () => {
-            // Arrange
-            const commandCount = TestUtils.randomNumber(1, 10);
-            const commands = [];
-            for (let i = 0; i < commandCount; i++) {
-                commands.push(seedRandomCommand());
-            }
-
-            // Act
-            CommandRegistry.registerCommands(commands);
-
-            // Assert
-            expect(programCommandSpy).toHaveBeenCalledTimes(commandCount);
-        });
-    });
-
-    // #endregion registerCommands
-
-    // -----------------------------------------------------------------------------------------
-    // #region removeCommand
-    // -----------------------------------------------------------------------------------------
-
-    describe("removeCommand", () => {
+    describe("remove", () => {
         test.each([undefined, null, "", " "])(
             "when called with %p, it does create new commands array",
             (value) => {
@@ -742,7 +770,7 @@ describe("CommandRegistry", () => {
                 const expectedCommands = program.commands;
 
                 // Act
-                CommandRegistry.removeCommand(value as string);
+                sut.remove(value as string);
 
                 // Assert
                 expect(program.commands).toBe(expectedCommands); // Using toBe matcher for referential equality
@@ -751,11 +779,13 @@ describe("CommandRegistry", () => {
 
         test("when called with command that does not exist, it does not modify commands array", () => {
             // Arrange
-            const { command } = seedRandomCommand();
+            const { command } = Factory.build<CommandDefinition>(
+                FactoryType.CommandDefinition
+            );
             const expectedCommands = program.commands;
 
             // Act
-            CommandRegistry.removeCommand(command);
+            sut.remove(command);
 
             // Assert
             expect(program.commands).toStrictEqual(expectedCommands);
@@ -763,19 +793,21 @@ describe("CommandRegistry", () => {
 
         test("when called with command that exists, it returns a new command array without that command", () => {
             // Arrange
-            const { command, description } = seedRandomCommand();
+            const { command, description } = Factory.build<CommandDefinition>(
+                FactoryType.CommandDefinition
+            );
             program.command(command, description);
             const expectedCommands: program.Command[] = [];
 
             // Act
-            CommandRegistry.removeCommand(command);
+            sut.remove(command);
 
             // Assert
             expect(program.commands).toStrictEqual(expectedCommands);
         });
     });
 
-    // #endregion removeCommand
+    // #endregion remove
 });
 
 // #endregion Tests

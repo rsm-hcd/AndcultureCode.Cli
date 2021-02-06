@@ -29,7 +29,7 @@ const restoreTypes = shell
 
 program.description("Runs restores for various application types");
 
-CommandRegistry.registerCommands(
+CommandRegistry.registerAll(
     restoreTypes.map((deployType: string) => {
         return {
             command: deployType,

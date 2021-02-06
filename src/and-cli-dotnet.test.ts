@@ -1,4 +1,4 @@
-import { Commands } from "./modules/commands";
+import { CommandDefinitions } from "./modules/command-definitions";
 import {
     givenOptions,
     shouldDisplayError,
@@ -13,7 +13,7 @@ import { DotnetBuild } from "./modules/dotnet-build";
 // #region Constants
 // -----------------------------------------------------------------------------------------
 
-const COMMAND = Commands.dotnet.command;
+const COMMAND = CommandDefinitions.dotnet.command;
 
 // #endregion Constants
 

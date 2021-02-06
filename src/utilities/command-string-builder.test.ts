@@ -1,10 +1,6 @@
 import { TestUtils } from "../tests/test-utils";
 import { CommandStringBuilder } from "./command-string-builder";
 
-test("it passes", () => {
-    expect(true).toBeTrue();
-});
-
 // -----------------------------------------------------------------------------------------
 // #region Tests
 // -----------------------------------------------------------------------------------------

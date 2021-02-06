@@ -29,7 +29,7 @@ const deployTypes = shell
 
 program.description("Runs deployments for various application types");
 
-CommandRegistry.registerCommands(
+CommandRegistry.registerAll(
     deployTypes.map((deployType: string) => {
         return {
             command: deployType,

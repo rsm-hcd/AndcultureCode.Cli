@@ -1,11 +1,11 @@
 // -----------------------------------------------------------------------------------------
-// #region Types
+// #region Interface
 // -----------------------------------------------------------------------------------------
 
 /**
  * An object defining a command for the program, with the command name and description.
  */
-type CommandDefinition = {
+interface CommandDefinition {
     /**
      * Name of the command to run
      */
@@ -15,9 +15,9 @@ type CommandDefinition = {
      * Short description of what the command can be used for
      */
     description: string;
-};
+}
 
-// #endregion Types
+// #endregion Interface
 
 // -----------------------------------------------------------------------------------------
 // #region Exports

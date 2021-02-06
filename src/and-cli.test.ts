@@ -1,7 +1,9 @@
-import { Commands } from "./modules/commands";
+import { CommandDefinitions } from "./modules/command-definitions";
+import { CommandDefinitionUtils } from "./utilities/command-definition-utils";
 import { Constants } from "./modules/constants";
 import { givenOptions, shouldDisplayHelpMenu } from "./tests/shared-specs";
 import { TestUtils } from "./tests/test-utils";
+import { CommandDefinition } from "./interfaces/command-definition";
 
 // -----------------------------------------------------------------------------------------
 // #region Tests
@@ -13,35 +15,37 @@ describe("and-cli", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("commands", () => {
-        // Pull out the flattened list of command objects from 'commands' module
-        const commandObjects = Object.keys(Commands).map(
-            (key) => Commands[key]
+        // Pull out the flattened list of command definitions
+        const commandDefinitions = CommandDefinitionUtils.flatten(
+            CommandDefinitions
         );
-        const commandStrings = commandObjects.map((obj) => obj.command);
+        const commandNames = CommandDefinitionUtils.getNames(
+            CommandDefinitions
+        );
 
-        givenOptions(commandStrings, (command: string) =>
+        givenOptions(commandNames, (command: string) =>
             // Each registered sub-command should display its respective help menu. This will help
             // ensure each new command is at least run during the build, even if the developer
             // forgets to add a test file specifically for it.
             shouldDisplayHelpMenu(command)
         );
 
-        test("given no commands, it lists each command and description in the commands module", async () => {
+        test("given no commands, it lists each command and description in the CommandDefinitions module", async () => {
             // Arrange & Act
             const result = await TestUtils.executeCliCommand();
 
             // Assert
-            commandObjects.forEach((commandObject) => {
-                expect(result).toContain(commandObject.command);
+            commandDefinitions.forEach((definition: CommandDefinition) => {
+                expect(result).toContain(definition.command);
 
                 // Normally, we'd be able to get away with just comparing the entire description string
                 // against the result output. In the newer versions of Commander, it seems to wrap
                 // longer descriptions onto new lines. We'll just verify that every 'word' of
                 // the description exists in the result string.
-                const descriptionWords = commandObject.description.split(" ");
-                descriptionWords.forEach((word: string) => {
-                    expect(result).toContain(word);
-                });
+                const descriptionWords = definition.description.split(" ");
+                descriptionWords.forEach((word: string) =>
+                    expect(result).toContain(word)
+                );
             });
         });
 

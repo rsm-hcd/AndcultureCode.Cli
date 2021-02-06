@@ -2,7 +2,7 @@
 
 import { Constants } from "./modules/constants";
 import { StringUtils } from "andculturecode-javascript-core";
-import { Commands } from "./modules/commands";
+import { CommandDefinitions } from "./modules/command-definitions";
 import { Echo } from "./modules/echo";
 import { File } from "./modules/file";
 import { Formatters } from "./modules/formatters";
@@ -175,7 +175,7 @@ CommandRunner.run(async () => {
 
     program
         .usage("option(s)")
-        .description(Commands.install.description)
+        .description(CommandDefinitions.install.description)
         .parse(process.argv);
 
     // If no options are passed in, performs installation steps
