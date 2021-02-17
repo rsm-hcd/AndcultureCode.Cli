@@ -1,4 +1,4 @@
-import { Commands } from "./modules/commands";
+import { CommandDefinitions } from "./modules/command-definitions";
 import {
     shouldDisplayError,
     shouldDisplayHelpMenu,
@@ -12,7 +12,7 @@ import { DotnetTest } from "./modules/dotnet-test";
 // #region Constants
 // -----------------------------------------------------------------------------------------
 
-const COMMAND = Commands.dotnetTest.command;
+const COMMAND = CommandDefinitions.dotnetTest.command;
 const OPTIONS = DotnetTest.getOptions();
 const TEST_RUN_SUCCESSFUL_REGEXP = /Test Run Successful/g;
 

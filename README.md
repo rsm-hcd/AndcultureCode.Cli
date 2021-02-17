@@ -105,7 +105,7 @@ const { CommandRegistry, program } = require("and-cli");
 // -----------------------------------------------------------------------------------------
 
 // Register all of the base commands from the and-cli with this application
-CommandRegistry.registerBaseCommands();
+CommandRegistry.registerAllBase();
 
 program.parse(process.argv);
 
@@ -158,7 +158,7 @@ const { CommandRegistry, program } = require("and-cli");
 
 // Register the base 'dotnet' command and register aliases from the package.json file
 CommandRegistry
-    .registerBaseCommand("dotnet")
+    .registerBase("dotnet")
     .registerAliasesFromConfig();
 
 // Ensure you call parseWithAliases() in place of program.parse() to preprocess the arguments.
@@ -190,7 +190,7 @@ const { CommandRegistry, program } = require("and-cli");
 
 // Register the base 'dotnet' command and alias some of its options
 CommandRegistry
-    .registerBaseCommand("dotnet")
+    .registerBase("dotnet")
     .registerAlias({
         command: "d",
         description: "dotnet",

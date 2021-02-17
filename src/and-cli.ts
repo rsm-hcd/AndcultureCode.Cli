@@ -55,12 +55,12 @@ program.version(PackageConfig.getBaseVersion());
 
 // Set the flag in the command registry to denote whether the application is currently being run
 // directly or in a package
-CommandRegistry.initialize(isImportedModule);
+CommandRegistry.configure({ isImportedModule });
 
 // By default, we will only register base commands when being run directly. The consumer
 // application can choose to register the base commands (or not)
 if (isNotImportedModule) {
-    CommandRegistry.registerBaseCommands().registerAliasesFromConfig();
+    CommandRegistry.registerAllBase().registerAliasesFromConfig();
 }
 
 fixArgumentPosixPathConversion();
