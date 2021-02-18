@@ -1,7 +1,7 @@
 interface WebpackRestoreOptions {
+    ci?: boolean;
     skipClean?: boolean;
     skipRestore?: boolean;
-    ci?: boolean;
 }
 
 export { WebpackRestoreOptions };

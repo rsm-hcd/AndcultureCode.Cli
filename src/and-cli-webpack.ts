@@ -21,10 +21,10 @@ CommandRunner.run(async () => {
     // -----------------------------------------------------------------------------------------
 
     const WEBPACK_OPTIONS: Record<string, OptionStringBuilder> = {
+        CI: NodeCI.getOptions(),
         CLEAN: NodeClean.getOptions(),
         PUBLISH: WebpackPublish.getOptions(),
         RESTORE: NodeRestore.getOptions(),
-        CI: NodeCI.getOptions(),
     };
 
     // #endregion Constants
