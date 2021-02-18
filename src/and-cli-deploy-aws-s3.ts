@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
+import program from "commander";
+import shell from "shelljs";
 import { CommandRunner } from "./modules/command-runner";
 import { DeployConfig } from "./modules/deploy-config";
 import { Echo } from "./modules/echo";
 import { FrontendPath } from "./modules/frontend-path";
 import { WebpackPublish } from "./modules/webpack-publish";
-import program from "commander";
-import shell from "shelljs";
 
 CommandRunner.run(async () => {
     // -----------------------------------------------------------------------------------------
@@ -45,7 +45,12 @@ CommandRunner.run(async () => {
 
             // Locally publish frontend via webpack
             if (program.publish && program.webpack) {
-                const publishResult = WebpackPublish.run();
+                const publishResult = WebpackPublish.run({
+                    skipClean: program.skipClean,
+                    skipRestore: program.skipRestore,
+                    ci: program.ci,
+                });
+
                 if (!publishResult) {
                     shell.exit(1);
                 }
@@ -151,6 +156,9 @@ CommandRunner.run(async () => {
             `Optional path of folder to copy from this machine. Default is '${FrontendPath.publishDir()}'`
         )
         .option("--webpack", "Deploy webpack built frontend application")
+        .option("--skip-restore", "Skip npm restore", false)
+        .option("--skip-clean", "Skip npm clean", false)
+        .option("--ci", "Restore npm packages with npm ci", false)
         .parse(process.argv);
 
     await deployAwsS3.run();

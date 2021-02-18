@@ -1,18 +1,19 @@
 #!/usr/bin/env node
 
-import { CommandStringBuilder } from "./utilities/command-string-builder";
 import child_process from "child_process";
+import program from "commander";
+import shell from "shelljs";
+import { CommandRunner } from "./modules/command-runner";
 import { Commands } from "./modules/commands";
 import { Dir } from "./modules/dir";
 import { Echo } from "./modules/echo";
 import { FrontendPath } from "./modules/frontend-path";
+import { NodeCI } from "./modules/node-ci";
 import { NodeClean } from "./modules/node-clean";
 import { NodeRestore } from "./modules/node-restore";
-import program from "commander";
-import shell from "shelljs";
 import { WebpackPublish } from "./modules/webpack-publish";
+import { CommandStringBuilder } from "./utilities/command-string-builder";
 import { OptionStringBuilder } from "./utilities/option-string-builder";
-import { CommandRunner } from "./modules/command-runner";
 
 CommandRunner.run(async () => {
     // -----------------------------------------------------------------------------------------
@@ -23,6 +24,7 @@ CommandRunner.run(async () => {
         CLEAN: NodeClean.getOptions(),
         PUBLISH: WebpackPublish.getOptions(),
         RESTORE: NodeRestore.getOptions(),
+        CI: NodeCI.getOptions(),
     };
 
     // #endregion Constants
@@ -45,19 +47,28 @@ CommandRunner.run(async () => {
         getOptions(): Record<string, OptionStringBuilder> {
             return WEBPACK_OPTIONS;
         },
+        restore(): void {
+            if (program.ci) {
+                NodeCI.run();
+                return;
+            }
+            if (program.clean) {
+                NodeClean.run();
+            }
+            if (program.restore) {
+                NodeRestore.run();
+            }
+        },
         run() {
             Dir.pushd(FrontendPath.projectDir());
 
             if (program.clean) {
                 NodeClean.run();
             }
-
             if (program.restore) {
                 NodeRestore.run();
             }
 
-            // Since the spawnSync function takes the base command and all arguments separately, we cannot
-            // leverage the base dotnet command string here. We'll build out the arg list in an array.
             const { cmd, args } = this.cmd();
 
             Echo.message(`Running frontend (via ${this.cmd()})...`);
@@ -93,11 +104,18 @@ CommandRunner.run(async () => {
             WebpackPublish.description()
         )
         .option(NodeRestore.getOptions().toString(), NodeRestore.description())
+        .option("--skip-restore", "Skip npm restore", false)
+        .option("--skip-clean", "Skip npm clean", false)
+        .option("--ci", "Restore packages with npm ci", false)
         .parse(process.argv);
 
     // Publish
     if (program.publish) {
-        const result = WebpackPublish.run();
+        const result = WebpackPublish.run({
+            skipClean: program.skipClean,
+            skipRestore: program.skipRestore,
+            ci: program.ci,
+        });
         shell.exit(result ? 0 : 1);
         return;
     }

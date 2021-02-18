@@ -7,15 +7,15 @@ import { Echo } from "./echo";
 // #region Functions
 // -----------------------------------------------------------------------------------------
 
-const NodeRestore = {
+const NodeCI = {
     cmd(): CommandStringBuilder {
-        return new CommandStringBuilder("npm", "install");
+        return new CommandStringBuilder("npm", "ci");
     },
     description() {
-        return `Restore npm dependencies (via ${this.cmd()}) in the current directory`;
+        return `Clean and restore npm dependencies (via ${this.cmd()}) in the current directory`;
     },
     getOptions(): OptionStringBuilder {
-        return new OptionStringBuilder("restore", "R");
+        return new OptionStringBuilder("ci");
     },
     run() {
         Echo.message(
@@ -32,6 +32,6 @@ const NodeRestore = {
 // #region Exports
 // -----------------------------------------------------------------------------------------
 
-export { NodeRestore };
+export { NodeCI };
 
 // #endregion Exports

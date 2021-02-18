@@ -1,10 +1,12 @@
+import shell, { ExecOutputReturnValue } from "shelljs";
+import { WebpackRestoreOptions } from "../interfaces/webpack-restore-options";
 import { CommandStringBuilder } from "../utilities/command-string-builder";
 import { OptionStringBuilder } from "../utilities/option-string-builder";
 import { Echo } from "./echo";
 import { FrontendPath } from "./frontend-path";
+import { NodeCI } from "./node-ci";
 import { NodeClean } from "./node-clean";
 import { NodeRestore } from "./node-restore";
-import shell, { ExecOutputReturnValue } from "shelljs";
 
 // -----------------------------------------------------------------------------------------
 // #region Functions
@@ -20,7 +22,22 @@ const WebpackPublish = {
     getOptions(): OptionStringBuilder {
         return new OptionStringBuilder("publish", "p");
     },
-    run(): boolean {
+    restore(options: WebpackRestoreOptions): void {
+        const ci = options.ci ?? false;
+
+        if (ci) {
+            NodeCI.run();
+            return;
+        }
+        if (!options.skipClean) {
+            NodeClean.run();
+        }
+
+        if (!options.skipRestore) {
+            NodeRestore.run();
+        }
+    },
+    run(options: WebpackRestoreOptions): boolean {
         // Clean publish directory
         Echo.message(
             `Cleaning publish directory ${FrontendPath.publishDir()}...`
@@ -33,9 +50,7 @@ const WebpackPublish = {
         // Change directory into frontend folder
         shell.pushd(FrontendPath.projectDir());
 
-        // Clean and restore node dependencies
-        NodeClean.run();
-        NodeRestore.run();
+        this.restore(options);
 
         // Build frontend
         Echo.message(`Building frontend (via ${this.cmd()})...`);
