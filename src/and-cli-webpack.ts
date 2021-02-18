@@ -3,8 +3,8 @@
 import child_process from "child_process";
 import program from "commander";
 import shell from "shelljs";
+import { CommandDefinitions } from "./modules/command-definitions";
 import { CommandRunner } from "./modules/command-runner";
-import { Commands } from "./modules/commands";
 import { Dir } from "./modules/dir";
 import { Echo } from "./modules/echo";
 import { FrontendPath } from "./modules/frontend-path";
@@ -95,7 +95,7 @@ CommandRunner.run(async () => {
     program
         .usage("option(s)")
         .description(
-            `${Commands.webpack.description} Certain options can be chained together for specific behavior` +
+            `${CommandDefinitions.webpack.description} Certain options can be chained together for specific behavior` +
                 "(--clean and --restore can be used in conjunction)."
         )
         .option(NodeClean.getOptions().toString(), NodeClean.description())

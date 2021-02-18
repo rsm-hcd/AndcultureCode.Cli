@@ -19,6 +19,7 @@ export { NugetCommand } from "./enums/nuget-command";
 // #region Interfaces
 // -----------------------------------------------------------------------------------------
 
+export { CommandDefinition } from "./interfaces/command-definition";
 export { RepositoryOwner } from "./interfaces/repository-owner";
 export { Repository } from "./interfaces/repository";
 
@@ -31,7 +32,7 @@ export { Repository } from "./interfaces/repository";
 export { Azure } from "./modules/azure";
 export { CommandRegistry } from "./modules/command-registry";
 export { CommandRunner } from "./modules/command-runner";
-export { Commands } from "./modules/commands";
+export { CommandDefinitions } from "./modules/command-definitions";
 export { Constants } from "./modules/constants";
 export { DeployConfig } from "./modules/deploy-config";
 export { Dir } from "./modules/dir";
@@ -65,18 +66,12 @@ export { Zip } from "./modules/zip";
 // #endregion Modules
 
 // -----------------------------------------------------------------------------------------
-// #region Types
-// -----------------------------------------------------------------------------------------
-
-export { CommandDefinition } from "./types/command-definition-type";
-
-// #endregion Types
-
-// -----------------------------------------------------------------------------------------
 // #region Utilities
 // -----------------------------------------------------------------------------------------
 
+export { CommandDefinitionUtils } from "./utilities/command-definition-utils";
 export { CommandStringBuilder } from "./utilities/command-string-builder";
+export { CommandUtils } from "./utilities/command-utils";
 export { OptionStringBuilder } from "./utilities/option-string-builder";
 
 // #endregion Utilities

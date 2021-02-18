@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { CommandRunner } from "./modules/command-runner";
-import { Commands } from "./modules/commands";
+import { CommandDefinitions } from "./modules/command-definitions";
 import { Migration } from "./modules/migration";
 import program from "commander";
 import { MigrationMode } from "./enums/migration-mode";
@@ -22,7 +22,7 @@ CommandRunner.run(async () => {
 
     program
         .usage("option")
-        .description(Commands.migration.description)
+        .description(CommandDefinitions.migration.description)
         .option(ADD.toString(), Migration.description(MigrationMode.ADD))
         .option(DELETE.toString(), Migration.description(MigrationMode.DELETE))
         .option(RUN.toString(), Migration.description(MigrationMode.RUN))

@@ -1,10 +1,10 @@
-import { CommandDefinition } from "../types/command-definition-type";
+import { CommandDefinition } from "../interfaces/command-definition";
 
 // -----------------------------------------------------------------------------------------
 // #region Public Members
 // -----------------------------------------------------------------------------------------
 
-const Commands: Record<string, CommandDefinition> = {
+const CommandDefinitions: Record<string, CommandDefinition> = {
     copy: {
         command: "copy",
         description: "Copy files and/or directories",
@@ -58,19 +58,12 @@ const Commands: Record<string, CommandDefinition> = {
     },
 };
 
-/**
- * Flattened array of the base CommandDefinitions from the Commands module
- */
-const CommandDefinitions: CommandDefinition[] = Object.keys(Commands).map(
-    (key: string) => Commands[key]
-);
-
 // #endregion Public Members
 
 // -----------------------------------------------------------------------------------------
 // #region Exports
 // -----------------------------------------------------------------------------------------
 
-export { Commands, CommandDefinitions };
+export { CommandDefinitions };
 
 // #endregion Exports

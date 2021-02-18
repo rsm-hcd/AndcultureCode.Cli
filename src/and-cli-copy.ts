@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { CommandRunner } from "./modules/command-runner";
-import { Commands } from "./modules/commands";
+import { CommandDefinitions } from "./modules/command-definitions";
 import { Echo } from "./modules/echo";
 import program from "commander";
 import shell from "shelljs";
@@ -53,7 +53,7 @@ CommandRunner.run(async () => {
 
     program
         .usage("option(s)")
-        .description(Commands.copy.description)
+        .description(CommandDefinitions.copy.description)
         .option(
             "-d, --destination <destination>",
             "Required destination directory path"

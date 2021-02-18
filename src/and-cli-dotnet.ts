@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { Commands } from "./modules/commands";
+import { CommandDefinitions } from "./modules/command-definitions";
 import { Dotnet } from "./modules/dotnet";
 import { DotnetBuild } from "./modules/dotnet-build";
 import { DotnetClean } from "./modules/dotnet-clean";
@@ -28,7 +28,7 @@ CommandRunner.run(async () => {
     program
         .usage("option(s)")
         .description(
-            `${Commands.dotnet.description} Certain options can be chained together for specific behavior ` +
+            `${CommandDefinitions.dotnet.description} Certain options can be chained together for specific behavior ` +
                 "(--clean and --restore can be used in conjunction with --build)."
         )
         .option(DotnetBuild.getOptions().toString(), DotnetBuild.description())

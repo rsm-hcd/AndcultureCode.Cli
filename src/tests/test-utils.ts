@@ -170,13 +170,6 @@ const TestUtils = {
         return number;
     },
 
-    randomWord() {
-        return AndcultureCodeTestUtils.randomWord().replace(
-            /[^A-Za-z0-9]/gi,
-            ""
-        );
-    },
-
     /**
      * Returns a Jest spy instance of the mocked `shell.exit` method
      */

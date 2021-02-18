@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { Commands } from "./modules/commands";
+import { CommandDefinitions } from "./modules/command-definitions";
 import { Constants } from "./modules/constants";
 import { DotnetPath } from "./modules/dotnet-path";
 import { Echo } from "./modules/echo";
@@ -137,7 +137,7 @@ CommandRunner.run(async () => {
 
     program
         .usage("option(s)")
-        .description(Commands.nuget.description)
+        .description(CommandDefinitions.nuget.description)
         .option(
             NugetPublish.getOptions().toString(),
             NugetPublish.description()

@@ -2,10 +2,6 @@ import { TestUtils } from "../tests/test-utils";
 import { OptionStringBuilder } from "./option-string-builder";
 import faker from "faker";
 
-test("it passes", () => {
-    expect(true).toBeTrue();
-});
-
 // -----------------------------------------------------------------------------------------
 // #region Tests
 // -----------------------------------------------------------------------------------------
