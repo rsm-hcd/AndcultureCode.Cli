@@ -9,7 +9,7 @@ jobs:
           language: node
           node_js: $NODE_VERSION
           before_script:
-              - npm ci
+              - npm install
               - npm install -g codecov
           script:
               - npm run test:unit
@@ -23,7 +23,7 @@ jobs:
           before_script:
               - nvm install $NODE_VERSION
               - nvm use $NODE_VERSION
-              - npm ci
+              - npm install
           script:
               - npm run test:integration
 notifications:
