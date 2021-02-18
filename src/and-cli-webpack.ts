@@ -47,18 +47,6 @@ CommandRunner.run(async () => {
         getOptions(): Record<string, OptionStringBuilder> {
             return WEBPACK_OPTIONS;
         },
-        restore(): void {
-            if (program.ci) {
-                NodeCI.run();
-                return;
-            }
-            if (program.clean) {
-                NodeClean.run();
-            }
-            if (program.restore) {
-                NodeRestore.run();
-            }
-        },
         run() {
             Dir.pushd(FrontendPath.projectDir());
 
