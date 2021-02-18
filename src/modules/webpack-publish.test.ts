@@ -1,4 +1,6 @@
+import { Factory } from "rosie";
 import { WebpackRestoreOptions } from "../interfaces/webpack-restore-options";
+import { FactoryType } from "../tests/factories/factory-type";
 import { NodeCI } from "./node-ci";
 import { NodeClean } from "./node-clean";
 import { NodeRestore } from "./node-restore";
@@ -21,11 +23,10 @@ describe("webpack-publish", () => {
             "when ci is %p, then NodeCI is not called ",
             (ci) => {
                 // Arrange
-                const options: WebpackRestoreOptions = {
-                    ci: ci,
-                    skipClean: undefined,
-                    skipRestore: undefined,
-                };
+                const options = Factory.build<WebpackRestoreOptions>(
+                    FactoryType.WebpackRestoreOptions,
+                    { ci }
+                );
 
                 // Act
                 WebpackPublish.restore(options);
@@ -36,11 +37,10 @@ describe("webpack-publish", () => {
         );
         test("when ci is true, then NodeCI is called ", () => {
             // Arrange
-            const options: WebpackRestoreOptions = {
-                ci: true,
-                skipClean: undefined,
-                skipRestore: undefined,
-            };
+            const options = Factory.build<WebpackRestoreOptions>(
+                FactoryType.WebpackRestoreOptions,
+                { ci: true }
+            );
 
             // Act
 
@@ -53,11 +53,10 @@ describe("webpack-publish", () => {
             "when skipClean is %p, then NodeClean is not called ",
             (skipClean) => {
                 // Arrange
-                const options: WebpackRestoreOptions = {
-                    ci: undefined,
-                    skipClean: skipClean,
-                    skipRestore: undefined,
-                };
+                const options = Factory.build<WebpackRestoreOptions>(
+                    FactoryType.WebpackRestoreOptions,
+                    { skipClean }
+                );
 
                 // Act
                 WebpackPublish.restore(options);
@@ -68,11 +67,10 @@ describe("webpack-publish", () => {
         );
         test("when skipClean is true, NodeClean is not called", () => {
             // Arrange
-            const options: WebpackRestoreOptions = {
-                ci: undefined,
-                skipClean: true,
-                skipRestore: undefined,
-            };
+            const options = Factory.build<WebpackRestoreOptions>(
+                FactoryType.WebpackRestoreOptions,
+                { skipClean: true }
+            );
 
             // Act
             WebpackPublish.restore(options);
@@ -85,11 +83,10 @@ describe("webpack-publish", () => {
             "when skipRestore is %p, then NodeRestore is not called ",
             (skipRestore) => {
                 // Arrange
-                const options: WebpackRestoreOptions = {
-                    ci: undefined,
-                    skipClean: undefined,
-                    skipRestore: skipRestore,
-                };
+                const options = Factory.build<WebpackRestoreOptions>(
+                    FactoryType.WebpackRestoreOptions,
+                    { skipRestore }
+                );
 
                 // Act
                 WebpackPublish.restore(options);
@@ -101,11 +98,10 @@ describe("webpack-publish", () => {
 
         test("when skipRestore is true, NodeRestore is not called", () => {
             // Arrange
-            const options: WebpackRestoreOptions = {
-                ci: undefined,
-                skipClean: undefined,
-                skipRestore: true,
-            };
+            const options = Factory.build<WebpackRestoreOptions>(
+                FactoryType.WebpackRestoreOptions,
+                { skipRestore: true }
+            );
 
             // Act
             WebpackPublish.restore(options);
