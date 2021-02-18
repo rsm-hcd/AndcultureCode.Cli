@@ -17,18 +17,17 @@ describe("webpack-publish", () => {
                 .spyOn(NodeRestore, "run")
                 .mockImplementation();
         });
-        test.each([null, false])(
+        test.each([undefined, null, false])(
             "when ci is %p, then NodeCI is not called ",
-            () => {
+            (ci) => {
                 // Arrange
                 const options: WebpackRestoreOptions = {
-                    ci: undefined,
+                    ci: ci,
                     skipClean: undefined,
                     skipRestore: undefined,
                 };
 
                 // Act
-
                 WebpackPublish.restore(options);
 
                 // Assert
@@ -50,13 +49,13 @@ describe("webpack-publish", () => {
             // Assert
             expect(nodeCISpy).toBeCalled();
         });
-        test.each([null, false])(
+        test.each([undefined, null, false])(
             "when skipClean is %p, then NodeClean is not called ",
-            () => {
+            (skipClean) => {
                 // Arrange
                 const options: WebpackRestoreOptions = {
                     ci: undefined,
-                    skipClean: false,
+                    skipClean: skipClean,
                     skipRestore: undefined,
                 };
 
@@ -67,15 +66,29 @@ describe("webpack-publish", () => {
                 expect(nodeCleanSpy).toBeCalled();
             }
         );
+        test("when skipClean is true, NodeClean is not called", () => {
+            // Arrange
+            const options: WebpackRestoreOptions = {
+                ci: undefined,
+                skipClean: true,
+                skipRestore: undefined,
+            };
+
+            // Act
+            WebpackPublish.restore(options);
+
+            // Assert
+            expect(nodeCleanSpy).not.toBeCalled();
+        });
 
         test.each([undefined, null, false])(
-            "when skipClean is %p, then NodeRestore is not called ",
-            () => {
+            "when skipRestore is %p, then NodeRestore is not called ",
+            (skipRestore) => {
                 // Arrange
                 const options: WebpackRestoreOptions = {
                     ci: undefined,
-                    skipClean: false,
-                    skipRestore: false,
+                    skipClean: undefined,
+                    skipRestore: skipRestore,
                 };
 
                 // Act
@@ -90,7 +103,7 @@ describe("webpack-publish", () => {
             // Arrange
             const options: WebpackRestoreOptions = {
                 ci: undefined,
-                skipClean: false,
+                skipClean: undefined,
                 skipRestore: true,
             };
 
