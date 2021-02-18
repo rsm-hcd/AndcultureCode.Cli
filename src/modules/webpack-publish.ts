@@ -24,16 +24,18 @@ const WebpackPublish = {
     },
     restore(options: WebpackRestoreOptions): void {
         const ci = options.ci ?? false;
+        const clean = !options.skipClean ?? true;
+        const restore = !options.skipRestore ?? true;
 
         if (ci) {
             NodeCI.run();
             return;
         }
-        if (!options.skipClean) {
+        if (clean) {
             NodeClean.run();
         }
 
-        if (!options.skipRestore) {
+        if (restore) {
             NodeRestore.run();
         }
     },
