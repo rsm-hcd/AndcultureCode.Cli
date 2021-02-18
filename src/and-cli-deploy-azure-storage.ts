@@ -55,9 +55,9 @@ CommandRunner.run(async () => {
             // Locally publish frontend via webpack
             if (program.publish && program.webpack) {
                 const publishResult = WebpackPublish.run({
+                    ci: program.ci,
                     skipClean: program.skipClean,
                     skipRestore: program.skipRestore,
-                    ci: program.ci,
                 });
 
                 if (!publishResult) {
@@ -200,13 +200,13 @@ CommandRunner.run(async () => {
             "Required Azure username (if deploying using Azure credentials)"
         )
         .option("--webpack", "Deploy webpack built frontend application")
-        .option("--skip-restore", "Skip npm restore", false)
-        .option("--skip-clean", "Skip npm clean", false)
         .option(
             "--ci",
             "Restore npm packages with npm ci in webpack-publish",
             false
         )
+        .option("--skip-clean", "Skip npm clean", false)
+        .option("--skip-restore", "Skip npm restore", false)
         .parse(process.argv);
 
     await deployAzureStorage.run();

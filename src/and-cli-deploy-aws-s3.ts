@@ -46,9 +46,9 @@ CommandRunner.run(async () => {
             // Locally publish frontend via webpack
             if (program.publish && program.webpack) {
                 const publishResult = WebpackPublish.run({
+                    ci: program.ci,
                     skipClean: program.skipClean,
                     skipRestore: program.skipRestore,
-                    ci: program.ci,
                 });
 
                 if (!publishResult) {
@@ -156,9 +156,9 @@ CommandRunner.run(async () => {
             `Optional path of folder to copy from this machine. Default is '${FrontendPath.publishDir()}'`
         )
         .option("--webpack", "Deploy webpack built frontend application")
-        .option("--skip-restore", "Skip npm restore", false)
-        .option("--skip-clean", "Skip npm clean", false)
         .option("--ci", "Restore npm packages with npm ci", false)
+        .option("--skip-clean", "Skip npm clean", false)
+        .option("--skip-restore", "Skip npm restore", false)
         .parse(process.argv);
 
     await deployAwsS3.run();

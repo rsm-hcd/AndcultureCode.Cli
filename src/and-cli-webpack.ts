@@ -104,17 +104,17 @@ CommandRunner.run(async () => {
             WebpackPublish.description()
         )
         .option(NodeRestore.getOptions().toString(), NodeRestore.description())
-        .option("--skip-restore", "Skip npm restore", false)
+        .option(NodeClean.getOptions().toString(), NodeClean.description())
         .option("--skip-clean", "Skip npm clean", false)
-        .option("--ci", "Restore packages with npm ci", false)
+        .option("--skip-restore", "Skip npm restore", false)
         .parse(process.argv);
 
     // Publish
     if (program.publish) {
         const result = WebpackPublish.run({
+            ci: program.ci,
             skipClean: program.skipClean,
             skipRestore: program.skipRestore,
-            ci: program.ci,
         });
         shell.exit(result ? 0 : 1);
         return;
