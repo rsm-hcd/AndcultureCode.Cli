@@ -8,22 +8,23 @@ import { Echo } from "./echo";
 // #region Functions
 // -----------------------------------------------------------------------------------------
 
-const NodeRestore = {
-    cmd(): CommandStringBuilder {
-        return new CommandStringBuilder("npm", "install");
+const NodeCI = {
+    cmd(includeOptional: boolean = false): CommandStringBuilder {
+        const optionalDepsArg = includeOptional ? "" : "--no-optional";
+        return new CommandStringBuilder("npm", "ci", optionalDepsArg);
     },
     description() {
-        return `Restore npm dependencies (via ${this.cmd()}) in the current directory`;
+        return `Clean and restore npm dependencies (via ${this.cmd()}) in the current directory`;
     },
     getOptions(): OptionStringBuilder {
-        return new OptionStringBuilder("restore", "R");
+        return new OptionStringBuilder("ci");
     },
-    run() {
+    run(includeOptional: boolean = false) {
         Echo.message(
             `Restoring npm packages (via ${this.cmd()}) in ${shell.pwd()}...`
         );
 
-        const { cmd, args } = this.cmd();
+        const { cmd, args } = this.cmd(includeOptional);
         const { status } = child_process.spawnSync(cmd, args, {
             stdio: "inherit",
             shell: true,
@@ -44,6 +45,6 @@ const NodeRestore = {
 // #region Exports
 // -----------------------------------------------------------------------------------------
 
-export { NodeRestore };
+export { NodeCI };
 
 // #endregion Exports

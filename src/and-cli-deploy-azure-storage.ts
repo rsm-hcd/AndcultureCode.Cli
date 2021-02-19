@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
+import program from "commander";
+import shell from "shelljs";
+import { Azure } from "./modules/azure";
 import { CommandRunner } from "./modules/command-runner";
 import { DeployConfig } from "./modules/deploy-config";
 import { Echo } from "./modules/echo";
 import { FrontendPath } from "./modules/frontend-path";
 import { WebpackPublish } from "./modules/webpack-publish";
-import program from "commander";
-import shell from "shelljs";
-import { Azure } from "./modules/azure";
 
 CommandRunner.run(async () => {
     // -----------------------------------------------------------------------------------------
@@ -54,7 +54,12 @@ CommandRunner.run(async () => {
 
             // Locally publish frontend via webpack
             if (program.publish && program.webpack) {
-                const publishResult = WebpackPublish.run();
+                const publishResult = WebpackPublish.run({
+                    ci: program.ci,
+                    skipClean: program.skipClean,
+                    skipRestore: program.skipRestore,
+                });
+
                 if (!publishResult) {
                     shell.exit(1);
                 }
@@ -195,6 +200,13 @@ CommandRunner.run(async () => {
             "Required Azure username (if deploying using Azure credentials)"
         )
         .option("--webpack", "Deploy webpack built frontend application")
+        .option(
+            "--ci",
+            "Restore npm packages with npm ci in webpack-publish",
+            false
+        )
+        .option("--skip-clean", "Skip npm clean", false)
+        .option("--skip-restore", "Skip npm restore", false)
         .parse(process.argv);
 
     await deployAzureStorage.run();

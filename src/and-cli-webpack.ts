@@ -1,18 +1,19 @@
 #!/usr/bin/env node
 
-import { CommandStringBuilder } from "./utilities/command-string-builder";
 import child_process from "child_process";
+import program from "commander";
+import shell from "shelljs";
 import { CommandDefinitions } from "./modules/command-definitions";
+import { CommandRunner } from "./modules/command-runner";
 import { Dir } from "./modules/dir";
 import { Echo } from "./modules/echo";
 import { FrontendPath } from "./modules/frontend-path";
+import { NodeCI } from "./modules/node-ci";
 import { NodeClean } from "./modules/node-clean";
 import { NodeRestore } from "./modules/node-restore";
-import program from "commander";
-import shell from "shelljs";
 import { WebpackPublish } from "./modules/webpack-publish";
+import { CommandStringBuilder } from "./utilities/command-string-builder";
 import { OptionStringBuilder } from "./utilities/option-string-builder";
-import { CommandRunner } from "./modules/command-runner";
 
 CommandRunner.run(async () => {
     // -----------------------------------------------------------------------------------------
@@ -20,6 +21,7 @@ CommandRunner.run(async () => {
     // -----------------------------------------------------------------------------------------
 
     const WEBPACK_OPTIONS: Record<string, OptionStringBuilder> = {
+        CI: NodeCI.getOptions(),
         CLEAN: NodeClean.getOptions(),
         PUBLISH: WebpackPublish.getOptions(),
         RESTORE: NodeRestore.getOptions(),
@@ -56,8 +58,6 @@ CommandRunner.run(async () => {
                 NodeRestore.run();
             }
 
-            // Since the spawnSync function takes the base command and all arguments separately, we cannot
-            // leverage the base dotnet command string here. We'll build out the arg list in an array.
             const { cmd, args } = this.cmd();
 
             Echo.message(`Running frontend (via ${this.cmd()})...`);
@@ -93,13 +93,19 @@ CommandRunner.run(async () => {
             WebpackPublish.description()
         )
         .option(NodeRestore.getOptions().toString(), NodeRestore.description())
+        .option(NodeCI.getOptions().toString(), NodeCI.description())
+        .option("--skip-clean", "Skip npm clean", false)
+        .option("--skip-restore", "Skip npm restore", false)
         .parse(process.argv);
 
     // Publish
     if (program.publish) {
-        const result = WebpackPublish.run();
+        const result = WebpackPublish.run({
+            ci: program.ci,
+            skipClean: program.skipClean,
+            skipRestore: program.skipRestore,
+        });
         shell.exit(result ? 0 : 1);
-        return;
     }
 
     // If no options are passed in, run application
