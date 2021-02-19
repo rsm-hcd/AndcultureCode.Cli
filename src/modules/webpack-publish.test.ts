@@ -6,7 +6,7 @@ import { NodeClean } from "./node-clean";
 import { NodeRestore } from "./node-restore";
 import { WebpackPublish } from "./webpack-publish";
 
-describe("webpack-publish", () => {
+describe("WebpackPublish", () => {
     let nodeCISpy: jest.SpyInstance;
     let nodeCleanSpy: jest.SpyInstance;
     let nodeRestoreSpy: jest.SpyInstance;
@@ -43,7 +43,6 @@ describe("webpack-publish", () => {
             );
 
             // Act
-
             WebpackPublish.restore(options);
 
             // Assert
