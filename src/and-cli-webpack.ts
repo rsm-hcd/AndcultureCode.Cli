@@ -53,6 +53,7 @@ CommandRunner.run(async () => {
             if (program.clean) {
                 NodeClean.run();
             }
+
             if (program.restore) {
                 NodeRestore.run();
             }
@@ -92,7 +93,7 @@ CommandRunner.run(async () => {
             WebpackPublish.description()
         )
         .option(NodeRestore.getOptions().toString(), NodeRestore.description())
-        .option(NodeClean.getOptions().toString(), NodeClean.description())
+        .option(NodeCI.getOptions().toString(), NodeCI.description())
         .option("--skip-clean", "Skip npm clean", false)
         .option("--skip-restore", "Skip npm restore", false)
         .parse(process.argv);
@@ -105,7 +106,6 @@ CommandRunner.run(async () => {
             skipRestore: program.skipRestore,
         });
         shell.exit(result ? 0 : 1);
-        return;
     }
 
     // If no options are passed in, run application

@@ -1,8 +1,9 @@
+import child_process from "child_process";
+import shell from "shelljs";
 import { CommandStringBuilder } from "../utilities/command-string-builder";
 import { OptionStringBuilder } from "../utilities/option-string-builder";
 import { Constants } from "./constants";
 import { Echo } from "./echo";
-import shell from "shelljs";
 
 // -----------------------------------------------------------------------------------------
 // #region Functions
@@ -25,7 +26,16 @@ const NodeClean = {
             }' directory in ${shell.pwd()}...`
         );
 
-        shell.rm("-rf", Constants.NODE_MODULES);
+        const { cmd, args } = this.cmd();
+        const { status } = child_process.spawnSync(cmd, args, {
+            stdio: "inherit",
+            shell: true,
+        });
+
+        if (status != null && status !== 0) {
+            Echo.error(`Exited with error: ${status}`);
+            shell.exit(status);
+        }
 
         Echo.success(
             `'${Constants.NODE_MODULES}' directory deleted successfully!`

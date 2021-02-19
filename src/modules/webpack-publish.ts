@@ -31,6 +31,7 @@ const WebpackPublish = {
             NodeCI.run();
             return;
         }
+
         if (clean) {
             NodeClean.run();
         }

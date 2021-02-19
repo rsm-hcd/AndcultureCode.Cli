@@ -1,3 +1,4 @@
+import child_process from "child_process";
 import shell from "shelljs";
 import { CommandStringBuilder } from "../utilities/command-string-builder";
 import { OptionStringBuilder } from "../utilities/option-string-builder";
@@ -8,8 +9,9 @@ import { Echo } from "./echo";
 // -----------------------------------------------------------------------------------------
 
 const NodeCI = {
-    cmd(): CommandStringBuilder {
-        return new CommandStringBuilder("npm", "ci");
+    cmd(includeOptional: boolean = false): CommandStringBuilder {
+        const optionalDepsArg = includeOptional ? "" : "--no-optional";
+        return new CommandStringBuilder("npm", "ci", optionalDepsArg);
     },
     description() {
         return `Clean and restore npm dependencies (via ${this.cmd()}) in the current directory`;
@@ -17,11 +19,22 @@ const NodeCI = {
     getOptions(): OptionStringBuilder {
         return new OptionStringBuilder("ci");
     },
-    run() {
+    run(includeOptional: boolean = false) {
         Echo.message(
             `Restoring npm packages (via ${this.cmd()}) in ${shell.pwd()}...`
         );
-        shell.exec(this.cmd().toString(), { silent: false });
+
+        const { cmd, args } = this.cmd(includeOptional);
+        const { status } = child_process.spawnSync(cmd, args, {
+            stdio: "inherit",
+            shell: true,
+        });
+
+        if (status != null && status !== 0) {
+            Echo.error(`Exited with error: ${status}`);
+            shell.exit(status);
+        }
+
         Echo.success("npm packages restored");
     },
 };
