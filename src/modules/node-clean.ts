@@ -25,7 +25,11 @@ const NodeClean = {
             }' directory in ${shell.pwd()}...`
         );
 
-        shell.rm("-rf", Constants.NODE_MODULES);
+        const { code } = shell.rm("-rf", Constants.NODE_MODULES);
+        if (code != null && code !== 0) {
+            Echo.error(`Exited with error: ${code}`);
+            shell.exit(code);
+        }
 
         Echo.success(
             `'${Constants.NODE_MODULES}' directory deleted successfully!`
