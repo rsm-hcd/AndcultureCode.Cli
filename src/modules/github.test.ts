@@ -7,6 +7,8 @@ import nock from "nock";
 import { TestUtils } from "../tests/test-utils";
 import { Prompt } from "./prompt";
 import { Repository } from "../interfaces/repository";
+import { Factory } from "rosie";
+import { FactoryType } from "../tests/factories/factory-type";
 
 // -----------------------------------------------------------------------------------------
 // #region Tests
@@ -37,8 +39,8 @@ describe("Github", () => {
         owner: string,
         repoName: string,
         pullNumber: number
-    ) => {
-        return new RegExp(
+    ) =>
+        new RegExp(
             [
                 Github.apiRepositoriesRouteParam,
                 owner,
@@ -48,7 +50,7 @@ describe("Github", () => {
                 Github.apiReviewsRouteParam,
             ].join("/")
         );
-    };
+
     /**
      * Utility function for generating the /{owner}/repos API route
      */
@@ -68,12 +70,6 @@ describe("Github", () => {
             ].join("/")
         );
 
-    afterEach(() => {
-        // Clean all mocked API routes - some tests in here actually call the Github API, and will
-        // flake out depending on ordering.
-        nock.cleanAll();
-    });
-
     // #endregion Setup
 
     // -----------------------------------------------------------------------------------------
@@ -84,10 +80,9 @@ describe("Github", () => {
         test(`it calls addTopicToRepository for each ${Github.andcultureOrg} repo`, async () => {
             // Arrange
             const topic = TestUtils.randomWord();
-            const repos = [
-                { name: "AndcultureCode.Cli" },
-                { name: "AndcultureCode.CSharp.Core" },
-            ];
+            const repos = Factory.buildList(FactoryType.Repository, 2, {
+                name: `${Github.andcultureOrg}.${TestUtils.randomWord()}`,
+            });
 
             // Mock the API response for repositories
             nock(Github.apiRootUrl)
@@ -504,6 +499,17 @@ describe("Github", () => {
             const expectedUsername = "AndcultureCode";
             const expectedRepo = "AndcultureCode.Cli";
 
+            const mockRepo = Factory.build<Repository>(FactoryType.Repository, {
+                name: expectedRepo,
+                owner: { login: expectedUsername },
+            });
+
+            nock(Github.apiRootUrl)
+                .get(
+                    `/${Github.apiRepositoriesRouteParam}/${expectedUsername}/${expectedRepo}`
+                )
+                .reply(200, mockRepo);
+
             // Act
             const result = await Github.getRepo(expectedUsername, expectedRepo);
 
@@ -532,10 +538,13 @@ describe("Github", () => {
         test("given username, returns list of repositories", async () => {
             // Arrange
             const expected = "wintondeshong";
+            const repos = Factory.buildList(FactoryType.Repository, 2, {
+                url: `${faker.internet.url()}/${expected}`,
+            });
 
             nock(Github.apiRootUrl)
                 .get(getReposRoute(expected)) // make sure Github is properly passed username
-                .reply(200, [{ url: `https://someurl.com/${expected}` }]);
+                .reply(200, repos);
 
             // Act
             const results = await Github.repositories(expected);
@@ -552,10 +561,18 @@ describe("Github", () => {
             const username = "wintondeshong";
             const expected = Github.andcultureOrg;
             const unexpected = TestUtils.randomWord();
+            const repos = [
+                Factory.build<Repository>(FactoryType.Repository, {
+                    name: expected,
+                }),
+                Factory.build<Repository>(FactoryType.Repository, {
+                    name: unexpected,
+                }),
+            ];
 
             nock(Github.apiRootUrl)
                 .get(getReposRoute(username)) // make sure Github is properly passed username
-                .reply(200, [{ name: expected }, { name: unexpected }]);
+                .reply(200, repos);
 
             const filter = (repos: Repository[]) =>
                 repos.filter((r: Repository) => r.name.startsWith(expected));
@@ -579,10 +596,13 @@ describe("Github", () => {
         test(`given no username, returns list of main ${Github.andcultureOrg} repositories`, async () => {
             // Arrange
             const expected = Github.andcultureOrg;
+            const repos = Factory.buildList(FactoryType.Repository, 1, {
+                name: expected,
+            });
 
             nock(Github.apiRootUrl)
                 .get(getReposRoute(expected)) // make sure Github is properly passed username
-                .reply(200, [{ name: expected }]);
+                .reply(200, repos);
 
             // Act
             const results = await Github.repositoriesByAndculture();
@@ -597,10 +617,18 @@ describe("Github", () => {
             const username = "wintondeshong";
             const expected = Github.andcultureOrg;
             const unexpected = TestUtils.randomWord();
+            const repos = [
+                Factory.build<Repository>(FactoryType.Repository, {
+                    name: expected,
+                }),
+                Factory.build<Repository>(FactoryType.Repository, {
+                    name: unexpected,
+                }),
+            ];
 
             nock(Github.apiRootUrl)
                 .get(getReposRoute(username)) // make sure Github is properly passed username
-                .reply(200, [{ name: expected }, { name: unexpected }]);
+                .reply(200, repos);
 
             // Act
             const results = await Github.repositoriesByAndculture(username);
@@ -621,10 +649,13 @@ describe("Github", () => {
         test(`given no organization, returns list of main ${Github.andcultureOrg} repositories`, async () => {
             // Arrange
             const expected = Github.andcultureOrg;
+            const repos = Factory.buildList(FactoryType.Repository, 1, {
+                name: expected,
+            });
 
             nock(Github.apiRootUrl)
                 .get(getReposRoute(expected)) // make sure Github is properly passed username
-                .reply(200, [{ name: expected }]);
+                .reply(200, repos);
 
             // Act
             const results = await Github.repositoriesByOrganization();
@@ -637,10 +668,13 @@ describe("Github", () => {
         test(`given organization, returns list of main ${Github.andcultureOrg} repositories`, async () => {
             // Arrange
             const expected = TestUtils.randomWord();
+            const repos = Factory.buildList(FactoryType.Repository, 1, {
+                name: expected,
+            });
 
             nock(Github.apiRootUrl)
                 .get(getReposRoute(expected)) // make sure Github is properly passed username
-                .reply(200, [{ name: expected }]);
+                .reply(200, repos);
 
             // Act
             const results = await Github.repositoriesByOrganization(expected);
@@ -654,10 +688,18 @@ describe("Github", () => {
             // Arrange
             const expected = Github.andcultureOrg;
             const unexpected = TestUtils.randomWord();
+            const repos = [
+                Factory.build<Repository>(FactoryType.Repository, {
+                    name: expected,
+                }),
+                Factory.build<Repository>(FactoryType.Repository, {
+                    name: unexpected,
+                }),
+            ];
 
             nock(Github.apiRootUrl)
                 .get(getReposRoute(expected)) // make sure Github is properly passed username
-                .reply(200, [{ name: expected }, { name: unexpected }]);
+                .reply(200, repos);
 
             const filter = (repos: Repository[]) =>
                 repos.filter((r: Repository) => r.name.startsWith(expected));
@@ -684,10 +726,9 @@ describe("Github", () => {
         test(`it calls removeTopicFromRepository for each ${Github.andcultureOrg} repo`, async () => {
             // Arrange
             const topic = TestUtils.randomWord();
-            const repos = [
-                { name: "AndcultureCode.Cli" },
-                { name: "AndcultureCode.CSharp.Core" },
-            ];
+            const repos = Factory.buildList(FactoryType.Repository, 2, {
+                name: `${Github.andcultureOrg}.${TestUtils.randomWord()}`,
+            });
 
             // Mock the API response for repositories
             nock(Github.apiRootUrl)
@@ -791,7 +832,7 @@ describe("Github", () => {
                 const owner = TestUtils.randomWord();
                 const repoName = TestUtils.randomWord();
                 const existingTopics = [topic];
-                const expectedTopics: any = [];
+                const expectedTopics: string[] = [];
 
                 // We'll want to mock the token so that CI environments aren't left hanging
                 jest.spyOn(Github, "getToken").mockResolvedValue(

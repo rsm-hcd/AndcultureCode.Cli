@@ -101,8 +101,6 @@ const TestUtils = {
      * @param {object} opts
      */
     executeCliCommand(command?: string, args: string[] = [], opts: any = {}) {
-        // Generate the absolute path of the main executable file (cli.js) based on the current
-        // file's directory.
         const cliEntrypointPath = upath.join(
             __dirname,
             "..",
@@ -219,17 +217,7 @@ const _createNodeProcess = (
     }
 
     return child_process.spawn(nodePath.toString(), args, {
-        env: Object.assign(
-            {
-                // Set the HOME directory to the current working directory. This should usually be a temp
-                // directory -- see TestUtils.createAndUseTmpDir()
-                HOME: shell.pwd().toString(),
-                NODE_ENV: "test",
-                // We need the PATH from the host to execute programs the same way a user would
-                PATH: process.env.PATH,
-            },
-            env
-        ),
+        env: Object.assign(process.env, env),
     });
 };
 

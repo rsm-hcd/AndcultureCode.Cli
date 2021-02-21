@@ -3,6 +3,7 @@ import { FactoryType as AndcultureCodeFactoryType } from "andculturecode-javascr
 const FactoryType = {
     ...AndcultureCodeFactoryType,
     CommandDefinition: "CommandDefinition",
+    Repository: "Repository",
     WebpackRestoreOptions: "WebpackRestoreOptions",
 };
 
