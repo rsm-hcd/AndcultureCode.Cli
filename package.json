@@ -5,9 +5,9 @@
     },
     "dependencies": {
         "@octokit/rest": "18.0.0",
-        "andculturecode-javascript-core": "0.2.0",
+        "andculturecode-javascript-core": "0.4.1",
         "archiver": "3.1.1",
-        "commander": "5.1.0",
+        "commander": "6.2.1",
         "find-package-json": "1.2.0",
         "fkill": "6.2.0",
         "octokit-auth-netrc": "1.0.0",
@@ -15,6 +15,7 @@
         "readline-promise": "1.0.4",
         "require-all": "3.0.0",
         "shelljs": "0.8.4",
+        "table": "6.0.4",
         "upath": "1.2.0"
     },
     "description": "and-cli command-line tool to manage the development of software applications",
@@ -26,6 +27,7 @@
         "@types/jest": "25.2.3",
         "@types/rosie": "0.0.38",
         "@types/shelljs": "0.8.8",
+        "@types/table": "6.0.0",
         "andculturecode-javascript-testing": "0.1.0",
         "concat-stream": "2.0.0",
         "cross-env": "6.0.3",

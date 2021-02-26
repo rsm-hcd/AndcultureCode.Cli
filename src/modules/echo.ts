@@ -71,8 +71,13 @@ const Echo = {
     headerSuccess(message?: string) {
         _header(() => this.success(message));
     },
-    message(message?: string) {
-        shell.echo(`${prefix} ${message}`);
+    message(message?: string, includePrefix: boolean = true) {
+        if (includePrefix) {
+            shell.echo(`${prefix} ${message}`);
+            return;
+        }
+
+        shell.echo(message ?? "");
     },
     json(obj: any) {
         shell.echo(JSON.stringify(obj, undefined, 4));

@@ -1,4 +1,4 @@
-import { RepositoryOwner } from "./repository-owner";
+import { User } from "./user";
 
 // -----------------------------------------------------------------------------------------
 // #region Interfaces
@@ -6,8 +6,6 @@ import { RepositoryOwner } from "./repository-owner";
 
 /**
  * A stripped down representation of the repository objects returned by the Github API.
- *
- * @interface Repository
  */
 interface Repository {
     description: string;
@@ -15,7 +13,7 @@ interface Repository {
     full_name: string;
     id: number;
     name: string;
-    owner: RepositoryOwner;
+    owner: User;
     ssh_url: string;
     topics: string[];
     url: string;

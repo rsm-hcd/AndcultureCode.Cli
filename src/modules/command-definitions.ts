@@ -1,16 +1,38 @@
-import { CommandDefinition } from "../interfaces/command-definition";
+import { CommandDefinitions as BaseCommandDefinitions } from "../interfaces/command-definitions";
 
 // -----------------------------------------------------------------------------------------
 // #region Public Members
 // -----------------------------------------------------------------------------------------
 
-const CommandDefinitions: Record<string, CommandDefinition> = {
+const CommandDefinitions: BaseCommandDefinitions = {
     copy: {
         command: "copy",
         description: "Copy files and/or directories",
     },
     deploy: {
         command: "deploy",
+        children: {
+            awsBeanstalk: {
+                command: "aws-beanstalk",
+                description: "Run deployments for AWS Beanstalk",
+            },
+            awsS3: {
+                command: "aws-s3",
+                description: "Run deployments for AWS S3",
+            },
+            azureStorage: {
+                command: "azure-storage",
+                description: "Run deployments for Azure Storage",
+            },
+            azureWebApp: {
+                command: "azure-web-app",
+                description: "Run deployments for Azure Web Apps",
+            },
+            jenkins: {
+                command: "jenkins",
+                description: "Run deployments for Jenkins",
+            },
+        },
         description: "Deploy various application types",
     },
     dotnetTest: {
@@ -23,6 +45,23 @@ const CommandDefinitions: Record<string, CommandDefinition> = {
     },
     github: {
         command: "github",
+        children: {
+            issue: {
+                command: "issue",
+                description:
+                    "Commands for interacting with AndcultureCode github issues",
+            },
+            repo: {
+                command: "repo",
+                description:
+                    "Commands for interacting with AndcultureCode github repositories",
+            },
+            topic: {
+                command: "topic",
+                description:
+                    "Commands for interacting with AndcultureCode github repository topics",
+            },
+        },
         description:
             "Commands for interacting with AndcultureCode github resources",
     },

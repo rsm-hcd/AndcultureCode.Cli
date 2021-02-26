@@ -20,8 +20,10 @@ export { NugetCommand } from "./enums/nuget-command";
 // -----------------------------------------------------------------------------------------
 
 export { CommandDefinition } from "./interfaces/command-definition";
-export { RepositoryOwner } from "./interfaces/repository-owner";
-export { Repository } from "./interfaces/repository";
+export { Issue } from "./interfaces/github/issue";
+export { Label } from "./interfaces/github/label";
+export { Repository } from "./interfaces/github/repository";
+export { User } from "./interfaces/github/user";
 
 // #endregion Interfaces
 
