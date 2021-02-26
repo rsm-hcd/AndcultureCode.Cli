@@ -84,6 +84,14 @@ describe("Github", () => {
             ].join("/")
         );
 
+    /**
+     * Mock the token so that CI environments that are not authenticated aren't left hanging
+     */
+    const mockConfigToken = () =>
+        jest
+            .spyOn(Github, "getToken")
+            .mockResolvedValue(TestUtils.randomWord());
+
     // #endregion Setup
 
     // -----------------------------------------------------------------------------------------
@@ -91,6 +99,10 @@ describe("Github", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("addIssueToRepository", () => {
+        beforeEach(() => {
+            mockConfigToken();
+        });
+
         test.each([300, 400, 401, 403, 404])(
             "when response %p, it returns undefined",
             async (status: number) => {
@@ -178,6 +190,8 @@ describe("Github", () => {
         let shellExitSpy: jest.SpyInstance;
         beforeEach(() => {
             shellExitSpy = TestUtils.spyOnShellExit();
+
+            mockConfigToken();
         });
 
         test.each([undefined, null, "", " "])(
@@ -251,11 +265,6 @@ describe("Github", () => {
                 const repoName = TestUtils.randomWord();
                 const existingTopics = [TestUtils.randomWord()];
                 const expectedTopics = [...existingTopics, topic];
-
-                // We'll want to mock the token so that CI environments aren't left hanging
-                jest.spyOn(Github, "getToken").mockResolvedValue(
-                    TestUtils.randomWord()
-                );
 
                 // Mock the call to get existing topics
                 nock(Github.apiRootUrl)
