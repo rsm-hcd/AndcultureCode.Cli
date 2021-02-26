@@ -76,15 +76,11 @@ CommandRunner.run(async () => {
         dto: Partial<CreateIssueDto>
     ): dto is CreateIssueDto => {
         const { repo, title, body } = dto;
-        if (
-            StringUtils.isEmpty(repo) ||
-            StringUtils.isEmpty(title) ||
-            StringUtils.isEmpty(body)
-        ) {
-            return false;
-        }
-
-        return true;
+        return (
+            StringUtils.hasValue(repo) &&
+            StringUtils.hasValue(title) &&
+            StringUtils.hasValue(body)
+        );
     };
 
     const print = (repo: string, issues?: Issue[]): void => {

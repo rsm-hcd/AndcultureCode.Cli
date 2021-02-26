@@ -3,6 +3,7 @@ import { Formatters } from "./formatters";
 import readline from "readline-promise";
 import shell from "shelljs";
 import { Echo } from "./echo";
+import { AsyncReadlineInterface } from "../interfaces/async-readline-interface";
 
 // -----------------------------------------------------------------------------------------
 // #region Variables
@@ -34,6 +35,10 @@ const Prompt = {
         }
     },
 
+    getInterface(): AsyncReadlineInterface {
+        return _getPrompt();
+    },
+
     /**
      * Returns a multiline prompt that returns a string array of the responses. A terminator phrase
      * is required to end the interaction, which defaults to an empty string - hitting enter without
@@ -60,6 +65,7 @@ const Prompt = {
             }
 
             prompt.close();
+            return await "";
         };
 
         const responses: Promise<string>[] = await prompt.map(handleLineInput);
@@ -90,7 +96,7 @@ const Prompt = {
  * already created.
  *
  */
-const _getPrompt = () => {
+const _getPrompt = (): AsyncReadlineInterface => {
     if (cachedPrompt != null) {
         return cachedPrompt;
     }
