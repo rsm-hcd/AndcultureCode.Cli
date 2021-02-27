@@ -4,6 +4,11 @@ import { Interface as ReadlineInterface } from "readline";
 // #region Interface
 // -----------------------------------------------------------------------------------------
 
+/**
+ * Custom interface to expose extended API provided by `readline-promise`.
+ * Can be removed if/when open issue for TS definitions is resolved
+ * @see https://github.com/bhoriuchi/readline-promise/issues/11
+ */
 interface AsyncReadlineInterface extends ReadlineInterface {
     each: (
         iteratee: (

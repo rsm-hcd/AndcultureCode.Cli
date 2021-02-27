@@ -19,6 +19,7 @@ export { NugetCommand } from "./enums/nuget-command";
 // #region Interfaces
 // -----------------------------------------------------------------------------------------
 
+export { AsyncReadlineInterface } from "./interfaces/async-readline-interface";
 export { CommandDefinition } from "./interfaces/command-definition";
 export { Issue } from "./interfaces/github/issue";
 export { Label } from "./interfaces/github/label";

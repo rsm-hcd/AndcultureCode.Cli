@@ -15,15 +15,6 @@ describe("Prompt", () => {
         promptInterface = Prompt.getInterface();
     });
 
-    const act = async <TReturn>(options: {
-        action: Promise<TReturn>;
-        input: string;
-    }): Promise<TReturn> => {
-        const { action, input } = options;
-        promptInterface.write(input);
-        return action;
-    };
-
     // #endregion Setup
 
     // -----------------------------------------------------------------------------------------
@@ -41,51 +32,36 @@ describe("Prompt", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("confirmOrExit", () => {
-        test("when user responds 'y', it does not call shell.exit", async (done) => {
-            // Arrange
-            const question = TestUtils.randomWords().join(" ");
+        test.each(["y", "Y"])(
+            "when user responds %p, it does not call shell.exit",
+            async (response: string) => {
+                const question = TestUtils.randomWords().join(" ");
+                jest.spyOn(promptInterface, "questionAsync").mockResolvedValue(
+                    response
+                );
 
-            // Act
-            await act({
-                action: Prompt.confirmOrExit(question),
-                input: "y\n",
-            });
+                // Act
+                await Prompt.confirmOrExit(question);
 
-            // Assert
-            expect(shellExitSpy).not.toHaveBeenCalled();
-            done();
-        });
+                // Assert
+                expect(shellExitSpy).not.toHaveBeenCalled();
+            }
+        );
 
-        test("when user responds 'Y', it does not call shell.exit", async (done) => {
-            // Arrange
-            const question = TestUtils.randomWords().join(" ");
-
-            // Act
-            await act({
-                action: Prompt.confirmOrExit(question),
-                input: "Y\n",
-            });
-
-            // Assert
-            expect(shellExitSpy).not.toHaveBeenCalled();
-            done();
-        });
-
-        test("when user responds without y/Y, it calls shell.exit", async (done) => {
+        test("when user responds without y/Y, it calls shell.exit", async () => {
             // Arrange
             const question = TestUtils.randomWords().join(" ");
             // Should never respond with just 'y' or 'Y'
             const response = TestUtils.randomWord().replace(/[yY]/g, "");
+            jest.spyOn(promptInterface, "questionAsync").mockResolvedValue(
+                response
+            );
 
             // Act
-            await act({
-                action: Prompt.confirmOrExit(question),
-                input: `${response}\n`,
-            });
+            await Prompt.confirmOrExit(question);
 
             // Assert
             expect(shellExitSpy).toHaveBeenCalled();
-            done();
         });
     });
 
