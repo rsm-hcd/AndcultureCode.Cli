@@ -1,0 +1,73 @@
+name: AndcultureCode.Cli
+
+on:
+    push:
+        branches: ["*"]
+    pull_request:
+        branches: [main]
+    workflow_dispatch:
+
+jobs:
+    build:
+        env:
+            DOTNET_NOLOGO: true
+            DOTNET_CLI_TELEMETRY_OPTOUT: true
+        runs-on: ${{matrix.os}}
+        strategy:
+            matrix:
+                dotnet:
+                    - 2.2
+                    - 3.1
+                os:
+                    - macos-latest
+                    - ubuntu-latest
+                    - windows-latest
+                node:
+                    - 8.16.2
+                    - 14.15.5
+                AndcultureCode:
+                    - ${{github.repository_owner == 'AndcultureCode'}}
+                # Exclude expensive, experimental or legacy build configurations unless running against main repo
+                exclude:
+                    - { AndcultureCode: false, os: macos-latest }
+                    - { AndcultureCode: false, os: windows-latest }
+                    - { AndcultureCode: false, dotnet: 2.2 }
+                    - { AndcultureCode: false, node: 14.15.5 }
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Setup node ${{matrix.node}}
+              uses: actions/setup-node@v2
+              with:
+                  node-version: ${{matrix.node}}
+
+            - name: npm install
+              run: |
+                  npm install
+                  npm install -g codecov
+
+            - name: Unit tests
+              run: |
+                  npm run test:unit
+                  codecov --disable=gcov
+
+            - name: Setup .NET Core SDK ${{matrix.dotnet}}
+              uses: actions/setup-dotnet@v1.7.2
+              with:
+                  dotnet-version: ${{matrix.dotnet}}
+
+            - name: Force .NET Core ${{matrix.dotnet}} via global.json
+              run: |
+                  echo This step is only needed for macOS currently - see https://github.com/actions/setup-dotnet/issues/157
+                  DOTNET_VERSION=`ls ~/.dotnet/sdk/ | grep ${{matrix.dotnet}} | sort -r | head -1`
+                  echo Found $DOTNET_VERSION matching ${{matrix.dotnet}} in ~/.dotnet/sdk/
+                  dotnet new globaljson --sdk-version "$DOTNET_VERSION"
+              if: runner.os == 'macOS'
+
+            - name: Output dotnet info
+              run: |
+                  dotnet --info
+
+            - name: Integration tests
+              run: |
+                  npm run test:integration
