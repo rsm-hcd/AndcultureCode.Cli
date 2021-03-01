@@ -12,6 +12,7 @@ jobs:
         env:
             DOTNET_NOLOGO: true
             DOTNET_CLI_TELEMETRY_OPTOUT: true
+            SLACK_BOT_TOKEN: ${{secrets.SLACK_BOT_TOKEN}}
         runs-on: ${{matrix.os}}
         strategy:
             matrix:
@@ -35,6 +36,13 @@ jobs:
                     - { AndcultureCode: false, node: 14.15.5 }
         steps:
             - uses: actions/checkout@v2
+
+            - name: Notify CI channel start
+              uses: voxmedia/github-action-slack-notify-build@v1
+              with:
+                  channel: company-andculture-code-ci
+                  color: good
+                  status: STARTED
 
             - name: Setup node ${{matrix.node}}
               uses: actions/setup-node@v2
@@ -71,3 +79,19 @@ jobs:
             - name: Integration tests
               run: |
                   npm run test:integration
+
+            - name: Notify CI channel success
+              if: success()
+              uses: voxmedia/github-action-slack-notify-build@v1
+              with:
+                  channel: company-andculture-code-ci
+                  color: good
+                  status: SUCCESS
+
+            - name: Notify CI channel failure
+              if: failure()
+              uses: voxmedia/github-action-slack-notify-build@v1
+              with:
+                  channel: company-andculture-code-ci
+                  color: danger
+                  status: FAILED
