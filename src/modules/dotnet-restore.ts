@@ -4,6 +4,19 @@ import { Echo } from "./echo";
 import child_process from "child_process";
 import shell from "shelljs";
 import { OptionStringBuilder } from "../utilities/option-string-builder";
+import { Options } from "../constants/options";
+
+// -----------------------------------------------------------------------------------------
+// #region Constants
+// -----------------------------------------------------------------------------------------
+
+const COMMAND = new CommandStringBuilder(
+    "dotnet",
+    "restore",
+    DotnetPath.solutionPath() ?? ""
+);
+
+// #endregion Constants
 
 // -----------------------------------------------------------------------------------------
 // #region Functions
@@ -11,17 +24,13 @@ import { OptionStringBuilder } from "../utilities/option-string-builder";
 
 const DotnetRestore = {
     cmd(): CommandStringBuilder {
-        return new CommandStringBuilder(
-            "dotnet",
-            "restore",
-            DotnetPath.solutionPath() ?? ""
-        );
+        return COMMAND;
     },
     description(): string {
         return `Restore the dotnet solution from the root of the project (via ${this.cmd()})`;
     },
     getOptions(): OptionStringBuilder {
-        return new OptionStringBuilder("restore", "R");
+        return Options.Restore;
     },
     run(): number | null {
         // Verify that the solution path exists or exit early.

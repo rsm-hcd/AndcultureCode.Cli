@@ -2,6 +2,7 @@ import { TestUtils } from "../tests/test-utils";
 import { Constants } from "../modules/constants";
 import { Formatters } from "../modules/formatters";
 import { EOL } from "os";
+import { Options } from "../constants/options";
 
 // -----------------------------------------------------------------------------------------
 // #region Public Functions
@@ -43,7 +44,7 @@ const shouldDisplayHelpMenu = (
     args: string[] = [],
     debug: boolean = false
 ) =>
-    givenOptions(Constants.HELP_OPTIONS, (option: string) => {
+    givenOptions(Options.Help.toArray(), (option: string) => {
         test("it displays the help menu", async () => {
             // Arrange & Act
             const result = await TestUtils.executeCliCommand(command, [
