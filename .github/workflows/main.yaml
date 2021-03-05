@@ -87,6 +87,8 @@ jobs:
 
     notify_end:
         runs-on: ubuntu-latest
+        if: always()
+        needs: [build]
         steps:
             - name: Notify CI channel success
               if: success()
