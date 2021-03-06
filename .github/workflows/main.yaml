@@ -14,8 +14,7 @@ jobs:
     notify_start:
         runs-on: ubuntu-latest
         steps:
-            - name: Notify CI channel start
-              uses: voxmedia/github-action-slack-notify-build@v1
+            - uses: voxmedia/github-action-slack-notify-build@v1
               with:
                   channel: company-andculture-code-ci
                   color: "#3278BD"
@@ -85,22 +84,23 @@ jobs:
               run: |
                   npm run test:integration
 
-    notify_end:
+    notify_success:
         runs-on: ubuntu-latest
-        if: always()
         needs: [build]
+        if: success()
         steps:
-            - name: Notify CI channel success
-              if: success()
-              uses: voxmedia/github-action-slack-notify-build@v1
+            - uses: voxmedia/github-action-slack-notify-build@v1
               with:
                   channel: company-andculture-code-ci
                   color: good
                   status: SUCCESS
 
-            - name: Notify CI channel failure
-              if: failure()
-              uses: voxmedia/github-action-slack-notify-build@v1
+    notify_failure:
+        runs-on: ubuntu-latest
+        needs: [build]
+        if: failure()
+        steps:
+            - uses: voxmedia/github-action-slack-notify-build@v1
               with:
                   channel: company-andculture-code-ci
                   color: danger
