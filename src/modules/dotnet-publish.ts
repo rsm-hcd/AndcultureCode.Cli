@@ -48,17 +48,18 @@ const DotnetPublish = {
      * defaults to dotnet solution's 'release' directory
      */
     run(absoluteOutputDir?: string) {
+        // Verify a solution can be found before attempting to publish
         DotnetPath.solutionPathOrExit();
 
         if (StringUtils.isEmpty(absoluteOutputDir)) {
             absoluteOutputDir = DotnetPath.releaseDir();
         }
 
-        _cleanReleaseDirOrExit(absoluteOutputDir!);
+        _cleanReleaseDir(absoluteOutputDir!);
 
         Dir.pushd(DotnetPath.solutionDir()!);
 
-        _publishSolutionOrExit(absoluteOutputDir!);
+        _publishSolution(absoluteOutputDir!);
 
         Dir.popd();
     },
@@ -70,7 +71,7 @@ const DotnetPublish = {
 // #region Private Functions
 // -----------------------------------------------------------------------------------------
 
-const _cleanReleaseDirOrExit = (absoluteOutputDir: string) => {
+const _cleanReleaseDir = (absoluteOutputDir: string) => {
     Echo.message(`Cleaning release directory '${absoluteOutputDir}'...`);
     const { code } = shell.rm("-rf", absoluteOutputDir!);
 
@@ -80,19 +81,17 @@ const _cleanReleaseDirOrExit = (absoluteOutputDir: string) => {
         return;
     }
 
-    Echo.error(
-        `Failed to clean release directory '${absoluteOutputDir}': ${code}`
-    );
+    const errorMessage = `Failed to clean release directory '${absoluteOutputDir}': ${code}`;
+    Echo.error(errorMessage);
     shell.exit(code);
 };
 
-const _publishSolutionOrExit = (absoluteOutputDir: string) => {
+const _publishSolution = (absoluteOutputDir: string) => {
     const commandBuilder = DotnetPublish.cmd(absoluteOutputDir);
     const { cmd, args } = commandBuilder;
 
-    Echo.message(
-        `Publishing dotnet solution (via ${commandBuilder.toString()})...`
-    );
+    const publishMessage = `Publishing dotnet solution (via ${commandBuilder.toString()})...`;
+    Echo.message(publishMessage);
 
     const { status } = child_process.spawnSync(cmd, args, {
         stdio: "inherit",

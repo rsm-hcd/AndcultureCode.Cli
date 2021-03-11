@@ -1,10 +1,8 @@
 import { CommandStringBuilder } from "../utilities/command-string-builder";
-import { OptionStringBuilder } from "../utilities/option-string-builder";
 import { Dir } from "./dir";
 import { FrontendPath } from "./frontend-path";
 import shell from "shelljs";
 import { NodeClean } from "./node-clean";
-import { WebpackPublish } from "./webpack-publish";
 import { NodeRestore } from "./node-restore";
 import { Echo } from "./echo";
 import child_process from "child_process";
@@ -31,14 +29,14 @@ const Webpack = {
     run(clean: boolean = false, restore: boolean = false) {
         Dir.pushd(FrontendPath.projectDir());
 
-        // Webpack won't be able to start up without restoring after a clean
-        const returnAfterClean = clean && !restore;
+        const cleanWithoutRestore = clean && !restore;
 
         if (clean) {
             NodeClean.run();
         }
 
-        if (returnAfterClean) {
+        // Webpack won't be able to start up without restoring after a clean
+        if (cleanWithoutRestore) {
             return;
         }
 
