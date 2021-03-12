@@ -60,7 +60,7 @@
         "url": "git@github.com:AndcultureCode/AndcultureCode.Cli.git"
     },
     "scripts": {
-        "build": "tsc --pretty",
+        "build": "tsc --pretty --project tsconfig.dist.json",
         "clean": "echo Removing coverage, dist and leftover tmp directories && rimraf coverage && rimraf dist && rimraf tmp*",
         "configure:git": "echo Ensuring git hooksPath is set to .githooks directory && git config core.hooksPath .githooks && chmod +x .githooks/*",
         "format": "prettier --write \"src/**/*.ts\" --trailing-comma es5",
@@ -75,5 +75,5 @@
         "watch": "tsc --watch",
         "watch:test": "jest --watch"
     },
-    "version": "2.3.0"
+    "version": "2.3.1"
 }
