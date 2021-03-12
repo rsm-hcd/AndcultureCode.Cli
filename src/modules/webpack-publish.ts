@@ -7,6 +7,16 @@ import { FrontendPath } from "./frontend-path";
 import { NodeCI } from "./node-ci";
 import { NodeClean } from "./node-clean";
 import { NodeRestore } from "./node-restore";
+import { Options } from "../constants/options";
+import child_process from "child_process";
+
+// -----------------------------------------------------------------------------------------
+// #region Constants
+// -----------------------------------------------------------------------------------------
+
+const COMMAND = new CommandStringBuilder("npm", "run", "build");
+
+// #endregion Constants
 
 // -----------------------------------------------------------------------------------------
 // #region Functions
@@ -14,13 +24,13 @@ import { NodeRestore } from "./node-restore";
 
 const WebpackPublish = {
     cmd(): CommandStringBuilder {
-        return new CommandStringBuilder("npm", "run", "build");
+        return COMMAND;
     },
     description(): string {
         return `Publishes a release build of the frontend project (via ${this.cmd()}) in ${FrontendPath.projectDir()}`;
     },
     getOptions(): OptionStringBuilder {
-        return new OptionStringBuilder("publish", "p");
+        return Options.Publish;
     },
     restore(options: WebpackRestoreOptions): void {
         const ci = options.ci ?? false;
@@ -42,11 +52,14 @@ const WebpackPublish = {
     },
     run(options: WebpackRestoreOptions): boolean {
         // Clean publish directory
-        Echo.message(
-            `Cleaning publish directory ${FrontendPath.publishDir()}...`
-        );
+        const publishDir = FrontendPath.publishDir();
+        Echo.message(`Cleaning publish directory ${publishDir}...`);
 
-        shell.rm("-rf", FrontendPath.publishDir());
+        const { code: cleanStatus } = shell.rm("-rf", publishDir);
+        if (cleanStatus !== 0) {
+            Echo.error(`Failed to clean ${publishDir} dir: ${cleanStatus}`);
+            shell.exit(cleanStatus);
+        }
 
         Echo.success("Publish directory cleaned");
 
@@ -57,20 +70,21 @@ const WebpackPublish = {
 
         // Build frontend
         Echo.message(`Building frontend (via ${this.cmd()})...`);
-
-        const result = shell.exec(this.cmd().toString(), {
-            silent: false,
-        }) as ExecOutputReturnValue;
-
-        if (result.code === 0) {
-            Echo.success("Frontend built successfully");
-        } else {
-            Echo.error("Failed to build frontend");
-        }
+        const { cmd, args } = this.cmd();
+        const { status: buildStatus } = child_process.spawnSync(cmd, args, {
+            stdio: "inherit",
+            shell: true,
+        });
 
         shell.popd();
 
-        return result.code === 0;
+        if (buildStatus != null && buildStatus !== 0) {
+            Echo.error("Failed to build frontend");
+            shell.exit(buildStatus);
+        }
+
+        Echo.success("Frontend built successfully");
+        return true;
     },
 };
 

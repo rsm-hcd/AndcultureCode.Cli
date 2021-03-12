@@ -34,9 +34,6 @@ const Constants = {
     /** Constant to hold the standard 'help' flag description */
     HELP_DESCRIPTION: "display help for command",
 
-    /** Constant to hold the standard help flags for commands */
-    HELP_OPTIONS: ["-h", "--help"],
-
     /** Constant to hold the 'node_modules' directory string */
     NODE_MODULES: "node_modules",
 

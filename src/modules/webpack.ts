@@ -1,38 +1,52 @@
-import child_process from "child_process";
-import shell from "shelljs";
 import { CommandStringBuilder } from "../utilities/command-string-builder";
-import { OptionStringBuilder } from "../utilities/option-string-builder";
+import { Dir } from "./dir";
+import { FrontendPath } from "./frontend-path";
+import shell from "shelljs";
+import { NodeClean } from "./node-clean";
+import { NodeRestore } from "./node-restore";
 import { Echo } from "./echo";
-import { Options } from "../constants/options";
+import child_process from "child_process";
 
 // -----------------------------------------------------------------------------------------
 // #region Constants
 // -----------------------------------------------------------------------------------------
 
-const COMMAND = new CommandStringBuilder("npm", "install");
+const COMMAND = new CommandStringBuilder("npm", "run", "start");
 
 // #endregion Constants
 
 // -----------------------------------------------------------------------------------------
-// #region Functions
+// #region Public Functions
 // -----------------------------------------------------------------------------------------
 
-const NodeRestore = {
+const Webpack = {
     cmd(): CommandStringBuilder {
         return COMMAND;
     },
-    description() {
-        return `Restore npm dependencies (via ${this.cmd()}) in the current directory`;
+    description(): string {
+        return `Runs the webpack project (via ${this.cmd()}}) found in ${FrontendPath.projectDir()}`;
     },
-    getOptions(): OptionStringBuilder {
-        return Options.Restore;
-    },
-    run() {
-        Echo.message(
-            `Restoring npm packages (via ${this.cmd()}) in ${shell.pwd()}...`
-        );
+    run(clean: boolean = false, restore: boolean = false) {
+        Dir.pushd(FrontendPath.projectDir());
+
+        const cleanWithoutRestore = clean && !restore;
+
+        if (clean) {
+            NodeClean.run();
+        }
+
+        // Webpack won't be able to start up without restoring after a clean
+        if (cleanWithoutRestore) {
+            return;
+        }
+
+        if (restore) {
+            NodeRestore.run();
+        }
 
         const { cmd, args } = this.cmd();
+
+        Echo.message(`Running frontend (via ${this.cmd()})...`);
         const { status } = child_process.spawnSync(cmd, args, {
             stdio: "inherit",
             shell: true,
@@ -43,16 +57,16 @@ const NodeRestore = {
             shell.exit(status);
         }
 
-        Echo.success("npm packages restored");
+        Dir.popd();
     },
 };
 
-// #endregion Functions
+// #endregion Public Functions
 
 // -----------------------------------------------------------------------------------------
 // #region Exports
 // -----------------------------------------------------------------------------------------
 
-export { NodeRestore };
+export { Webpack };
 
 // #endregion Exports

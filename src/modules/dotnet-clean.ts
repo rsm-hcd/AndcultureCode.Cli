@@ -7,6 +7,19 @@ import { DotnetPath } from "./dotnet-path";
 import { Echo } from "./echo";
 import child_process from "child_process";
 import shell from "shelljs";
+import { Options } from "../constants/options";
+
+// -----------------------------------------------------------------------------------------
+// #region Constants
+// -----------------------------------------------------------------------------------------
+
+const COMMAND = new CommandStringBuilder(
+    "dotnet",
+    "clean",
+    DotnetPath.solutionDir() ?? ""
+);
+
+// #endregion Constants
 
 // -----------------------------------------------------------------------------------------
 // #region Public Functions
@@ -14,17 +27,13 @@ import shell from "shelljs";
 
 const DotnetClean = {
     cmd(): CommandStringBuilder {
-        return new CommandStringBuilder(
-            "dotnet",
-            "clean",
-            DotnetPath.solutionDir() ?? ""
-        );
+        return COMMAND;
     },
     description() {
         return `Clean the dotnet solution from the root of the project (via ${this.cmd()})`;
     },
     getOptions(): OptionStringBuilder {
-        return new OptionStringBuilder("clean", "-c");
+        return Options.Clean;
     },
     run() {
         // Verify that the solution path exists or exit early.
@@ -33,8 +42,8 @@ const DotnetClean = {
         Dir.pushd(DotnetPath.solutionDir()!);
 
         // We clean 'bin' and 'obj' directories first incase they are preventing the SLN from building
-        _recursiveRm("bin");
-        _recursiveRm("obj");
+        _recursiveRm(Constants.BIN);
+        _recursiveRm(Constants.OBJ);
 
         Dir.popd();
 

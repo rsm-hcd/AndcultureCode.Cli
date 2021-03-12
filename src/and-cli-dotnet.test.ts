@@ -8,6 +8,7 @@ import {
 import { DotnetPath } from "./modules/dotnet-path";
 import { TestUtils } from "./tests/test-utils";
 import { DotnetBuild } from "./modules/dotnet-build";
+import { DotnetPublish } from "./modules/dotnet-publish";
 
 // -----------------------------------------------------------------------------------------
 // #region Constants
@@ -71,6 +72,38 @@ describe("and-cli-dotnet", () => {
     shouldDisplayHelpMenu("dotnet");
 
     // #endregion help
+
+    // -----------------------------------------------------------------------------------------
+    // #region publish
+    // -----------------------------------------------------------------------------------------
+
+    givenOptions(DotnetPublish.getOptions().toArray(), (option: string) => {
+        describe("when no solution can be found", () =>
+            shouldDisplayError(
+                async () =>
+                    // Arrange & Act
+                    await TestUtils.executeCliCommand(COMMAND, [option])
+            ));
+
+        describe("when solution exists", () => {
+            test("it performs a build", async () => {
+                // Arrange
+                TestUtils.createDotnetSolution();
+                TestUtils.createDotnetConsoleApp();
+                TestUtils.addDotnetProject();
+
+                // Act
+                const result = await TestUtils.executeCliCommand(COMMAND, [
+                    option,
+                ]);
+
+                // Assert
+                expect(result).toContain(DotnetPublish.PUBLISH_SUCCESS);
+            });
+        });
+    });
+
+    // #endregion publish
 });
 
 // #endregion Tests
