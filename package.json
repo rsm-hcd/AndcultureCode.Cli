@@ -75,5 +75,5 @@
         "watch": "tsc --watch",
         "watch:test": "jest --watch"
     },
-    "version": "2.3.1"
+    "version": "2.4.0"
 }
