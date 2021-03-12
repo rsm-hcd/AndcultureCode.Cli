@@ -19,13 +19,14 @@ describe("WebpackPublish", () => {
                 .spyOn(NodeRestore, "run")
                 .mockImplementation();
         });
+
         test.each([undefined, null, false])(
-            "when ci is %p, then NodeCI is not called ",
+            "when ci is %p, then NodeCI is not called",
             (ci) => {
                 // Arrange
                 const options = Factory.build<WebpackRestoreOptions>(
                     FactoryType.WebpackRestoreOptions,
-                    { ci }
+                    { ci: ci as boolean }
                 );
 
                 // Act
@@ -35,7 +36,8 @@ describe("WebpackPublish", () => {
                 expect(nodeCISpy).not.toBeCalled();
             }
         );
-        test("when ci is true, then NodeCI is called ", () => {
+
+        test("when ci is true, then NodeCI is called", () => {
             // Arrange
             const options = Factory.build<WebpackRestoreOptions>(
                 FactoryType.WebpackRestoreOptions,
@@ -48,13 +50,14 @@ describe("WebpackPublish", () => {
             // Assert
             expect(nodeCISpy).toBeCalled();
         });
+
         test.each([undefined, null, false])(
-            "when skipClean is %p, then NodeClean is not called ",
+            "when skipClean is %p, then NodeClean is not called",
             (skipClean) => {
                 // Arrange
                 const options = Factory.build<WebpackRestoreOptions>(
                     FactoryType.WebpackRestoreOptions,
-                    { skipClean }
+                    { skipClean: skipClean as boolean }
                 );
 
                 // Act
@@ -64,6 +67,7 @@ describe("WebpackPublish", () => {
                 expect(nodeCleanSpy).toBeCalled();
             }
         );
+
         test("when skipClean is true, NodeClean is not called", () => {
             // Arrange
             const options = Factory.build<WebpackRestoreOptions>(
@@ -79,12 +83,12 @@ describe("WebpackPublish", () => {
         });
 
         test.each([undefined, null, false])(
-            "when skipRestore is %p, then NodeRestore is not called ",
+            "when skipRestore is %p, then NodeRestore is not called",
             (skipRestore) => {
                 // Arrange
                 const options = Factory.build<WebpackRestoreOptions>(
                     FactoryType.WebpackRestoreOptions,
-                    { skipRestore }
+                    { skipRestore: skipRestore as boolean }
                 );
 
                 // Act

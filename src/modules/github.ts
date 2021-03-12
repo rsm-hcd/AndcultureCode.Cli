@@ -13,13 +13,20 @@ import { OctokitResponse } from "@octokit/types";
 import fs from "fs";
 import { Git } from "./git";
 import shell from "shelljs";
-import { Repository } from "../interfaces/repository";
+import { Repository } from "../interfaces/github/repository";
+import { Issue } from "../interfaces/github/issue";
+import { CreateIssueDto } from "../interfaces/github/create-issue-dto";
+import { CloneIssueDestinationDto } from "../interfaces/github/clone-issue-destination-dto";
+import { CloneIssueSourceDto } from "../interfaces/github/clone-issue-source-dto";
 
 // -----------------------------------------------------------------------------------------
 // #region Constants
 // -----------------------------------------------------------------------------------------
 
+const AND_CLI_REPO_LINK =
+    "[`and-cli`](https://github.com/AndcultureCode/AndcultureCode.Cli)";
 const API_DOMAIN = "api.github.com";
+const CREATED_BY_AND_CLI_FOOTER = `\n\n---\n_Issue created via ${AND_CLI_REPO_LINK}_`;
 
 // #endregion Constants
 
@@ -42,6 +49,7 @@ const Github = {
     // -----------------------------------------------------------------------------------------
 
     andcultureOrg: Constants.ANDCULTURE_CODE,
+    apiIssuesRouteParam: "issues",
     apiPullsRouteParam: "pulls",
     apiRepositoriesRouteParam: "repos",
     apiReviewsRouteParam: "reviews",
@@ -57,6 +65,39 @@ const Github = {
     // -----------------------------------------------------------------------------------------
     // #region Public Methods
     // -----------------------------------------------------------------------------------------
+
+    /**
+     * Creates an issue for the specified repository
+     *
+     * @param {CreateIssueDto} dto
+     * @returns {(Promise<Issue | undefined>)}
+     */
+    async addIssueToRepository(
+        dto: CreateIssueDto
+    ): Promise<Issue | undefined> {
+        if (!(await _verifyTokenFor("create issue"))) {
+            return undefined;
+        }
+
+        // Append the footer to note this issue was created thru the cli
+        if (!dto.body?.includes(AND_CLI_REPO_LINK)) {
+            dto.body = `${dto.body}${CREATED_BY_AND_CLI_FOOTER}`;
+        }
+
+        try {
+            const response = await _client().issues.create({
+                ...dto,
+            });
+
+            _throwIfApiError(response);
+            return response.data;
+        } catch (e) {
+            Echo.error(
+                `Error creating issue '${dto.title}' for ${dto.repo} - ${e}`
+            );
+            return undefined;
+        }
+    },
 
     /**
      * Adds a topic to all AndcultureCode repositories
@@ -119,6 +160,40 @@ const Github = {
 
         _outputUpdateTopicResult(repoName!, updateResult);
         return updateResult;
+    },
+
+    /**
+     * Clones an existing issue to another repository
+     *
+     * @param {CloneIssueSourceDto} source
+     * @param {CloneIssueDestinationDto} destination
+     */
+    async cloneIssueToRepository(
+        source: CloneIssueSourceDto,
+        destination: CloneIssueDestinationDto
+    ): Promise<Issue | undefined> {
+        const sourceIssue = (
+            await this.getIssues(source.owner, source.repo)
+        )?.find((issue: Issue) => issue.number === source.number);
+
+        if (sourceIssue == null) {
+            Echo.error(
+                `Issue '${source.owner}/${source.repo}#${source.number}' not found.`
+            );
+            shell.exit(1);
+            // Returning for the sake of testing
+            return;
+        }
+
+        const dto: CreateIssueDto = {
+            body: `${sourceIssue.body}${clonedIssueFooter(source)}`,
+            labels: sourceIssue.labels?.map((e) => e.name),
+            owner: destination.owner,
+            repo: destination.repo,
+            title: sourceIssue.title,
+        };
+
+        return await Github.addIssueToRepository(dto);
     },
 
     /**
@@ -228,6 +303,33 @@ const Github = {
                 `Error retrieving repository for ${owner}/${repoName} - ${e}`
             );
             return null;
+        }
+    },
+
+    /**
+     * Returns a list of Issues for the given repository
+     *
+     * @param {string} owner
+     * @param {string} repoName
+     * @returns {(Promise<Issue[] | undefined>)}
+     */
+    async getIssues(
+        owner: string,
+        repoName: string
+    ): Promise<Issue[] | undefined> {
+        try {
+            return await _list(_client().issues.listForRepo, {
+                owner: owner,
+                repo: repoName,
+                filter: "all",
+                sort: "created",
+                direction: "desc",
+            });
+        } catch (e) {
+            Echo.error(
+                `Error retrieving issues for ${owner}/${repoName} - ${e}`
+            );
+            return undefined;
         }
     },
 
@@ -530,6 +632,9 @@ const _client = () => {
 
     return new Octokit(options);
 };
+
+const clonedIssueFooter = (sourceIssue: CloneIssueSourceDto): string =>
+    `\n\n---\n_Issue cloned from ${sourceIssue.owner}/${sourceIssue.repo}#${sourceIssue.number} via ${AND_CLI_REPO_LINK}_`;
 
 const _filterReposByAndcultureOrg = (repos: Repository[]) =>
     repos.filter((r: Repository) => r.name.startsWith(Github.andcultureOrg));

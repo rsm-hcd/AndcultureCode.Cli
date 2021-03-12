@@ -2,7 +2,7 @@ import { StringUtils, CollectionUtils } from "andculturecode-javascript-core";
 import shell from "shelljs";
 import { Formatters } from "./formatters";
 import upath from "upath";
-import program from "commander";
+import program, { Command } from "commander";
 import { Echo } from "./echo";
 import { CommandDefinition } from "../interfaces/command-definition";
 import { PackageConfig } from "./package-config";
@@ -21,7 +21,6 @@ interface CommandRegistryConfiguration {
      * Determines how base commands are registered (whether they are located in the node_modules
      * folder, or the current project directory)
      *
-     * @type {boolean}
      * @default false
      */
     isImportedModule?: boolean;
@@ -227,7 +226,7 @@ const CommandRegistry = {
     /**
      * Register a set of commands with the program.
      *
-     * @param commands Array of CommandDefinitions to register with the application
+     * @param definitions Collection of CommandDefinitions to register with the application
      * @param overrideIfRegistered If true, subsequent registrations of a command
      * with the same name will override the last. Otherwise, a warning will be displayed and the
      * original command will remain.
@@ -235,15 +234,21 @@ const CommandRegistry = {
      * @returns `this` for chaining
      */
     registerAll(
-        commands: CommandDefinition[],
+        definitions:
+            | CommandDefinition[]
+            | (Record<string, CommandDefinition> | undefined),
         overrideIfRegistered: boolean = false
     ) {
-        if (CollectionUtils.isEmpty(commands)) {
+        definitions = Array.isArray(definitions)
+            ? definitions
+            : CommandDefinitionUtils.flatten(definitions);
+
+        if (CollectionUtils.isEmpty(definitions)) {
             return this;
         }
 
-        commands.forEach((command: CommandDefinition) =>
-            this.register(command, overrideIfRegistered)
+        definitions.forEach((definition: CommandDefinition) =>
+            this.register(definition, overrideIfRegistered)
         );
 
         return this;

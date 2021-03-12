@@ -1,7 +1,5 @@
 import { Constants } from "./constants";
 import finder from "find-package-json";
-// @ts-expect-error
-import readline from "readline-promise";
 import upath from "upath";
 import { CollectionUtils, CoreUtils } from "andculturecode-javascript-core";
 

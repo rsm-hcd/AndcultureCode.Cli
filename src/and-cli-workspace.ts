@@ -9,7 +9,7 @@ import { CollectionUtils, StringUtils } from "andculturecode-javascript-core";
 import { Js } from "./modules/js";
 import shell from "shelljs";
 import program from "commander";
-import { Repository } from "./interfaces/repository";
+import { Repository } from "./interfaces/github/repository";
 
 // -----------------------------------------------------------------------------------------
 // #region Interfaces

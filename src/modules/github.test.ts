@@ -6,9 +6,13 @@ import { Github } from "./github";
 import nock from "nock";
 import { TestUtils } from "../tests/test-utils";
 import { Prompt } from "./prompt";
-import { Repository } from "../interfaces/repository";
+import { Repository } from "../interfaces/github/repository";
 import { Factory } from "rosie";
 import { FactoryType } from "../tests/factories/factory-type";
+import { CreateIssueDto } from "../interfaces/github/create-issue-dto";
+import { Issue } from "../interfaces/github/issue";
+import { CloneIssueSourceDto } from "../interfaces/github/clone-issue-source-dto";
+import { CloneIssueDestinationDto } from "../interfaces/github/clone-issue-destination-dto";
 
 // -----------------------------------------------------------------------------------------
 // #region Tests
@@ -18,6 +22,16 @@ describe("Github", () => {
     // -----------------------------------------------------------------------------------------
     // #region Setup
     // -----------------------------------------------------------------------------------------
+
+    const getRepoIssuesRoute = (owner: string, repoName: string) =>
+        new RegExp(
+            [
+                Github.apiRepositoriesRouteParam,
+                owner,
+                repoName,
+                Github.apiIssuesRouteParam,
+            ].join("/")
+        );
 
     /**
      * Utility function for generating the /repos/{owner}/{repoName}/pulls API route
@@ -70,7 +84,69 @@ describe("Github", () => {
             ].join("/")
         );
 
+    /**
+     * Mock the token so that CI environments that are not authenticated aren't left hanging
+     */
+    const mockConfigToken = () =>
+        jest
+            .spyOn(Github, "getToken")
+            .mockResolvedValue(TestUtils.randomWord());
+
     // #endregion Setup
+
+    // -----------------------------------------------------------------------------------------
+    // #region addIssueToRepository
+    // -----------------------------------------------------------------------------------------
+
+    describe("addIssueToRepository", () => {
+        beforeEach(() => {
+            mockConfigToken();
+        });
+
+        test.each([300, 400, 401, 403, 404])(
+            "when response %p, it returns undefined",
+            async (status: number) => {
+                // Arrange
+                const dto = Factory.build<CreateIssueDto>(
+                    FactoryType.CreateIssueDto
+                );
+
+                nock(Github.apiRootUrl)
+                    .post(getRepoIssuesRoute(dto.owner, dto.repo))
+                    .reply(status);
+
+                // Act
+                const result = await Github.addIssueToRepository(dto);
+
+                // Assert
+                expect(result).toBeNil();
+            }
+        );
+
+        test("when response successful, it returns successfully created issue", async () => {
+            // Arrange
+            const dto = Factory.build<CreateIssueDto>(
+                FactoryType.CreateIssueDto
+            );
+            const expected = Factory.build<Issue>(FactoryType.Issue, {
+                title: dto.title,
+                user: { login: dto.owner },
+            });
+
+            nock(Github.apiRootUrl)
+                .post(getRepoIssuesRoute(dto.owner, dto.repo))
+                .reply(200, expected);
+
+            // Act
+            const result = await Github.addIssueToRepository(dto);
+
+            // Assert
+            expect(result?.title).toBe(expected.title);
+            expect(result?.user?.login).toBe(expected.user.login);
+        });
+    });
+
+    // #endregion addIssueToRepository
 
     // -----------------------------------------------------------------------------------------
     // #region addTopicToAllRepositories
@@ -114,6 +190,8 @@ describe("Github", () => {
         let shellExitSpy: jest.SpyInstance;
         beforeEach(() => {
             shellExitSpy = TestUtils.spyOnShellExit();
+
+            mockConfigToken();
         });
 
         test.each([undefined, null, "", " "])(
@@ -188,11 +266,6 @@ describe("Github", () => {
                 const existingTopics = [TestUtils.randomWord()];
                 const expectedTopics = [...existingTopics, topic];
 
-                // We'll want to mock the token so that CI environments aren't left hanging
-                jest.spyOn(Github, "getToken").mockResolvedValue(
-                    TestUtils.randomWord()
-                );
-
                 // Mock the call to get existing topics
                 nock(Github.apiRootUrl)
                     .get(getRepoTopicsRoute(owner, repoName))
@@ -217,6 +290,75 @@ describe("Github", () => {
     });
 
     // #endregion addTopicToRepository
+
+    // -----------------------------------------------------------------------------------------
+    // #region cloneIssueToRepository
+    // -----------------------------------------------------------------------------------------
+
+    describe("cloneIssueToRepository", () => {
+        test("when source number invalid, it calls shell.exit", async () => {
+            // Arrange
+            const number = TestUtils.randomNumber();
+            const source = Factory.build<CloneIssueSourceDto>(
+                FactoryType.CloneIssueSourceDto,
+                { number }
+            );
+            const destination = Factory.build<CloneIssueDestinationDto>(
+                FactoryType.CloneIssueDestinationDto
+            );
+            const issues = Factory.buildList<Issue>(FactoryType.Issue, 2, {
+                number: number + 1, // <-- No issue number should match
+            });
+            jest.spyOn(Github, "getIssues").mockResolvedValue(issues);
+            const exitSpy = TestUtils.spyOnShellExit();
+
+            // Act
+            const result = await Github.cloneIssueToRepository(
+                source,
+                destination
+            );
+
+            // Assert
+            expect(result).toBeNil();
+            expect(exitSpy).toHaveBeenCalled();
+        });
+
+        test("when source issue found, it calls addIssueToRepository and returns created issue", async () => {
+            // Arrange
+            const number = TestUtils.randomNumber();
+            const source = Factory.build<CloneIssueSourceDto>(
+                FactoryType.CloneIssueSourceDto,
+                { number }
+            );
+            const destination = Factory.build<CloneIssueDestinationDto>(
+                FactoryType.CloneIssueDestinationDto
+            );
+            const issues = Factory.buildList<Issue>(FactoryType.Issue, 1, {
+                number, // <-- Issue number should match
+            });
+
+            const expected = Factory.build<Issue>(FactoryType.Issue, {
+                user: { login: destination.owner },
+            });
+            jest.spyOn(Github, "getIssues").mockResolvedValue(issues);
+
+            const addIssueToRepositorySpy = jest
+                .spyOn(Github, "addIssueToRepository")
+                .mockResolvedValue(expected);
+
+            // Act
+            const result = await Github.cloneIssueToRepository(
+                source,
+                destination
+            );
+
+            // Assert
+            expect(addIssueToRepositorySpy).toHaveBeenCalled();
+            expect(result?.user?.login).toBe(destination.owner);
+        });
+    });
+
+    // #endregion cloneIssueToRepository
 
     // -----------------------------------------------------------------------------------------
     // #region configureToken
@@ -323,6 +465,34 @@ describe("Github", () => {
     });
 
     //#endregion description
+
+    // -----------------------------------------------------------------------------------------
+    // #region getIssues
+    // -----------------------------------------------------------------------------------------
+
+    describe("getIssues", () => {
+        test("when repo and owner exist, it returns issues", async () => {
+            // Arrange
+            const repo = TestUtils.randomWord();
+            const owner = TestUtils.randomWord();
+            const expected = Factory.buildList<Issue>(FactoryType.Issue, 2, {
+                user: { login: owner },
+            });
+
+            nock(Github.apiRootUrl)
+                .get(getRepoIssuesRoute(owner, repo))
+                .reply(200, expected);
+
+            // Act
+            const result = await Github.getIssues(owner, repo);
+
+            // Assert
+            expect(result).toHaveLength(expected.length);
+            expect(result).toSatisfyAll((e) => e.user.login === owner);
+        });
+    });
+
+    // #endregion getIssues
 
     // -----------------------------------------------------------------------------------------
     // #region getPullRequests

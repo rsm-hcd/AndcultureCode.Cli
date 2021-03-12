@@ -1,0 +1,25 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "args": [
+                "github",
+                "issue",
+                "--list",
+                "--repo",
+                "AndcultureCode.Cli"
+            ],
+            "console": "integratedTerminal",
+            "name": "Debug and-cli",
+            "program": "${workspaceFolder}/dist/and-cli.js",
+            "request": "launch",
+            "skipFiles": ["<node_internals>/**"],
+            // Uncomment if a custom node path is needed, or cannot be found automatically
+            // "runtimeExecutable": "node",
+            "type": "node"
+        }
+    ]
+}

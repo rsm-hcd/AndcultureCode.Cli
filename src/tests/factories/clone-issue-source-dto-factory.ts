@@ -1,19 +1,18 @@
 import { Factory } from "rosie";
 import { FactoryType } from "./factory-type";
-import faker from "faker";
-import { Repository } from "../../interfaces/github/repository";
 import { TestUtils } from "../test-utils";
+import { CloneIssueSourceDto } from "../../interfaces/github/clone-issue-source-dto";
 
 // -------------------------------------------------------------------------------------------------
 // #region Factory
 // -------------------------------------------------------------------------------------------------
 
-const RepositoryFactory = Factory.define<Repository>(
-    FactoryType.Repository
+const CloneIssueSourceDtoFactory = Factory.define<CloneIssueSourceDto>(
+    FactoryType.CloneIssueSourceDto
 ).attrs({
-    id: () => faker.random.number(),
-    name: () => TestUtils.randomWords().join("-"),
-    description: () => TestUtils.randomWords().join(" "),
+    number: TestUtils.randomNumber(),
+    owner: TestUtils.randomWord(),
+    repo: TestUtils.randomWords().join("-"),
 });
 
 // #endregion Factory
@@ -22,6 +21,6 @@ const RepositoryFactory = Factory.define<Repository>(
 // #region Exports
 // -------------------------------------------------------------------------------------------------
 
-export { RepositoryFactory };
+export { CloneIssueSourceDtoFactory };
 
 // #endregion Exports

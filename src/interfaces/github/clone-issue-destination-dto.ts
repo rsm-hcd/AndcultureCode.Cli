@@ -1,20 +1,21 @@
+import { CloneIssueSourceDto } from "./clone-issue-source-dto";
+
 // -----------------------------------------------------------------------------------------
-// #region Interfaces
+// #region Interface
 // -----------------------------------------------------------------------------------------
 
 /**
- * A stripped down representation of the repository owner objects returned by the Github API.
+ * Defines a destination for an issue to be cloned to
  */
-interface RepositoryOwner {
-    login: string;
-}
+interface CloneIssueDestinationDto
+    extends Omit<CloneIssueSourceDto, "number"> {}
 
-// #endregion Interfaces
+// #endregion Interface
 
 // -----------------------------------------------------------------------------------------
-// #region Exports
+// #region Export
 // -----------------------------------------------------------------------------------------
 
-export { RepositoryOwner };
+export { CloneIssueDestinationDto };
 
-// #endregion Exports
+// #endregion Export

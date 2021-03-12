@@ -570,37 +570,60 @@ describe("CommandRegistry", () => {
     // -----------------------------------------------------------------------------------------
 
     describe("registerAll", () => {
-        test.each<undefined | null | any[]>([undefined, null, []])(
-            "when called with a commands array value of %p, it does not call registerCommand",
-            (commands) => {
-                // Arrange
-                const registerCommandSpy = jest.spyOn(sut, "register");
-
-                // Act
-                sut.registerAll(commands as CommandDefinition[]);
-
-                // Assert
-                expect(registerCommandSpy).not.toHaveBeenCalled();
-            }
-        );
-
-        test("when commands array has values, it calls 'register' for each definition", () => {
+        test("when value is an empty array, it does not call register", () => {
             // Arrange
-            const commandCount = TestUtils.randomNumber(1, 10);
-            const definitions = [];
-            for (let i = 0; i < commandCount; i++) {
-                definitions.push(
-                    Factory.build<CommandDefinition>(
-                        FactoryType.CommandDefinition
-                    )
-                );
-            }
+            const registerCommandSpy = jest.spyOn(sut, "register");
+
+            // Act
+            sut.registerAll([]);
+
+            // Assert
+            expect(registerCommandSpy).not.toHaveBeenCalled();
+        });
+
+        test("when value is an empty object, it does not call register", () => {
+            // Arrange
+            const registerCommandSpy = jest.spyOn(sut, "register");
+
+            // Act
+            sut.registerAll({});
+
+            // Assert
+            expect(registerCommandSpy).not.toHaveBeenCalled();
+        });
+
+        test("when value is an array with definitions, it calls 'register' for each definition", () => {
+            // Arrange
+            const expected = TestUtils.randomNumber(2, 10);
+            const definitions = Factory.buildList<CommandDefinition>(
+                FactoryType.CommandDefinition,
+                expected
+            );
 
             // Act
             sut.registerAll(definitions);
 
             // Assert
-            expect(programCommandSpy).toHaveBeenCalledTimes(commandCount);
+            expect(programCommandSpy).toHaveBeenCalledTimes(expected);
+        });
+
+        test("when value is a map with definitions, it calls 'register' for each definition", () => {
+            // Arrange
+            const definitions: Record<string, CommandDefinition> = {
+                command1: Factory.build<CommandDefinition>(
+                    FactoryType.CommandDefinition
+                ),
+                command2: Factory.build<CommandDefinition>(
+                    FactoryType.CommandDefinition
+                ),
+            };
+            const expected = Object.keys(definitions).length;
+
+            // Act
+            sut.registerAll(definitions);
+
+            // Assert
+            expect(programCommandSpy).toHaveBeenCalledTimes(expected);
         });
     });
 

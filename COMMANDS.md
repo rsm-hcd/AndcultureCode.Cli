@@ -235,12 +235,14 @@ Various commands to interact with github andculture related resources.
 
 ### Commands
 
--   `and-cli github -l|--list-repos` - Lists main AndcultureCode repositories
--   `and-cli github --list-topics --repo AndcultureCode.Cli` - Lists topics for a specified AndcultureCode repo
--   `and-cli github --add-topic hacktoberfest --repo AndcultureCode.Cli` - Adds a topic to a specified AndcultureCodeRepo
--   `and-cli github --remove-topic hacktoberfest --repo AndcultureCode.Cli` - Removes a topic from a specified AndcultureCode repo
--   `and-cli github --remove-topic hacktoberfest` - Removes a topic from all AndcultureCode repos
--   `and-cli github -u|--username <username>` - Lists forked AndcultureCode repositories for the supplied github username
+-   `and-cli github repo -l|--list` - Lists main AndcultureCode repositories
+-   `and-cli github repo --list -u|--username <username>` - Lists forked AndcultureCode repositories for the supplied github username
+-   `and-cli github topic --list --repo AndcultureCode.Cli` - Lists topics for a specified AndcultureCode repo
+-   `and-cli github topic --add hacktoberfest --repo AndcultureCode.Cli` - Adds a topic to a specified AndcultureCodeRepo
+-   `and-cli github topic --remove hacktoberfest --repo AndcultureCode.Cli` - Removes a topic from a specified AndcultureCode repo
+-   `and-cli github topic --remove hacktoberfest` - Removes a topic from all AndcultureCode repos
+-   `and-cli github issue --list --repo AndcultureCode.Cli` - Lists open issues for the cli repo
+-   `and-cli github issue --clone-from AndcultureCode.JavaScript.Core#95 --repo AndcultureCode.JavaScript.React` - Clones issue from one AndcultureCode repo to another
 
 ## nuget
 
