@@ -9,12 +9,18 @@ import { DotnetPath } from "./modules/dotnet-path";
 import { TestUtils } from "./tests/test-utils";
 import { DotnetBuild } from "./modules/dotnet-build";
 import { DotnetPublish } from "./modules/dotnet-publish";
+import shell from "shelljs";
 
 // -----------------------------------------------------------------------------------------
 // #region Constants
 // -----------------------------------------------------------------------------------------
 
 const COMMAND = CommandDefinitions.dotnet.command;
+const REGEX_BUILD_COMPLETED = /(Build (succeeded|FAILED))/;
+const REGEX_BUILD_FAILED = /(Build FAILED)/;
+const REGEX_PUBLISH_COMPLETED = new RegExp(
+    `(${DotnetPublish.ERROR_PUBLISH_FAILED}|${DotnetPublish.PUBLISH_SUCCESS})`
+);
 
 // #endregion Constants
 
@@ -58,7 +64,26 @@ describe("and-cli-dotnet", () => {
                 ]);
 
                 // Assert
-                expect(result).toContain("Build succeeded.");
+                expect(result).toMatch(REGEX_BUILD_COMPLETED);
+            });
+
+            describe("given solution does not build", () => {
+                test("it displays an error", async () => {
+                    // Arrange
+                    TestUtils.createDotnetSolution();
+                    TestUtils.createDotnetConsoleApp();
+                    TestUtils.addDotnetProject();
+
+                    const programFile = shell.ls("-R", "Program.cs")[0]; // <-- Locate entrypoint and force a compile error
+                    shell.echo(";").to(programFile);
+
+                    const result = await TestUtils.executeCliCommand(COMMAND, [
+                        option,
+                    ]);
+
+                    // Assert
+                    expect(result).toMatch(REGEX_BUILD_FAILED);
+                });
             });
         });
     });
@@ -98,7 +123,28 @@ describe("and-cli-dotnet", () => {
                 ]);
 
                 // Assert
-                expect(result).toContain(DotnetPublish.PUBLISH_SUCCESS);
+                expect(result).toMatch(REGEX_PUBLISH_COMPLETED);
+            });
+
+            describe("given solution does not build", () => {
+                test("it displays an error", async () => {
+                    // Arrange
+                    TestUtils.createDotnetSolution();
+                    TestUtils.createDotnetConsoleApp();
+                    TestUtils.addDotnetProject();
+
+                    const programFile = shell.ls("-R", "Program.cs")[0]; // <-- Locate entrypoint and force a compile error
+                    shell.echo(";").to(programFile);
+
+                    const result = await TestUtils.executeCliCommand(COMMAND, [
+                        option,
+                    ]);
+
+                    // Assert
+                    expect(result).toContain(
+                        DotnetPublish.ERROR_PUBLISH_FAILED
+                    );
+                });
             });
         });
     });
