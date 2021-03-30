@@ -13,6 +13,7 @@ import { CollectionUtils } from "andculturecode-javascript-core";
 import { NugetCommand } from "./enums/nuget-command";
 import { CommandStringBuilder } from "./utilities/command-string-builder";
 import { OptionStringBuilder } from "./utilities/option-string-builder";
+import { Process } from "./modules/process";
 
 CommandRunner.run(async () => {
     // -----------------------------------------------------------------------------------------
@@ -72,10 +73,9 @@ CommandRunner.run(async () => {
             // Create new nupkg file
             const packCmd = this.cmd(NugetCommand.PACK);
             Echo.message(`Packaging ${SOLUTION_PATH}... (via ${packCmd})`);
-            if (shell.exec(packCmd.toString()).code !== 0) {
-                Echo.error("Failed to pack dotnet project");
-                shell.exit(1);
-            }
+            Process.spawn(packCmd.toString(), {
+                onError: () => "Failed to pack dotnet project",
+            });
 
             // Push nupkg to nuget servers
             const errored: string[] = [];
@@ -86,11 +86,13 @@ CommandRunner.run(async () => {
                     `Publishing package ${file}... (via ${publishCmd})`
                 );
 
-                if (shell.exec(publishCmd.toString()).code !== 0) {
-                    errored.push(file);
-                    Echo.error(`[FAILED] Publishing nuget package: '${file}'`);
-                    return;
-                }
+                Process.spawn(publishCmd.toString(), {
+                    exitOnError: false,
+                    onError: () => {
+                        errored.push(file);
+                        return `[FAILED] Publishing nuget package: '${file}'`;
+                    },
+                });
 
                 Echo.success(`[SUCCESS] Publishing nuget package: '${file}'`);
                 successful.push(file);

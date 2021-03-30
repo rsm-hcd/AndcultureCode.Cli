@@ -23,7 +23,9 @@ export { AsyncReadlineInterface } from "./interfaces/async-readline-interface";
 export { CommandDefinition } from "./interfaces/command-definition";
 export { Issue } from "./interfaces/github/issue";
 export { Label } from "./interfaces/github/label";
+export { KillOptions } from "./interfaces/kill-options";
 export { Repository } from "./interfaces/github/repository";
+export { SpawnOptions } from "./interfaces/spawn-options";
 export { User } from "./interfaces/github/user";
 
 // #endregion Interfaces
@@ -60,8 +62,8 @@ export { NodeClean } from "./modules/node-clean";
 export { NodeRestore } from "./modules/node-restore";
 export { NugetUpgrade } from "./modules/nuget-upgrade";
 export { PackageConfig } from "./modules/package-config";
+export { Process } from "./modules/process";
 export { Prompt } from "./modules/prompt";
-export { Ps } from "./modules/ps";
 export { Variables } from "./modules/variables";
 export { WebpackPublish } from "./modules/webpack-publish";
 export { Zip } from "./modules/zip";
