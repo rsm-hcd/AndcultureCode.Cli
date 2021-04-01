@@ -86,13 +86,15 @@ CommandRunner.run(async () => {
                     `Publishing package ${file}... (via ${publishCmd})`
                 );
 
-                Process.spawn(publishCmd.toString(), {
+                const { code } = Process.spawn(publishCmd.toString(), {
                     exitOnError: false,
-                    onError: () => {
-                        errored.push(file);
-                        return `[FAILED] Publishing nuget package: '${file}'`;
-                    },
                 });
+
+                if (code !== 0) {
+                    errored.push(file);
+                    Echo.error(`[FAILED] Publishing nuget package: '${file}'`);
+                    return;
+                }
 
                 Echo.success(`[SUCCESS] Publishing nuget package: '${file}'`);
                 successful.push(file);
