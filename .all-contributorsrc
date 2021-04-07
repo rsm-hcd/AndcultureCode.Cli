@@ -59,6 +59,17 @@
       "contributions": [
         "review"
       ]
+    },
+    {
+      "login": "Stefanie899",
+      "name": "Stefanie Leitch",
+      "avatar_url": "https://avatars.githubusercontent.com/u/37462028?v=4",
+      "profile": "https://github.com/Stefanie899",
+      "contributions": [
+        "code",
+        "doc",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
