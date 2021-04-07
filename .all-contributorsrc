@@ -1,0 +1,28 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "brandongregoryscott",
+      "name": "Brandon Scott",
+      "avatar_url": "https://avatars.githubusercontent.com/u/11774799?v=4",
+      "profile": "https://github.com/brandongregoryscott",
+      "contributions": [
+        "code",
+        "doc",
+        "infra",
+        "maintenance",
+        "test"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "AndcultureCode.Cli",
+  "projectOwner": "AndcultureCode",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
