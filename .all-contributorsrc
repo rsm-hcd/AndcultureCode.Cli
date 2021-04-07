@@ -17,6 +17,17 @@
         "maintenance",
         "test"
       ]
+    },
+    {
+      "login": "dylanjustice",
+      "name": "Dylan Justice",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22502365?v=4",
+      "profile": "http://resume.dylanjustice.com",
+      "contributions": [
+        "code",
+        "maintenance",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
