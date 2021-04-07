@@ -50,6 +50,15 @@
         "code",
         "test"
       ]
+    },
+    {
+      "login": "cspath1",
+      "name": "Cody Spath",
+      "avatar_url": "https://avatars.githubusercontent.com/u/26265706?v=4",
+      "profile": "https://github.com/cspath1",
+      "contributions": [
+        "review"
+      ]
     }
   ],
   "contributorsPerLine": 7,
