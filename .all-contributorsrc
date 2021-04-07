@@ -38,7 +38,8 @@
         "code",
         "doc",
         "maintenance",
-        "test"
+        "test",
+        "review"
       ]
     },
     {
