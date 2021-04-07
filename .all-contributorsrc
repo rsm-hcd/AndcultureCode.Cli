@@ -28,6 +28,18 @@
         "maintenance",
         "test"
       ]
+    },
+    {
+      "login": "wintondeshong",
+      "name": "Winton DeShong",
+      "avatar_url": "https://avatars.githubusercontent.com/u/48424?v=4",
+      "profile": "http://www.winton.me/",
+      "contributions": [
+        "code",
+        "doc",
+        "maintenance",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
