@@ -1,4 +1,7 @@
 # AndcultureCode.Cli
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-6-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 ![build status](https://github.com/AndcultureCode/AndcultureCode.Cli/workflows/AndcultureCode.Cli/badge.svg)
 [![codecov](https://codecov.io/gh/AndcultureCode/AndcultureCode.Cli/branch/master/graph/badge.svg)](https://codecov.io/gh/AndcultureCode/AndcultureCode.Cli)
@@ -272,6 +275,27 @@ The latest version can be installed by running:
 npm install --global and-cli@latest
 ```
 
-# Community
+## Contributors ✨
 
-[![](https://sourcerer.io/fame/andCulture/AndcultureCode/AndcultureCode.Cli/images/0)](https://sourcerer.io/fame/andCulture/AndcultureCode/AndcultureCode.Cli/links/0)[![](https://sourcerer.io/fame/andCulture/AndcultureCode/AndcultureCode.Cli/images/1)](https://sourcerer.io/fame/andCulture/AndcultureCode/AndcultureCode.Cli/links/1)[![](https://sourcerer.io/fame/andCulture/AndcultureCode/AndcultureCode.Cli/images/2)](https://sourcerer.io/fame/andCulture/AndcultureCode/AndcultureCode.Cli/links/2)[![](https://sourcerer.io/fame/andCulture/AndcultureCode/AndcultureCode.Cli/images/3)](https://sourcerer.io/fame/andCulture/AndcultureCode/AndcultureCode.Cli/links/3)[![](https://sourcerer.io/fame/andCulture/AndcultureCode/AndcultureCode.Cli/images/4)](https://sourcerer.io/fame/andCulture/AndcultureCode/AndcultureCode.Cli/links/4)[![](https://sourcerer.io/fame/andCulture/AndcultureCode/AndcultureCode.Cli/images/5)](https://sourcerer.io/fame/andCulture/AndcultureCode/AndcultureCode.Cli/links/5)[![](https://sourcerer.io/fame/andCulture/AndcultureCode/AndcultureCode.Cli/images/6)](https://sourcerer.io/fame/andCulture/AndcultureCode/AndcultureCode.Cli/links/6)[![](https://sourcerer.io/fame/andCulture/AndcultureCode/AndcultureCode.Cli/images/7)](https://sourcerer.io/fame/andCulture/AndcultureCode/AndcultureCode.Cli/links/7)
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/brandongregoryscott"><img src="https://avatars.githubusercontent.com/u/11774799?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Brandon Scott</b></sub></a><br /><a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=brandongregoryscott" title="Code">💻</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=brandongregoryscott" title="Documentation">📖</a> <a href="#infra-brandongregoryscott" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#maintenance-brandongregoryscott" title="Maintenance">🚧</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=brandongregoryscott" title="Tests">⚠️</a></td>
+    <td align="center"><a href="http://resume.dylanjustice.com"><img src="https://avatars.githubusercontent.com/u/22502365?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Dylan Justice</b></sub></a><br /><a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=dylanjustice" title="Code">💻</a> <a href="#maintenance-dylanjustice" title="Maintenance">🚧</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=dylanjustice" title="Tests">⚠️</a></td>
+    <td align="center"><a href="http://www.winton.me/"><img src="https://avatars.githubusercontent.com/u/48424?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Winton DeShong</b></sub></a><br /><a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=wintondeshong" title="Code">💻</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=wintondeshong" title="Documentation">📖</a> <a href="#maintenance-wintondeshong" title="Maintenance">🚧</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=wintondeshong" title="Tests">⚠️</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/pulls?q=is%3Apr+reviewed-by%3Awintondeshong" title="Reviewed Pull Requests">👀</a></td>
+    <td align="center"><a href="https://github.com/KevinBusch"><img src="https://avatars.githubusercontent.com/u/775414?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Kevin Busch</b></sub></a><br /><a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=KevinBusch" title="Code">💻</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=KevinBusch" title="Tests">⚠️</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/pulls?q=is%3Apr+reviewed-by%3AKevinBusch" title="Reviewed Pull Requests">👀</a></td>
+    <td align="center"><a href="https://github.com/cspath1"><img src="https://avatars.githubusercontent.com/u/26265706?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Cody Spath</b></sub></a><br /><a href="https://github.com/AndcultureCode/AndcultureCode.Cli/pulls?q=is%3Apr+reviewed-by%3Acspath1" title="Reviewed Pull Requests">👀</a></td>
+    <td align="center"><a href="https://github.com/Stefanie899"><img src="https://avatars.githubusercontent.com/u/37462028?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Stefanie Leitch</b></sub></a><br /><a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=Stefanie899" title="Code">💻</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=Stefanie899" title="Documentation">📖</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=Stefanie899" title="Tests">⚠️</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!

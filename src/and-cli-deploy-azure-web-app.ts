@@ -42,10 +42,16 @@ CommandRunner.run(async () => {
                 return;
             }
 
+            let credentialsArgs = `--name ${appName} --resource-group ${resourceGroup} --query scmUri --output tsv`;
+
+            if (program.slot != null) {
+                credentialsArgs += ` --slot ${program.slot}`;
+            }
+
             const {
                 stdout: url,
             } = Process.spawn(
-                `az webapp deployment list-publishing-credentials --name ${appName} --resource-group ${resourceGroup} --query scmUri --output tsv`,
+                `az webapp deployment list-publishing-credentials ${credentialsArgs}`,
                 { exitOnError: false }
             );
 
@@ -193,6 +199,10 @@ CommandRunner.run(async () => {
         .option(
             "--username <username>",
             "Required Azure username (if deploying using Azure credentials)"
+        )
+        .option(
+            "--slot <slot>",
+            "Optional name of slot to which you want to deploy (uses production slot by default)"
         )
         .parse(process.argv);
 
