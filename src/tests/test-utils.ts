@@ -135,6 +135,20 @@ const TestUtils = {
     },
 
     /**
+     * Find the first `Program.cs` under the current directory.
+     */
+    findProgramCs(): string | never {
+        const programCs = shell.find("**/*/Program.cs")[0];
+        if (programCs != null) {
+            return programCs;
+        }
+
+        return _throwFatalError(
+            `Could not locate Program.cs in ${shell.pwd()}`
+        );
+    },
+
+    /**
      * Helper to easily check if tests run in continuous integration environment
      */
     isCI() {
