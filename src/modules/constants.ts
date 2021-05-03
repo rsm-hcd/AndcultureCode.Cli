@@ -12,6 +12,9 @@ const Constants = {
     /** Constant to represent the 'bin' directory or config section */
     BIN: "bin",
 
+    /** Constant to represent the directory for and-cli related configuration files */
+    CLI_CONFIG_DIR: ".and-cli",
+
     /** Constant to hold a reference to name of the CLI so we aren't hard-coding it multiple places */
     CLI_NAME: "and-cli",
 

@@ -34,7 +34,7 @@ const File = {
 
     /**
      * Deletes the file provided it exists
-     * @param {string} file Relative or absolute path to file
+     * @param file Relative or absolute path to file
      */
     deleteIfExists(file: string) {
         if (!fs.existsSync(file)) {
@@ -47,8 +47,14 @@ const File = {
     },
 
     /**
+     * Returns whether or not a file matching the given expression exists
+     */
+    exists(fileExpression: string): boolean {
+        return this.first(fileExpression) != null;
+    },
+
+    /**
      * Returns the first match of the provided file expression
-     * @param {string} fileExpression
      */
     first(fileExpression: string) {
         shell.config.silent = true;

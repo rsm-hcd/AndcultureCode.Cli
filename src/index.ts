@@ -23,8 +23,10 @@ export { AsyncReadlineInterface } from "./interfaces/async-readline-interface";
 export { CommandDefinition } from "./interfaces/command-definition";
 export { Issue } from "./interfaces/github/issue";
 export { Label } from "./interfaces/github/label";
+export { ListCommandsOptions } from "./interfaces/list-commands-options";
 export { Repository } from "./interfaces/github/repository";
 export { User } from "./interfaces/github/user";
+export { WebpackRestoreOptions } from "./interfaces/webpack-restore-options";
 
 // #endregion Interfaces
 
