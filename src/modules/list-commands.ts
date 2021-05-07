@@ -72,7 +72,7 @@ const ListCommands = {
         return `node ${cliEntrypoint} ${command} ${helpFlag}`;
     },
     description(): string {
-        return CommandDefinitions.ls.description;
+        return CommandDefinitions.list.description;
     },
     diffParentCommands(): boolean {
         const cachedParentCommands = _getParentCommandsOrDefault(_dtos).map(
@@ -270,21 +270,19 @@ const _getChildren = (parent: ParsedCommandDto): ParsedCommandDto[] =>
 
 const _getParentCommandsOrDefault = (commands: ParsedCommandDto[]) => {
     const parents = commands.filter((command) => command.parent == null);
-    if (hasValues(parents)) {
-        return parents;
-    }
 
-    return commands;
+    return hasValues(parents) ? parents : commands;
 };
 
 const _parseChildrenAndOptions = (command: string) => {
     const { stdout } = shell.exec(ListCommands.cmd(command), { silent: true });
 
     const children = _parseChildren(stdout);
-    children.forEach((child: string) => {
+
+    children.forEach((child: string) =>
         // Recursively parse children/options
-        _parseChildrenAndOptions(`${command} ${child}`);
-    });
+        _parseChildrenAndOptions(`${command} ${child}`)
+    );
 
     const options = _parseOptions(stdout);
     const dto = _buildDto(command, options);

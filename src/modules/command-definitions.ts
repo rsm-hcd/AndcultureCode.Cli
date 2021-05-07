@@ -70,8 +70,8 @@ const CommandDefinitions: BaseCommandDefinitions = {
         description:
             "Collection of commands related to installation and configuration of the and-cli",
     },
-    ls: {
-        command: "ls",
+    list: {
+        command: "list",
         description: "List all commands/options",
     },
     migration: {

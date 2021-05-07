@@ -30,7 +30,7 @@ interface CommandDefinitions extends Record<string, CommandDefinition> {
         };
     };
     install: CommandDefinition;
-    ls: CommandDefinition;
+    list: CommandDefinition;
     migration: CommandDefinition;
     nuget: CommandDefinition;
     restore: CommandDefinition & {

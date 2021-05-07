@@ -27,7 +27,7 @@ CommandRunner.run(async () => {
     // -----------------------------------------------------------------------------------------
 
     program
-        .description(CommandDefinitions.ls.description)
+        .description(CommandDefinitions.list.description)
         .option(
             "-i, --indent <indent>",
             "Number of spaces to indent each level",
