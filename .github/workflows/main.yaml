@@ -8,6 +8,7 @@ on:
     workflow_dispatch:
 
 env:
+    CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
     SLACK_BOT_TOKEN: ${{secrets.SLACK_BOT_TOKEN}}
 
 jobs:
