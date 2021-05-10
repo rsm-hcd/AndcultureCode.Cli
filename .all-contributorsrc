@@ -72,6 +72,15 @@
         "doc",
         "test"
       ]
+    },
+    {
+      "login": "AaronW",
+      "name": "Aaron",
+      "avatar_url": "https://avatars.githubusercontent.com/u/305252?v=4",
+      "profile": "https://github.com/AaronW",
+      "contributions": [
+        "review"
+      ]
     }
   ],
   "contributorsPerLine": 7,
