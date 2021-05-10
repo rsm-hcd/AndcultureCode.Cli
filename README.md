@@ -1,6 +1,6 @@
 # AndcultureCode.Cli
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-6-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [![Build Status](https://travis-ci.org/AndcultureCode/AndcultureCode.Cli.svg?branch=master)](https://travis-ci.org/AndcultureCode/AndcultureCode.Cli)
@@ -290,6 +290,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/KevinBusch"><img src="https://avatars.githubusercontent.com/u/775414?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Kevin Busch</b></sub></a><br /><a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=KevinBusch" title="Code">💻</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=KevinBusch" title="Tests">⚠️</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/pulls?q=is%3Apr+reviewed-by%3AKevinBusch" title="Reviewed Pull Requests">👀</a></td>
     <td align="center"><a href="https://github.com/cspath1"><img src="https://avatars.githubusercontent.com/u/26265706?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Cody Spath</b></sub></a><br /><a href="https://github.com/AndcultureCode/AndcultureCode.Cli/pulls?q=is%3Apr+reviewed-by%3Acspath1" title="Reviewed Pull Requests">👀</a></td>
     <td align="center"><a href="https://github.com/Stefanie899"><img src="https://avatars.githubusercontent.com/u/37462028?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Stefanie Leitch</b></sub></a><br /><a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=Stefanie899" title="Code">💻</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=Stefanie899" title="Documentation">📖</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=Stefanie899" title="Tests">⚠️</a></td>
+    <td align="center"><a href="https://github.com/AaronW"><img src="https://avatars.githubusercontent.com/u/305252?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Aaron</b></sub></a><br /><a href="https://github.com/AndcultureCode/AndcultureCode.Cli/pulls?q=is%3Apr+reviewed-by%3AAaronW" title="Reviewed Pull Requests">👀</a></td>
   </tr>
 </table>
 
