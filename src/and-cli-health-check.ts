@@ -28,7 +28,6 @@ CommandRunner.run(async () => {
 
     let code: number;
     let endpoint: string;
-    let responseCode: number;
     let timeout: number;
     let interval: number;
 
