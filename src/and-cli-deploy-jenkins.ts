@@ -64,7 +64,9 @@ CommandRunner.run(async () => {
             );
 
             Echo.message(`Jenkins starting ${job}, deploying version ${tag}`);
-            const url = `${config.url}/job/${job}/buildWithParameters?version=${tag}`;
+            const url = encodeURI(
+                `${config.url}/job/${job}/buildWithParameters?version=${tag}`
+            );
 
             const cmd = new CommandStringBuilder(
                 "curl",
@@ -81,9 +83,11 @@ CommandRunner.run(async () => {
             }
         },
         async createProfile() {
-            const jobName = await Prompt.questionAsync("Jenkins Job Name: ");
+            const jobName = await Prompt.questionAsync(
+                "Enter the Job name exactly as it appears in the Jenkins Web UI "
+            );
             const profileName = await Prompt.questionAsync(
-                "Profile name (Nickname): "
+                "Profile name (Friendly name for you to remember): "
             );
 
             let config = Jenkins.getConfig();

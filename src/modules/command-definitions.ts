@@ -65,6 +65,11 @@ const CommandDefinitions: BaseCommandDefinitions = {
         description:
             "Commands for interacting with AndcultureCode github resources",
     },
+    healthCheck: {
+        command: "health-check",
+        description:
+            "Send a web request to a given endpoint on an interval to verify the HTTP response code",
+    },
     install: {
         command: "install",
         description:
