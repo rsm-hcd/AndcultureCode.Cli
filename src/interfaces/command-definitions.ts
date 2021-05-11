@@ -30,9 +30,14 @@ interface CommandDefinitions extends Record<string, CommandDefinition> {
         };
     };
     install: CommandDefinition;
+    list: CommandDefinition;
     migration: CommandDefinition;
     nuget: CommandDefinition;
-    restore: CommandDefinition;
+    restore: CommandDefinition & {
+        children: {
+            azureStorage: CommandDefinition;
+        };
+    };
     webpack: CommandDefinition;
     webpackTest: CommandDefinition;
     workspace: CommandDefinition;

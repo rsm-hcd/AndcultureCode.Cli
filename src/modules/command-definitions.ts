@@ -75,6 +75,10 @@ const CommandDefinitions: BaseCommandDefinitions = {
         description:
             "Collection of commands related to installation and configuration of the and-cli",
     },
+    list: {
+        command: "list",
+        description: "List all commands/options",
+    },
     migration: {
         command: "migration",
         description: "Run commands to manage Entity Framework migrations",
@@ -87,6 +91,12 @@ const CommandDefinitions: BaseCommandDefinitions = {
         command: "restore",
         description:
             "Restores application data assets for various application types",
+        children: {
+            azureStorage: {
+                command: "azure-storage",
+                description: "Restore application assets in Azure Storage",
+            },
+        },
     },
     webpack: {
         command: "webpack",
