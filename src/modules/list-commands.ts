@@ -1,6 +1,5 @@
 import { CollectionUtils, StringUtils } from "andculturecode-javascript-core";
 import { Options } from "../constants/options";
-import { CommandDefinitionUtils } from "../utilities/command-definition-utils";
 import { Constants } from "./constants";
 import { Echo } from "./echo";
 import { Formatters } from "./formatters";
@@ -11,6 +10,7 @@ import fs from "fs";
 import { File } from "./file";
 import { ListCommandsOptions } from "../interfaces/list-commands-options";
 import { CommandDefinitions } from "./command-definitions";
+import { PackageConfig } from "./package-config";
 
 // -----------------------------------------------------------------------------------------
 // #region Interfaces
@@ -31,8 +31,7 @@ interface ParsedCommandDto {
 // #region Constants
 // -----------------------------------------------------------------------------------------
 
-const { CLI_CONFIG_DIR, DIST, ENTRYPOINT } = Constants;
-const { difference, hasValues } = CollectionUtils;
+const { CLI_NAME, CLI_CONFIG_DIR } = Constants;
 const { shortFlag: helpFlag } = Options.Help;
 const CACHE_FILENAME = "commands.json";
 const CACHE_PATH = upath.join(os.homedir(), CLI_CONFIG_DIR, CACHE_FILENAME);
@@ -48,7 +47,6 @@ const DEFAULT_OPTIONS: Required<ListCommandsOptions> = {
 };
 const OPTIONS_START_STRING = "Options:";
 const OPTIONS_END_STRING = Options.Help.toString();
-const PARENT_COMMANDS = CommandDefinitionUtils.getNames();
 
 // #endregion Constants
 
@@ -67,25 +65,19 @@ let _options: Required<ListCommandsOptions> = { ...DEFAULT_OPTIONS };
 
 const ListCommands = {
     DEFAULT_OPTIONS,
-    cmd(command: string): string {
-        const cliEntrypoint = upath.join(".", DIST, ENTRYPOINT);
-        return `node ${cliEntrypoint} ${command} ${helpFlag}`;
+    cmd(command?: string): string {
+        const binName = PackageConfig.getLocalBinName() ?? CLI_NAME;
+        if (StringUtils.isEmpty(command)) {
+            return `${binName} ${helpFlag}`;
+        }
+
+        return `${binName} ${command} ${helpFlag}`;
     },
     description(): string {
         return CommandDefinitions.list.description;
     },
-    diffParentCommands(): boolean {
-        const cachedParentCommands = _getParentCommandsOrDefault(_dtos).map(
-            (dto) => dto.command
-        );
-
-        return (
-            hasValues(difference(PARENT_COMMANDS, cachedParentCommands)) ||
-            hasValues(difference(cachedParentCommands, PARENT_COMMANDS))
-        );
-    },
     parse(): void {
-        PARENT_COMMANDS.forEach(_parseChildrenAndOptions);
+        _parseChildrenAndOptions();
     },
     parseOrReadCache(): void {
         if (_options.skipCache) {
@@ -95,15 +87,8 @@ const ListCommands = {
         }
 
         this.readCachedFile();
-        const parentCommandsDiffer = this.diffParentCommands();
-        if (hasValues(_dtos) && !parentCommandsDiffer) {
+        if (CollectionUtils.hasValues(_dtos)) {
             return;
-        }
-
-        if (hasValues(_dtos) && parentCommandsDiffer) {
-            Echo.message(
-                "Detected changes in parent commands that are not yet saved to the cache file - rebuilding."
-            );
         }
 
         this.resetCache();
@@ -271,18 +256,30 @@ const _getChildren = (parent: ParsedCommandDto): ParsedCommandDto[] =>
 const _getParentCommandsOrDefault = (commands: ParsedCommandDto[]) => {
     const parents = commands.filter((command) => command.parent == null);
 
-    return hasValues(parents) ? parents : commands;
+    return CollectionUtils.hasValues(parents) ? parents : commands;
 };
 
-const _parseChildrenAndOptions = (command: string) => {
-    const { stdout } = shell.exec(ListCommands.cmd(command), { silent: true });
+const _parseChildrenAndOptions = (command?: string) => {
+    const helpCommand = ListCommands.cmd(command);
+    const { stdout } = shell.exec(helpCommand, { silent: true });
+
+    const coloredHelpCommand = Formatters.purple(helpCommand);
+    Echo.message(`Running ${coloredHelpCommand} for commands and options...`);
 
     const children = _parseChildren(stdout);
 
-    children.forEach((child: string) =>
-        // Recursively parse children/options
-        _parseChildrenAndOptions(`${command} ${child}`)
-    );
+    children.forEach((child: string) => {
+        if (StringUtils.hasValue(command)) {
+            _parseChildrenAndOptions(`${command} ${child}`);
+            return;
+        }
+
+        _parseChildrenAndOptions(child);
+    });
+
+    if (StringUtils.isEmpty(command)) {
+        return;
+    }
 
     const options = _parseOptions(stdout);
     const dto = _buildDto(command, options);
