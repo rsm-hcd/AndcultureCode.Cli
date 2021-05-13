@@ -11,6 +11,7 @@ import { File } from "./file";
 import { ListCommandsOptions } from "../interfaces/list-commands-options";
 import { CommandDefinitions } from "./command-definitions";
 import { PackageConfig } from "./package-config";
+import { CommandRegistry } from "./command-registry";
 
 // -----------------------------------------------------------------------------------------
 // #region Interfaces
@@ -45,6 +46,7 @@ const DEFAULT_OPTIONS: Required<ListCommandsOptions> = {
     prefix: "- [ ] ",
     skipCache: false,
 };
+const FILTERED_STRINGS = ["\t", CommandRegistry.ALIAS_PREFIX];
 const OPTIONS_START_STRING = "Options:";
 const OPTIONS_END_STRING = Options.Help.toString();
 
@@ -180,7 +182,7 @@ const ListCommands = {
 // #region Private Functions
 // -----------------------------------------------------------------------------------------
 
-const _addOrUpdateDto = (updatedDto: ParsedCommandDto) => {
+const _addOrUpdateDto = (updatedDto: ParsedCommandDto): void => {
     const findByCommand = (existingDto: ParsedCommandDto) =>
         existingDto.command === updatedDto.command;
     const existing = _dtos.find(findByCommand) ?? {};
@@ -229,13 +231,15 @@ const _parseOutputByRange = (
 
     lines = lines
         .slice(startIndex + 1, endIndex + 1)
+        .filter(
+            (line) =>
+                !FILTERED_STRINGS.some((filteredString) =>
+                    line.includes(filteredString)
+                )
+        )
         // Commands and options both start with two spaces in the command help output
         .map((line) => line.split("  ")[1])
-        .filter(
-            // Some additional sanitization - empty lines obviously have no option or command in them
-            // and lines with tabs in them are more than likely custom command/option descriptions
-            (line) => StringUtils.hasValue(line) && !line.includes("\t")
-        );
+        .filter((line) => StringUtils.hasValue(line));
 
     if (!_options.includeHelp) {
         lines = lines.filter(
@@ -247,24 +251,38 @@ const _parseOutputByRange = (
     return lines;
 };
 
-const _echoFormatted = (value: string, indent: number = 0) =>
+const _echoFormatted = (value: string, indent: number = 0): void =>
     Echo.message(`${" ".repeat(indent)}${_options.prefix}${value}`, false);
+
+const _execCliHelp = (command?: string): string | never => {
+    const helpCommand = ListCommands.cmd(command);
+    const { code, stderr, stdout } = shell.exec(helpCommand, { silent: true });
+
+    const coloredHelpCommand = Formatters.purple(helpCommand);
+    Echo.message(`Running ${coloredHelpCommand} for commands and options...`);
+
+    if (code !== 0 || StringUtils.hasValue(stderr)) {
+        const coloredError = Formatters.red(stderr);
+        Echo.error(`Failed to run ${coloredHelpCommand}:\n\n${coloredError}`);
+        shell.exit(1);
+    }
+
+    return stdout;
+};
 
 const _getChildren = (parent: ParsedCommandDto): ParsedCommandDto[] =>
     _dtos.filter((child: ParsedCommandDto) => child.parent === parent.command);
 
-const _getParentCommandsOrDefault = (commands: ParsedCommandDto[]) => {
+const _getParentCommandsOrDefault = (
+    commands: ParsedCommandDto[]
+): ParsedCommandDto[] => {
     const parents = commands.filter((command) => command.parent == null);
 
     return CollectionUtils.hasValues(parents) ? parents : commands;
 };
 
-const _parseChildrenAndOptions = (command?: string) => {
-    const helpCommand = ListCommands.cmd(command);
-    const { stdout } = shell.exec(helpCommand, { silent: true });
-
-    const coloredHelpCommand = Formatters.purple(helpCommand);
-    Echo.message(`Running ${coloredHelpCommand} for commands and options...`);
+const _parseChildrenAndOptions = (command?: string): void => {
+    const stdout = _execCliHelp(command);
 
     const children = _parseChildren(stdout);
 
@@ -286,10 +304,10 @@ const _parseChildrenAndOptions = (command?: string) => {
     _addOrUpdateDto(dto);
 };
 
-const _parseChildren = (output: string) =>
+const _parseChildren = (output: string): string[] =>
     _parseOutputByRange(output, COMMANDS_START_STRING, COMMANDS_END_STRING);
 
-const _parseOptions = (output: string) =>
+const _parseOptions = (output: string): string[] =>
     _parseOutputByRange(output, OPTIONS_START_STRING, OPTIONS_END_STRING);
 
 // #endregion Private Functions

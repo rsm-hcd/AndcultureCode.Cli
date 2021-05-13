@@ -52,6 +52,7 @@ let _cachedConfig: CommandRegistryConfiguration = {};
 // -----------------------------------------------------------------------------------------
 
 const CommandRegistry = {
+    ALIAS_PREFIX,
     /**
      * Clears out all command registered with the program.
      *
