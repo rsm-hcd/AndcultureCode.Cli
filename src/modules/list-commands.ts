@@ -34,7 +34,8 @@ interface ParsedCommandDto {
 
 const { CLI_NAME, CLI_CONFIG_DIR } = Constants;
 const { shortFlag: helpFlag } = Options.Help;
-const CACHE_FILENAME = "commands.json";
+const BIN_NAME = PackageConfig.getLocalBinName() ?? CLI_NAME;
+const CACHE_FILENAME = `commands.${BIN_NAME}.json`;
 const CACHE_PATH = upath.join(os.homedir(), CLI_CONFIG_DIR, CACHE_FILENAME);
 const COMMANDS_START_STRING = "Commands:";
 const COMMANDS_END_STRING = "help [command]";
@@ -68,12 +69,11 @@ let _options: Required<ListCommandsOptions> = { ...DEFAULT_OPTIONS };
 const ListCommands = {
     DEFAULT_OPTIONS,
     cmd(command?: string): string {
-        const binName = PackageConfig.getLocalBinName() ?? CLI_NAME;
         if (StringUtils.isEmpty(command)) {
-            return `${binName} ${helpFlag}`;
+            return `${BIN_NAME} ${helpFlag}`;
         }
 
-        return `${binName} ${command} ${helpFlag}`;
+        return `${BIN_NAME} ${command} ${helpFlag}`;
     },
     description(): string {
         return CommandDefinitions.list.description;
