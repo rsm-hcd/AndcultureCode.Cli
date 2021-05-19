@@ -262,8 +262,12 @@ const _execCliHelp = (command?: string): string | never => {
     Echo.message(`Running ${coloredHelpCommand} for commands and options...`);
 
     if (code !== 0 || StringUtils.hasValue(stderr)) {
-        const coloredError = Formatters.red(stderr);
-        Echo.error(`Failed to run ${coloredHelpCommand}:\n\n${coloredError}`);
+        const coloredError = Formatters.red(
+            StringUtils.hasValue(stderr)
+                ? `\n\n${stderr}`
+                : `exited with code ${code}`
+        );
+        Echo.error(`Failed to run ${coloredHelpCommand}: ${coloredError}`);
         shell.exit(1);
     }
 
