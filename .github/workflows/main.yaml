@@ -78,12 +78,13 @@ jobs:
             - name: npm install
               run: |
                   npm install
-                  npm install -g codecov
 
             - name: Unit tests
               run: |
                   npm run test:unit
-                  codecov --disable=gcov
+
+            - name: Upload to codecov
+              uses: codecov/codecov-action@v1
 
             - name: Setup .NET Core SDK ${{matrix.dotnet}}
               uses: actions/setup-dotnet@v1.7.2
