@@ -1,6 +1,5 @@
 import { CollectionUtils, StringUtils } from "andculturecode-javascript-core";
 import { Options } from "../constants/options";
-import { CommandDefinitionUtils } from "../utilities/command-definition-utils";
 import { Constants } from "./constants";
 import { Echo } from "./echo";
 import { Formatters } from "./formatters";
@@ -11,6 +10,8 @@ import fs from "fs";
 import { File } from "./file";
 import { ListCommandsOptions } from "../interfaces/list-commands-options";
 import { CommandDefinitions } from "./command-definitions";
+import { PackageConfig } from "./package-config";
+import { CommandRegistry } from "./command-registry";
 
 // -----------------------------------------------------------------------------------------
 // #region Interfaces
@@ -31,10 +32,10 @@ interface ParsedCommandDto {
 // #region Constants
 // -----------------------------------------------------------------------------------------
 
-const { CLI_CONFIG_DIR, DIST, ENTRYPOINT } = Constants;
-const { difference, hasValues } = CollectionUtils;
+const { CLI_NAME, CLI_CONFIG_DIR } = Constants;
 const { shortFlag: helpFlag } = Options.Help;
-const CACHE_FILENAME = "commands.json";
+const BIN_NAME = PackageConfig.getLocalBinName() ?? CLI_NAME;
+const CACHE_FILENAME = `commands.${BIN_NAME}.json`;
 const CACHE_PATH = upath.join(os.homedir(), CLI_CONFIG_DIR, CACHE_FILENAME);
 const COMMANDS_START_STRING = "Commands:";
 const COMMANDS_END_STRING = "help [command]";
@@ -46,9 +47,9 @@ const DEFAULT_OPTIONS: Required<ListCommandsOptions> = {
     prefix: "- [ ] ",
     skipCache: false,
 };
+const FILTERED_STRINGS = ["\t", CommandRegistry.ALIAS_PREFIX];
 const OPTIONS_START_STRING = "Options:";
 const OPTIONS_END_STRING = Options.Help.toString();
-const PARENT_COMMANDS = CommandDefinitionUtils.getNames();
 
 // #endregion Constants
 
@@ -67,25 +68,18 @@ let _options: Required<ListCommandsOptions> = { ...DEFAULT_OPTIONS };
 
 const ListCommands = {
     DEFAULT_OPTIONS,
-    cmd(command: string): string {
-        const cliEntrypoint = upath.join(".", DIST, ENTRYPOINT);
-        return `node ${cliEntrypoint} ${command} ${helpFlag}`;
+    cmd(command?: string): string {
+        if (StringUtils.isEmpty(command)) {
+            return `${BIN_NAME} ${helpFlag}`;
+        }
+
+        return `${BIN_NAME} ${command} ${helpFlag}`;
     },
     description(): string {
         return CommandDefinitions.list.description;
     },
-    diffParentCommands(): boolean {
-        const cachedParentCommands = _getParentCommandsOrDefault(_dtos).map(
-            (dto) => dto.command
-        );
-
-        return (
-            hasValues(difference(PARENT_COMMANDS, cachedParentCommands)) ||
-            hasValues(difference(cachedParentCommands, PARENT_COMMANDS))
-        );
-    },
     parse(): void {
-        PARENT_COMMANDS.forEach(_parseChildrenAndOptions);
+        _parseChildrenAndOptions();
     },
     parseOrReadCache(): void {
         if (_options.skipCache) {
@@ -95,15 +89,8 @@ const ListCommands = {
         }
 
         this.readCachedFile();
-        const parentCommandsDiffer = this.diffParentCommands();
-        if (hasValues(_dtos) && !parentCommandsDiffer) {
+        if (CollectionUtils.hasValues(_dtos)) {
             return;
-        }
-
-        if (hasValues(_dtos) && parentCommandsDiffer) {
-            Echo.message(
-                "Detected changes in parent commands that are not yet saved to the cache file - rebuilding."
-            );
         }
 
         this.resetCache();
@@ -195,7 +182,7 @@ const ListCommands = {
 // #region Private Functions
 // -----------------------------------------------------------------------------------------
 
-const _addOrUpdateDto = (updatedDto: ParsedCommandDto) => {
+const _addOrUpdateDto = (updatedDto: ParsedCommandDto): void => {
     const findByCommand = (existingDto: ParsedCommandDto) =>
         existingDto.command === updatedDto.command;
     const existing = _dtos.find(findByCommand) ?? {};
@@ -244,13 +231,15 @@ const _parseOutputByRange = (
 
     lines = lines
         .slice(startIndex + 1, endIndex + 1)
+        .filter(
+            (line) =>
+                !FILTERED_STRINGS.some((filteredString) =>
+                    line.includes(filteredString)
+                )
+        )
         // Commands and options both start with two spaces in the command help output
         .map((line) => line.split("  ")[1])
-        .filter(
-            // Some additional sanitization - empty lines obviously have no option or command in them
-            // and lines with tabs in them are more than likely custom command/option descriptions
-            (line) => StringUtils.hasValue(line) && !line.includes("\t")
-        );
+        .filter((line) => StringUtils.hasValue(line));
 
     if (!_options.includeHelp) {
         lines = lines.filter(
@@ -262,37 +251,67 @@ const _parseOutputByRange = (
     return lines;
 };
 
-const _echoFormatted = (value: string, indent: number = 0) =>
+const _echoFormatted = (value: string, indent: number = 0): void =>
     Echo.message(`${" ".repeat(indent)}${_options.prefix}${value}`, false);
+
+const _execCliHelp = (command?: string): string | never => {
+    const helpCommand = ListCommands.cmd(command);
+    const { code, stderr, stdout } = shell.exec(helpCommand, { silent: true });
+
+    const coloredHelpCommand = Formatters.purple(helpCommand);
+    Echo.message(`Running ${coloredHelpCommand} for commands and options...`);
+
+    if (code !== 0 || StringUtils.hasValue(stderr)) {
+        const coloredError = Formatters.red(
+            StringUtils.hasValue(stderr)
+                ? `\n\n${stderr}`
+                : `exited with code ${code}`
+        );
+        Echo.error(`Failed to run ${coloredHelpCommand}: ${coloredError}`);
+        shell.exit(1);
+    }
+
+    return stdout;
+};
 
 const _getChildren = (parent: ParsedCommandDto): ParsedCommandDto[] =>
     _dtos.filter((child: ParsedCommandDto) => child.parent === parent.command);
 
-const _getParentCommandsOrDefault = (commands: ParsedCommandDto[]) => {
+const _getParentCommandsOrDefault = (
+    commands: ParsedCommandDto[]
+): ParsedCommandDto[] => {
     const parents = commands.filter((command) => command.parent == null);
 
-    return hasValues(parents) ? parents : commands;
+    return CollectionUtils.hasValues(parents) ? parents : commands;
 };
 
-const _parseChildrenAndOptions = (command: string) => {
-    const { stdout } = shell.exec(ListCommands.cmd(command), { silent: true });
+const _parseChildrenAndOptions = (command?: string): void => {
+    const stdout = _execCliHelp(command);
 
     const children = _parseChildren(stdout);
 
-    children.forEach((child: string) =>
-        // Recursively parse children/options
-        _parseChildrenAndOptions(`${command} ${child}`)
-    );
+    children.forEach((child: string) => {
+        if (StringUtils.hasValue(command)) {
+            _parseChildrenAndOptions(`${command} ${child}`);
+            return;
+        }
+
+        _parseChildrenAndOptions(child);
+    });
+
+    if (StringUtils.isEmpty(command)) {
+        return;
+    }
 
     const options = _parseOptions(stdout);
     const dto = _buildDto(command, options);
     _addOrUpdateDto(dto);
 };
 
-const _parseChildren = (output: string) =>
+const _parseChildren = (output: string): string[] =>
     _parseOutputByRange(output, COMMANDS_START_STRING, COMMANDS_END_STRING);
 
-const _parseOptions = (output: string) =>
+const _parseOptions = (output: string): string[] =>
     _parseOutputByRange(output, OPTIONS_START_STRING, OPTIONS_END_STRING);
 
 // #endregion Private Functions

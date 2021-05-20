@@ -47,11 +47,19 @@ let _cachedConfig: CommandRegistryConfiguration = {};
 
 // #endregion Variables
 
-// -----------------------------------------------------------------------------------------
-// #region Public Functions
-// -----------------------------------------------------------------------------------------
-
 const CommandRegistry = {
+    // -----------------------------------------------------------------------------------------
+    // #region Public Members
+    // -----------------------------------------------------------------------------------------
+
+    ALIAS_PREFIX,
+
+    // #endregion Public Members
+
+    // -----------------------------------------------------------------------------------------
+    // #region Public Functions
+    // -----------------------------------------------------------------------------------------
+
     /**
      * Clears out all command registered with the program.
      *
@@ -314,9 +322,9 @@ const CommandRegistry = {
         CommandUtils.remove(name);
         return this;
     },
-};
 
-// #endregion Public Functions
+    // #endregion Public Functions
+};
 
 // -----------------------------------------------------------------------------------------
 // #region Private Functions
