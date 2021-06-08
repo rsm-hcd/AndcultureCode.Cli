@@ -1,6 +1,6 @@
 # AndcultureCode.Cli
 
-[![Build Status](https://travis-ci.org/AndcultureCode/AndcultureCode.Cli.svg?branch=master)](https://travis-ci.org/AndcultureCode/AndcultureCode.Cli)
+![build status](https://github.com/AndcultureCode/AndcultureCode.Cli/actions/workflows/main.yaml/badge.svg)
 [![codecov](https://codecov.io/gh/AndcultureCode/AndcultureCode.Cli/branch/master/graph/badge.svg)](https://codecov.io/gh/AndcultureCode/AndcultureCode.Cli)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
