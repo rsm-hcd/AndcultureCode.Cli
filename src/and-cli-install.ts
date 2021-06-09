@@ -9,9 +9,10 @@ import { Formatters } from "./modules/formatters";
 import { Js } from "./modules/js";
 import { PackageConfig } from "./modules/package-config";
 import program from "commander";
-import shell from "shelljs";
+import shell, { ShellString } from "shelljs";
 import upath from "upath";
 import { CommandRunner } from "./modules/command-runner";
+import { OptionStringBuilder } from "./utilities/option-string-builder";
 
 CommandRunner.run(async () => {
     // -----------------------------------------------------------------------------------------
@@ -19,6 +20,7 @@ CommandRunner.run(async () => {
     // -----------------------------------------------------------------------------------------
 
     const { CLI_NAME, ENTRYPOINT } = Constants;
+    const CLEAR_OPTION = new OptionStringBuilder("clear", "c");
 
     // #endregion Constants
 
@@ -63,11 +65,11 @@ CommandRunner.run(async () => {
     // #region Private Functions
     // -----------------------------------------------------------------------------------------
 
-    const _bashFileContains = (text: string): boolean => {
-        return StringUtils.hasValue(
-            shell.cat(File.bashFile()).grep(text).stdout
-        );
-    };
+    const _appendBashFile = (text: string) =>
+        shell.echo(text).toEnd(File.bashFile());
+
+    const _bashFileContains = (text: string): boolean =>
+        StringUtils.hasValue(_grepBashFile(text));
 
     const _echoInstallErrorAndExit = (code: number): never => {
         Echo.error(`There was an error installing the package: ${code}`);
@@ -83,6 +85,12 @@ CommandRunner.run(async () => {
 
         return true;
     };
+
+    const _grepBashFile = (text: string): string =>
+        shell.cat(File.bashFile()).grep(text).stdout;
+
+    const _grepBashFileWithoutAliases = (): ShellString =>
+        shell.cat(File.bashFile()).grep("-v", CLI_NAME);
 
     const _installAndCliGlobally = (): void => {
         const cmd = install.cmd(CLI_NAME);
@@ -116,11 +124,20 @@ CommandRunner.run(async () => {
             return;
         }
 
-        _writeToBashFile("");
-        _writeToBashFile(
+        if (_bashFileContains(andCliDev)) {
+            Echo.warn(`${andCliDev} bash alias exists for different directory`);
+            Echo.message(`Expected: ${Formatters.purple(developerAlias)}`);
+            Echo.message(
+                `Found:    ${Formatters.yellow(_grepBashFile(andCliDev))}`
+            );
+            return;
+        }
+
+        _appendBashFile("");
+        _appendBashFile(
             `# ${CLI_NAME} global development alias pointing to your fork of the repository`
         );
-        _writeToBashFile(developerAlias);
+        _appendBashFile(developerAlias);
 
         Echo.success(`Successfully installed ${andCliDev} alias`);
     };
@@ -156,16 +173,13 @@ CommandRunner.run(async () => {
             return;
         }
 
-        _writeToBashFile("");
-        _writeToBashFile(`# ${CLI_NAME} project-level alias`);
-        _writeToBashFile(projectAlias);
+        _appendBashFile("");
+        _appendBashFile(`# ${CLI_NAME} project-level alias`);
+        _appendBashFile(projectAlias);
 
         Echo.success(`Successfully installed ${CLI_NAME} bash alias`);
         Echo.newLine();
     };
-
-    const _writeToBashFile = (text: string) =>
-        shell.echo(text).toEnd(File.bashFile());
 
     // #endregion Private Functions
 
@@ -176,7 +190,18 @@ CommandRunner.run(async () => {
     program
         .usage("option(s)")
         .description(CommandDefinitions.install.description)
+        .option(
+            CLEAR_OPTION.toString(),
+            `Clear any existing aliases in ${File.bashFile()}`
+        )
         .parse(process.argv);
+
+    const { clear } = program.opts();
+    if (clear === true) {
+        Echo.message(`Clearing aliases from ${File.bashFile()}...`);
+        _grepBashFileWithoutAliases().to(File.bashFile());
+        return;
+    }
 
     // If no options are passed in, performs installation steps
     if (Js.hasNoArguments()) {
