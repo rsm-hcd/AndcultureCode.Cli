@@ -63,11 +63,8 @@ CommandRunner.run(async () => {
     // #region Private Functions
     // -----------------------------------------------------------------------------------------
 
-    const _bashFileContains = (text: string): boolean => {
-        return StringUtils.hasValue(
-            shell.cat(File.bashFile()).grep(text).stdout
-        );
-    };
+    const _bashFileContains = (text: string): boolean =>
+        StringUtils.hasValue(_grepBashFile(text));
 
     const _echoInstallErrorAndExit = (code: number): never => {
         Echo.error(`There was an error installing the package: ${code}`);
@@ -83,6 +80,9 @@ CommandRunner.run(async () => {
 
         return true;
     };
+
+    const _grepBashFile = (text: string): string =>
+        shell.cat(File.bashFile()).grep(text).stdout;
 
     const _installAndCliGlobally = (): void => {
         const cmd = install.cmd(CLI_NAME);
@@ -113,6 +113,15 @@ CommandRunner.run(async () => {
         if (_bashFileContains(developerAlias)) {
             Echo.success(`${andCliDev} bash alias already installed`);
             Echo.newLine();
+            return;
+        }
+
+        if (_bashFileContains(andCliDev)) {
+            Echo.warn(`${andCliDev} bash alias exists for different directory`);
+            Echo.message(`Expected: ${Formatters.purple(developerAlias)}`);
+            Echo.message(
+                `Found:    ${Formatters.yellow(_grepBashFile(andCliDev))}`
+            );
             return;
         }
 
