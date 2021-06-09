@@ -65,10 +65,19 @@ const CommandDefinitions: BaseCommandDefinitions = {
         description:
             "Commands for interacting with AndcultureCode github resources",
     },
+    healthCheck: {
+        command: "health-check",
+        description:
+            "Send a web request to a given endpoint on an interval to verify the HTTP response code",
+    },
     install: {
         command: "install",
         description:
             "Collection of commands related to installation and configuration of the and-cli",
+    },
+    list: {
+        command: "list",
+        description: "List all commands/options",
     },
     migration: {
         command: "migration",
@@ -82,6 +91,12 @@ const CommandDefinitions: BaseCommandDefinitions = {
         command: "restore",
         description:
             "Restores application data assets for various application types",
+        children: {
+            azureStorage: {
+                command: "azure-storage",
+                description: "Restore application assets in Azure Storage",
+            },
+        },
     },
     webpack: {
         command: "webpack",
