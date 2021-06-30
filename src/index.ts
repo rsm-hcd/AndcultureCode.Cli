@@ -11,7 +11,6 @@ export { program } from "./and-cli";
 // -----------------------------------------------------------------------------------------
 
 export { MigrationMode } from "./enums/migration-mode";
-export { NugetCommand } from "./enums/nuget-command";
 
 // #endregion Enums
 
