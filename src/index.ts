@@ -20,6 +20,7 @@ export { MigrationMode } from "./enums/migration-mode";
 
 export { AsyncReadlineInterface } from "./interfaces/async-readline-interface";
 export { CommandDefinition } from "./interfaces/command-definition";
+export { GitPushOptions } from "./interfaces/git-push-options";
 export { Issue } from "./interfaces/github/issue";
 export { Label } from "./interfaces/github/label";
 export { ListCommandsOptions } from "./interfaces/list-commands-options";
@@ -59,6 +60,7 @@ export { Js } from "./modules/js";
 export { Migration } from "./modules/migration";
 export { NodeClean } from "./modules/node-clean";
 export { NodeRestore } from "./modules/node-restore";
+export { NugetPublish } from "./modules/nuget-publish";
 export { NugetUpgrade } from "./modules/nuget-upgrade";
 export { PackageConfig } from "./modules/package-config";
 export { Prompt } from "./modules/prompt";

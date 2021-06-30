@@ -28,7 +28,7 @@ CommandRunner.run(async () => {
     const { publish, upgrade } = program.opts();
 
     if (publish != null) {
-        NugetPublish.run(publish);
+        await NugetPublish.run(publish);
         return;
     }
 

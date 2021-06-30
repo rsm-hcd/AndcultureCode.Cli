@@ -5,6 +5,8 @@ import { DotnetPath } from "./dotnet-path";
 import { Echo } from "./echo";
 import shell, { ShellString } from "shelljs";
 import { Constants } from "./constants";
+import { Prompt } from "./prompt";
+import { Git } from "./git";
 
 // -----------------------------------------------------------------------------------------
 // #region Constants
@@ -26,7 +28,7 @@ const NugetPublish = {
     getOptions() {
         return new OptionStringBuilder("publish <version>", "p");
     },
-    run(version: string) {
+    async run(version: string) {
         // Verify the solution path can be found or exit
         DotnetPath.solutionPathOrExit();
 
@@ -39,8 +41,7 @@ const NugetPublish = {
         Echo.message(`Publishing version '${version}'...`);
 
         // Update version number in .csproj files
-        const updateVersion = _replaceCsprojVersion(version);
-        shell.ls("**/*.csproj").forEach(updateVersion);
+        shell.ls("**/*.csproj").forEach(_replaceCsprojVersion(version));
 
         // Create new nupkg file
         const packCmd = _packCmd();
@@ -69,7 +70,13 @@ const NugetPublish = {
             shell.exit(1);
         }
 
-        Echo.success(`Successfully published version ${version}`);
+        await Prompt.confirmOrExit(
+            `Successfully published version ${version}. Do you want to commit and push the changes?`
+        );
+
+        Git.addAll();
+        Git.commitRev(version);
+        Git.push();
     },
 };
 
