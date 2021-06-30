@@ -28,32 +28,6 @@ const Git = {
     },
 
     /**
-     * Record changes to the repository
-     * @see https://git-scm.com/docs/git-commit
-     */
-    commit(message: string): boolean {
-        if (StringUtils.isEmpty(message)) {
-            Echo.error(`Invalid commit message provided: ${message}`);
-            return false;
-        }
-
-        const command = `git commit -m "${message}"`;
-        return _exec(command);
-    },
-
-    /**
-     * Commits a version revision with a standard message
-     */
-    commitRev(version: string): boolean {
-        if (!Constants.VERSION_REGEX_PATTERN.test(version)) {
-            Echo.error(Constants.ERROR_INVALID_VERSION_STRING);
-            return false;
-        }
-
-        return this.commit(`Rev'd to ${version}`);
-    },
-
-    /**
      * Configures a new remote when run in root of git repository
      * @param {string} name local identifier for a new remote
      * @param {string} url absolute url corresponding to remote destination
@@ -95,6 +69,32 @@ const Git = {
         }
 
         return true;
+    },
+
+    /**
+     * Record changes to the repository
+     * @see https://git-scm.com/docs/git-commit
+     */
+    commit(message: string): boolean {
+        if (StringUtils.isEmpty(message)) {
+            Echo.error(`Invalid commit message provided: ${message}`);
+            return false;
+        }
+
+        const command = `git commit -m "${message}"`;
+        return _exec(command);
+    },
+
+    /**
+     * Commits a version revision with a standard message
+     */
+    commitRev(version: string): boolean {
+        if (!Constants.VERSION_REGEX_PATTERN.test(version)) {
+            Echo.error(Constants.ERROR_INVALID_VERSION_STRING);
+            return false;
+        }
+
+        return this.commit(`Rev'd to ${version}`);
     },
 
     /**
