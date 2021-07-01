@@ -1,10 +1,10 @@
 # AndcultureCode.Cli
 
-![build status](https://github.com/AndcultureCode/AndcultureCode.Cli/actions/workflows/main.yaml/badge.svg)
-[![codecov](https://codecov.io/gh/AndcultureCode/AndcultureCode.Cli/branch/master/graph/badge.svg)](https://codecov.io/gh/AndcultureCode/AndcultureCode.Cli)
+![build status](https://github.com/AndcultureCode/AndcultureCode.Cli/actions/workflows/build.yaml/badge.svg)
+[![codecov](https://codecov.io/gh/AndcultureCode/AndcultureCode.Cli/branch/main/graph/badge.svg)](https://codecov.io/gh/AndcultureCode/AndcultureCode.Cli)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-9-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-10-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 `and-cli` command-line tool to manage the development of software applications.
@@ -284,7 +284,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tr>
     <td align="center"><a href="https://github.com/brandongregoryscott"><img src="https://avatars.githubusercontent.com/u/11774799?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Brandon Scott</b></sub></a><br /><a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=brandongregoryscott" title="Code">💻</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=brandongregoryscott" title="Documentation">📖</a> <a href="#infra-brandongregoryscott" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#maintenance-brandongregoryscott" title="Maintenance">🚧</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=brandongregoryscott" title="Tests">⚠️</a></td>
-    <td align="center"><a href="http://resume.dylanjustice.com"><img src="https://avatars.githubusercontent.com/u/22502365?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Dylan Justice</b></sub></a><br /><a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=dylanjustice" title="Code">💻</a> <a href="#maintenance-dylanjustice" title="Maintenance">🚧</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=dylanjustice" title="Tests">⚠️</a></td>
+    <td align="center"><a href="http://resume.dylanjustice.com"><img src="https://avatars.githubusercontent.com/u/22502365?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Dylan Justice</b></sub></a><br /><a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=dylanjustice" title="Code">💻</a> <a href="#maintenance-dylanjustice" title="Maintenance">🚧</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=dylanjustice" title="Tests">⚠️</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/pulls?q=is%3Apr+reviewed-by%3Adylanjustice" title="Reviewed Pull Requests">👀</a></td>
     <td align="center"><a href="http://www.winton.me/"><img src="https://avatars.githubusercontent.com/u/48424?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Winton DeShong</b></sub></a><br /><a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=wintondeshong" title="Code">💻</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=wintondeshong" title="Documentation">📖</a> <a href="#maintenance-wintondeshong" title="Maintenance">🚧</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=wintondeshong" title="Tests">⚠️</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/pulls?q=is%3Apr+reviewed-by%3Awintondeshong" title="Reviewed Pull Requests">👀</a></td>
     <td align="center"><a href="https://github.com/KevinBusch"><img src="https://avatars.githubusercontent.com/u/775414?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Kevin Busch</b></sub></a><br /><a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=KevinBusch" title="Code">💻</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/commits?author=KevinBusch" title="Tests">⚠️</a> <a href="https://github.com/AndcultureCode/AndcultureCode.Cli/pulls?q=is%3Apr+reviewed-by%3AKevinBusch" title="Reviewed Pull Requests">👀</a></td>
     <td align="center"><a href="https://github.com/cspath1"><img src="https://avatars.githubusercontent.com/u/26265706?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Cody Spath</b></sub></a><br /><a href="https://github.com/AndcultureCode/AndcultureCode.Cli/pulls?q=is%3Apr+reviewed-by%3Acspath1" title="Reviewed Pull Requests">👀</a></td>
@@ -294,6 +294,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   <tr>
     <td align="center"><a href="http://mytydev.com"><img src="https://avatars.githubusercontent.com/u/37794?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Michael Tyson</b></sub></a><br /><a href="https://github.com/AndcultureCode/AndcultureCode.Cli/pulls?q=is%3Apr+reviewed-by%3Amyty" title="Reviewed Pull Requests">👀</a></td>
     <td align="center"><a href="https://github.com/jhugs"><img src="https://avatars.githubusercontent.com/u/14300627?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Joshua Hughes</b></sub></a><br /><a href="https://github.com/AndcultureCode/AndcultureCode.Cli/pulls?q=is%3Apr+reviewed-by%3Ajhugs" title="Reviewed Pull Requests">👀</a></td>
+    <td align="center"><a href="https://github.com/jstevenson"><img src="https://avatars.githubusercontent.com/u/91424?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Jim Stevenson</b></sub></a><br /><a href="https://github.com/AndcultureCode/AndcultureCode.Cli/pulls?q=is%3Apr+reviewed-by%3Ajstevenson" title="Reviewed Pull Requests">👀</a></td>
   </tr>
 </table>
 
