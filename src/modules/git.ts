@@ -2,12 +2,31 @@ import { Echo } from "./echo";
 import fs from "fs";
 import shell, { ExecOutputReturnValue } from "shelljs";
 import { StringUtils } from "andculturecode-javascript-core";
+import { Constants } from "./constants";
+import { GitPushOptions } from "../interfaces/git-push-options";
 
 // -----------------------------------------------------------------------------------------
-// #region Public Members
+// #region Public Functions
 // -----------------------------------------------------------------------------------------
 
 const Git = {
+    /**
+     * Stages provided 'pathspecs' for committing
+     * @see https://git-scm.com/docs/git-add#Documentation/git-add.txt-ltpathspecgt82308203
+     */
+    add(...pathspecs: string[]): boolean {
+        const command = `git add ${pathspecs.join(" ")}`;
+        return _exec(command);
+    },
+
+    /**
+     * Adds all tracked files (ie `git add -A`)
+     * @see https://git-scm.com/docs/git-add#Documentation/git-add.txt--A
+     */
+    addAll(): boolean {
+        return this.add("-A");
+    },
+
     /**
      * Configures a new remote when run in root of git repository
      * @param {string} name local identifier for a new remote
@@ -22,7 +41,7 @@ const Git = {
         }
 
         const command = `git remote add ${name} ${url}`;
-        return shell.exec(command).code === 0;
+        return _exec(command);
     },
 
     /**
@@ -50,6 +69,32 @@ const Git = {
         }
 
         return true;
+    },
+
+    /**
+     * Record changes to the repository
+     * @see https://git-scm.com/docs/git-commit
+     */
+    commit(message: string): boolean {
+        if (StringUtils.isEmpty(message)) {
+            Echo.error(`Invalid commit message provided: ${message}`);
+            return false;
+        }
+
+        const command = `git commit -m "${message}"`;
+        return _exec(command);
+    },
+
+    /**
+     * Commits a version revision with a standard message
+     */
+    commitRev(version: string): boolean {
+        if (!Constants.VERSION_REGEX_PATTERN.test(version)) {
+            Echo.error(Constants.ERROR_INVALID_VERSION_STRING);
+            return false;
+        }
+
+        return this.commit(`Rev'd to ${version}`);
     },
 
     /**
@@ -93,9 +138,29 @@ const Git = {
     openWebBrowser(url: string) {
         shell.exec(`git web--browse ${url}`);
     },
+
+    /**
+     * Pushes commits to the remote repository
+     */
+    push(options?: GitPushOptions): boolean {
+        let command = "git push";
+        if (options?.dryRun === true) {
+            command = `${command} --dry-run`;
+        }
+
+        return _exec(command);
+    },
 };
 
-// #endregion Public Members
+// #endregion Public Functions
+
+// -----------------------------------------------------------------------------------------
+// #region Private Functions
+// -----------------------------------------------------------------------------------------
+
+const _exec = (command: string): boolean => shell.exec(command).code === 0;
+
+// #endregion Private Functions
 
 // -----------------------------------------------------------------------------------------
 // #region Exports
