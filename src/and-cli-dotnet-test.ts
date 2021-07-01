@@ -28,12 +28,17 @@ CommandRunner.run(async () => {
             "-s, --skip-clean",
             "Skips the clean, build, and restore steps before running the dotnet test runner. This will speed up sequential runs if intentionally running on the same assemblies."
         )
+        .option(
+            "-w, --watch",
+            "Run dotnet test in watch mode.  Only allowed for project specifc filters."
+        )
         .parse(process.argv);
 
     // Configure DotnetTest module based on passed in args/options
     DotnetTest.ciMode(program.ci)
         .filter(program.args)
         .skipClean(program.skipClean)
+        .watchMode(program.watch)
         .withCoverage(program.coverage);
 
     if (program.byProject === true) {
