@@ -1,4 +1,4 @@
-name: AndcultureCode.Cli
+name: build
 
 on:
     push:
@@ -32,15 +32,13 @@ jobs:
         if: always()
         strategy:
             matrix:
-                os:
-                    - windows-latest
-                dotnet:
-                    - 3.1
-                node:
-                    - 8.16.2
-                allowed-to-fail:
-                    - false
                 include:
+                    - {
+                          os: windows-latest,
+                          dotnet: 3.1,
+                          node: 8.16.2,
+                          allowed-to-fail: false,
+                      }
                     - {
                           os: macos-latest,
                           dotnet: 3.1,
@@ -94,7 +92,7 @@ jobs:
             - name: Force .NET Core ${{matrix.dotnet}} via global.json
               run: |
                   echo This step is only needed for macOS currently - see https://github.com/actions/setup-dotnet/issues/157
-                  DOTNET_VERSION=`ls ~/.dotnet/sdk/ | grep ${{matrix.dotnet}} | sort -r | head -1`
+                  DOTNET_VERSION=`ls ~/.dotnet/sdk/ | grep --fixed-strings ${{matrix.dotnet}} | sort -r | head -1`
                   echo Found $DOTNET_VERSION matching ${{matrix.dotnet}} in ~/.dotnet/sdk/
                   dotnet new globaljson --sdk-version "$DOTNET_VERSION"
               if: runner.os == 'macOS'
