@@ -100,6 +100,15 @@
       "contributions": [
         "review"
       ]
+    },
+    {
+      "login": "jstevenson",
+      "name": "Jim Stevenson",
+      "avatar_url": "https://avatars.githubusercontent.com/u/91424?v=4",
+      "profile": "https://github.com/jstevenson",
+      "contributions": [
+        "review"
+      ]
     }
   ],
   "contributorsPerLine": 7,
