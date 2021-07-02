@@ -57,12 +57,6 @@ jobs:
                           node: 14.17.2,
                           allowed-to-fail: true,
                       }
-                    - {
-                          os: windows-latest,
-                          dotnet: 3.1,
-                          node: 14.17.2,
-                          allowed-to-fail: true,
-                      }
         continue-on-error: ${{matrix.allowed-to-fail}}
 
         steps:
