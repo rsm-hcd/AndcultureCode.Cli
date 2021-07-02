@@ -30,7 +30,7 @@ CommandRunner.run(async () => {
         )
         .option(
             "-w, --watch",
-            "Run dotnet test in watch mode. Will only work when run on a single project (.csproj)."
+            "Run dotnet test in watch mode. Will only work when run against a single project (.csproj). For example: 'and-cli dotnet-test -w -- TestClass --project ./path/to/TestProject.csproj'"
         )
         .parse(process.argv);
 

@@ -1,7 +1,6 @@
 import { TestUtils } from "../tests/test-utils";
 import { DotnetBuild } from "./dotnet-build";
 import { DotnetTest } from "./dotnet-test";
-import child_process from "child_process";
 
 // -----------------------------------------------------------------------------------------
 // #region Mocks
@@ -63,16 +62,12 @@ describe("DotnetTest", () => {
 
     describe("watchMode", () => {
         const defaultArgs = ["test", "--no-build", "--no-restore"];
-        const spawnSyncSpy = jest.spyOn(child_process, "spawnSync");
 
-        beforeEach(() => {
-            spawnSyncSpy.mockReset();
-        });
-
-        describe("when watchMode is set to true", () => {
+        describe("when true", () => {
             it("it calls watch", () => {
                 // Arrange
                 const expected = ["watch", ...defaultArgs];
+                const spawnSyncSpy = TestUtils.spyOnSpawnSync();
 
                 // Act
                 DotnetTest.watchMode(true).runBySolution();
@@ -86,10 +81,11 @@ describe("DotnetTest", () => {
             });
         });
 
-        describe("when watchMode is set to false", () => {
+        describe("when false", () => {
             it("it does not call watch", () => {
                 // Arrange
                 const expected = [...defaultArgs];
+                const spawnSyncSpy = TestUtils.spyOnSpawnSync();
 
                 // Act
                 DotnetTest.watchMode(false).runBySolution();
