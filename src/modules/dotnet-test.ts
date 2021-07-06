@@ -56,6 +56,7 @@ const SKIP_CLEAN_OPTION_STRING: OptionStringBuilder = new OptionStringBuilder(
     "skip-clean",
     "s"
 );
+const WATCH_OPTION: string = "watch";
 
 const DOTNET_TEST_OPTIONS: Record<string, OptionStringBuilder> = {
     BY_PROJECT: BY_PROJECT_OPTION_STRING,
@@ -73,6 +74,7 @@ const DOTNET_TEST_OPTIONS: Record<string, OptionStringBuilder> = {
 let _ciMode: boolean = false;
 let _filter: string[] = [];
 let _skipClean: boolean = false;
+let _watchMode: boolean = false;
 let _withCoverage: boolean = false;
 
 // #endregion Variables
@@ -90,8 +92,12 @@ let _withCoverage: boolean = false;
  */
 const _buildCommandString = (project = "") => {
     const { cmd } = BASE_COMMAND_STRING;
+
+    // if watch mode is set to true, 'watch' needs to come first in the argument list
+    let args = _watchMode ? [WATCH_OPTION] : [];
+
     // Clone the args from the base command so we aren't manipulating the same references
-    let args = [...BASE_COMMAND_STRING.args];
+    args.push(...BASE_COMMAND_STRING.args);
 
     if (_withCoverage) {
         // The two coverage flags need to be pushed onto the args array before the project name
@@ -315,6 +321,13 @@ const DotnetTest = {
     skipClean(skipClean?: boolean) {
         if (skipClean != null) {
             _skipClean = skipClean;
+        }
+
+        return this;
+    },
+    watchMode(watchMode?: boolean) {
+        if (watchMode != null) {
+            _watchMode = watchMode;
         }
 
         return this;

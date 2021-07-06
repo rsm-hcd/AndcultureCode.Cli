@@ -36,31 +36,25 @@ jobs:
                     - {
                           os: windows-latest,
                           dotnet: 3.1,
-                          node: 8.16.2,
+                          node: 14.17.2,
                           allowed-to-fail: false,
                       }
                     - {
                           os: macos-latest,
                           dotnet: 3.1,
-                          node: 8.16.2,
+                          node: 14.17.2,
                           allowed-to-fail: true,
                       }
                     - {
                           os: ubuntu-latest,
                           dotnet: 3.1,
-                          node: 8.16.2,
+                          node: 14.17.2,
                           allowed-to-fail: true,
                       }
                     - {
                           os: windows-latest,
                           dotnet: 2.2,
-                          node: 8.16.2,
-                          allowed-to-fail: true,
-                      }
-                    - {
-                          os: windows-latest,
-                          dotnet: 3.1,
-                          node: 14.15.5,
+                          node: 14.17.2,
                           allowed-to-fail: true,
                       }
         continue-on-error: ${{matrix.allowed-to-fail}}
