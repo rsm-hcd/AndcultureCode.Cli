@@ -4,6 +4,7 @@ on:
     push:
         branches: ["*"]
     pull_request_target:
+        types: [ready_for_review]
         branches: [main]
     workflow_dispatch:
 
