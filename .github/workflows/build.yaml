@@ -3,7 +3,7 @@ name: build
 on:
     push:
         branches: ["*"]
-    pull_request_target:
+    pull_request:
         branches: [main]
     workflow_dispatch:
 
@@ -19,6 +19,7 @@ jobs:
         if: github.repository_owner == 'AndcultureCode'
         steps:
             - uses: voxmedia/github-action-slack-notify-build@v1
+              if: env.SLACK_BOT_TOKEN != ''
               with:
                   channel: company-andculture-code-ci
                   color: "#3278BD"
@@ -111,6 +112,7 @@ jobs:
         if: github.repository_owner == 'AndcultureCode' && success()
         steps:
             - uses: voxmedia/github-action-slack-notify-build@v1
+              if: env.SLACK_BOT_TOKEN != ''
               with:
                   channel: company-andculture-code-ci
                   color: good
@@ -122,6 +124,7 @@ jobs:
         if: github.repository_owner == 'AndcultureCode' && failure()
         steps:
             - uses: voxmedia/github-action-slack-notify-build@v1
+              if: env.SLACK_BOT_TOKEN != ''
               with:
                   channel: company-andculture-code-ci
                   color: danger
