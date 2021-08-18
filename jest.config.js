@@ -11,6 +11,7 @@ module.exports = {
     clearMocks: true,
     collectCoverage: true,
     coverageDirectory: "coverage",
+    coveragePathIgnorePatterns: ["src/tests"],
     modulePathIgnorePatterns: ["<rootDir>/dist"],
     preset: "ts-jest",
     restoreMocks: true,

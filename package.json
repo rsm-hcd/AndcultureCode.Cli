@@ -14,7 +14,6 @@
         "octokit-auth-netrc": "1.0.0",
         "ps-list": "6.2.0",
         "readline-promise": "1.0.4",
-        "require-all": "3.0.0",
         "shelljs": "0.8.4",
         "table": "6.0.4",
         "upath": "1.2.0"
@@ -45,7 +44,7 @@
         "typescript": "4.0.3"
     },
     "engines": {
-        "node": ">=8.0.0"
+        "node": ">=14"
     },
     "files": [
         "dist"
