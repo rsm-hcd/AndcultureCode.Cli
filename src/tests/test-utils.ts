@@ -135,6 +135,21 @@ const TestUtils = {
     },
 
     /**
+     * Locates the first Program.cs file for a dotnet project/solution
+     */
+    findProgramCs(): string | never {
+        const programCs = shell.ls("Program.cs")[0];
+
+        if (programCs != null) {
+            return programCs;
+        }
+
+        return _throwFatalError(
+            `Could not locate Program.cs in ${shell.pwd()}`
+        );
+    },
+
+    /**
      * Helper to easily check if tests run in continuous integration environment
      */
     isCI() {

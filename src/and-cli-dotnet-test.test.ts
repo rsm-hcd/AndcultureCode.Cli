@@ -14,7 +14,7 @@ import { DotnetTest } from "./modules/dotnet-test";
 
 const COMMAND = CommandDefinitions.dotnetTest.command;
 const OPTIONS = DotnetTest.getOptions();
-const TEST_RUN_SUCCESSFUL_REGEXP = /Test Run Successful/g;
+const TEST_RUN_SUCCESSFUL_REGEXP = /(Test Run Successful)|(Passed\!)/g;
 
 // #endregion Constants
 
