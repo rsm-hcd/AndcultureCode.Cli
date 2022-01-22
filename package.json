@@ -10,7 +10,7 @@
         "commander": "6.2.1",
         "find-package-json": "1.2.0",
         "fkill": "6.2.0",
-        "node-fetch": "2.6.1",
+        "node-fetch": "3.1.1",
         "octokit-auth-netrc": "1.0.0",
         "ps-list": "6.2.0",
         "readline-promise": "1.0.4",
